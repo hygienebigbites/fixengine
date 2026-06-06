@@ -265,6 +265,8 @@ function metaKey(cat,sub){return (cat||'').toLowerCase()+'|'+sub}
 function getMeta(cat,sub){const k=metaKey(cat,sub);if(SUBMETA[k])return SUBMETA[k];const old=PROBES[sub];return {checklist:old?old.slice():[],probes:[],solutions:[]}}
 const UMAP={'Gas Leak Smell':'critical','Regulator Issue':'critical','Pipeline':'critical','Safety Valve':'critical','AC Not Cooling':'high','MCB Tripping':'high','Water Leakage':'high','Pipeline Burst':'high','Refrigerator':'high','Deep Freezer':'high','Drain Blockage':'medium','Chimney/Hood':'medium','Gas Burner/Stove':'medium','Wall Crack':'low','Painting':'low','General Fumigation':'low'};
 const SLAH={critical:2,high:5,medium:12,low:24};
+const PRILABELS={critical:'🔴 Critical',high:'🟠 High',medium:'🟡 Medium',low:'🟢 Low'};
+const PRICOLORS={critical:'c',high:'h',medium:'m',low:'l'};
 
 let ATTS=[
   {id:'ATT-012',name:'Raj Kumar',phone:'9876543211',ini:'RK',skills:['HVAC','Electrical'],outs:['HSR01.BLR02','KOR01.BLR12','BTM01.BLR03','IND01.BLR01'],rating:4.3,jobs:142,load:1,max:5,weekOff:'Sunday',active:true,password:'1234',feedback:[]},
@@ -312,6 +314,48 @@ async function apiUpdate(tab,keyCol,keyValue,changes){
     return !!(json&&json.ok);
   }catch(e){return false;}
 }
+// PHASE 6: Purchase Order helpers
+let poSeq=0;
+function newPoId(){poSeq++;return 'PO-'+Date.now()+'-'+poSeq}
+async function apiUpdatePOsByTicket(ticketId,changes){
+  try{
+    const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'updatePOsByTicket',ticketId,changes})});
+    const json=await res.json();return !!(json&&json.ok);
+  }catch(e){return false;}
+}
+function writePO(t,c){
+  // Write or update a purchase row in Purchase_Orders
+  if(c.poId){
+    apiUpdate('Purchase_Orders','PO_ID',c.poId,{Pay_Status:c.payStatus,Remarks:c.remarks||''});
+  } else {
+    c.poId=newPoId();
+    apiAppend('Purchase_Orders',{
+      PO_ID:c.poId,Ticket_ID:t.id,Item_Name:c.item,
+      Quantity:c.qty,Unit:c.unit||'pcs',Rate:c.rate||c.amt,
+      Amount:c.amt,Shop_Name:c.shop||'',
+      QR_Uploaded:c.qrImg?'TRUE':'FALSE',
+      Bill_Uploaded:c.billImg?'TRUE':'FALSE',
+      Remarks:c.remarks||'',Pay_Status:c.payStatus,
+      Added_By:userName,Added_At:ts()
+    });
+  }
+}
+function writeApproval(t,itemCount,total){
+  apiAppend('Manager_Approvals',{
+    Approval_ID:'APR-'+Date.now(),Ticket_ID:t.id,
+    Approved_By:userName,Approval_Level:role,
+    Items_Approved:itemCount,Total_Amount:total,
+    Status:'approved',Approved_At:ts()
+  });
+}
+function writePayment(t,status,proof,remarks){
+  apiAppend('Finance_Payments',{
+    Payment_ID:'PAY-'+Date.now(),Ticket_ID:t.id,
+    Status:status,Amount_Paid:t.costs.filter(c=>c.payStatus==='done').reduce((s,c)=>s+c.amt,0),
+    Proof_Uploaded:proof?'TRUE':'FALSE',Proof_Link:'',
+    Remarks:remarks||'',Paid_By:userName,Paid_At:ts()
+  });
+}
 // PHASE 5B: write one history event to the Ticket_History tab (fire-and-forget)
 let histSeq=0;
 function writeHistory(ticketId,status,note,actionBy){
@@ -357,6 +401,29 @@ async function loadOutletsFromSheet(){
     if(o.Phone)phones[code]=String(o.Phone).trim();
   });
   if(codes.length){OL=codes;OUTPHONES=phones;}
+  return true;
+}
+
+// Load Priority_Rules from the sheet → rebuild SLAH and priority label/color maps
+async function loadPriorityRulesFromSheet(){
+  const rows=await apiRead('Priority_Rules');
+  if(!rows||!rows.length)return false;
+  const freshSLAH={};const freshLabels={};const freshColors={};
+  const colorMap={critical:'c',high:'h',medium:'m',low:'l'};
+  rows.forEach(r=>{
+    const id=String(r.Priority_ID||'').trim().toLowerCase();
+    if(!id)return;
+    const label=String(r.Priority_Label||id).trim();
+    const sla=parseInt(r.Default_SLA_Hours)||12;
+    freshSLAH[id]=sla;
+    freshLabels[id]=label;
+    freshColors[id]=colorMap[id]||'m';
+  });
+  if(Object.keys(freshSLAH).length){
+    Object.assign(SLAH,freshSLAH);
+    Object.assign(PRILABELS,freshLabels);
+    Object.assign(PRICOLORS,freshColors);
+  }
   return true;
 }
 
@@ -501,7 +568,7 @@ function ticketToSheetRow(t){
     Status:t.status,
     Raised_By:t.by||'',
     Assigned_To:t.att||'',
-    SLA_Deadline:t.sla||'',
+    SLA_Deadline:t.slaDeadline||new Date(Date.now()+(( SLAH[t.pri]||12)*3600000)).toISOString(),
     OTP:t.otp||'',
     OTP_Revealed:t.otpRevealed?'TRUE':'FALSE',
     Needs_Visit:t.locVisit?'TRUE':'FALSE',
@@ -513,6 +580,20 @@ function ticketToSheetRow(t){
 }
 
 // PHASE 5C: convert a sheet Tickets row back into an in-memory ticket object
+// PHASE 7 polish: compute a live SLA countdown string from a deadline ISO string
+function computeSLA(deadlineStr,status){
+  if(status==='closed')return '—';
+  if(!deadlineStr||deadlineStr==='—')return '—';
+  try{
+    const dl=new Date(deadlineStr);
+    if(isNaN(dl.getTime()))return deadlineStr;  // not a valid date — show as-is
+    const diffMs=dl-Date.now();
+    const totalMins=Math.round(Math.abs(diffMs)/60000);
+    const h=Math.floor(totalMins/60);const m=totalMins%60;
+    const sign=diffMs<0?'-':'+';
+    return sign+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  }catch(e){return deadlineStr;}
+}
 function sheetRowToTicket(r){
   const tf=v=>(v===true||String(v).toUpperCase()==='TRUE');
   const status=String(r.Status||'raised').trim();
@@ -523,7 +604,8 @@ function sheetRowToTicket(r){
     sub:String(r.SubCat_ID||'').trim(),
     out:String(r.Outlet_Code||'').trim(),
     pri:String(r.Priority_ID||'medium').trim(),
-    sla:String(r.SLA_Deadline||'—').trim(),
+    sla:computeSLA(String(r.SLA_Deadline||'—').trim(),String(r.Status||'').trim()),
+    slaDeadline:String(r.SLA_Deadline||'').trim(),
     status:status,
     att:String(r.Assigned_To||'').trim()||null,
     hist:[{s:status,t:String(r.Updated_At||r.Created_At||ts()),n:'Loaded from sheet'}],
@@ -548,6 +630,69 @@ async function loadTicketsFromSheet(){
   TKS=fresh;
   // recompute attender live load from the freshly-read tickets
   if(typeof ATTS!=='undefined')ATTS.forEach(a=>{a.load=TKS.filter(t=>t.att===a.id&&t.status!=='closed').length});
+  return true;
+}
+
+// PHASE 6: load Purchase_Orders from the sheet and attach to tickets
+async function loadPurchaseOrdersFromSheet(){
+  const rows=await apiRead('Purchase_Orders');
+  if(!rows)return false;
+  // Clear existing costs on all tickets first (avoid duplicates on reload)
+  TKS.forEach(t=>t.costs=[]);
+  rows.forEach(r=>{
+    const tid=String(r.Ticket_ID||'').trim();
+    if(!tid)return;
+    const t=TKS.find(x=>x.id===tid);
+    if(!t)return;
+    t.costs.push({
+      poId:String(r.PO_ID||'').trim(),
+      item:String(r.Item_Name||'').trim(),
+      qty:parseFloat(r.Quantity)||1,
+      unit:String(r.Unit||'pcs').trim(),
+      rate:parseFloat(r.Rate)||0,
+      amt:parseFloat(r.Amount)||0,
+      shop:String(r.Shop_Name||'').trim(),
+      remarks:String(r.Remarks||'').trim(),
+      qrImg:(r.QR_Uploaded===true||String(r.QR_Uploaded).toUpperCase()==='TRUE'),
+      billImg:(r.Bill_Uploaded===true||String(r.Bill_Uploaded).toUpperCase()==='TRUE'),
+      payStatus:String(r.Pay_Status||'mgr-pending').trim(),
+      approver:String(r.Approver||'').trim(),
+      addedAt:String(r.Added_At||'').trim(),
+      v:'mn',synced:true
+    });
+  });
+  return true;
+}
+
+// History reassembly: load Ticket_History and attach to tickets
+async function loadTicketHistoryFromSheet(){
+  const rows=await apiRead('Ticket_History');
+  if(!rows)return false;
+  // Clear existing history on all tickets first
+  TKS.forEach(t=>t.hist=[]);
+  // Group and attach
+  rows.forEach(r=>{
+    const tid=String(r.Ticket_ID||'').trim();
+    if(!tid)return;
+    const t=TKS.find(x=>x.id===tid);
+    if(!t)return;
+    t.hist.push({
+      s:String(r.Status||'').trim(),
+      t:String(r.Timestamp||'').trim(),
+      n:String(r.Note||'').trim(),
+      by:String(r.Action_By||'').trim()
+    });
+  });
+  // Sort each ticket's history by timestamp ascending
+  TKS.forEach(t=>{
+    if(t.hist.length>1){
+      t.hist.sort((a,b)=>new Date(a.t)-new Date(b.t));
+    }
+    // Fallback: if a ticket ended up with no history, give it one line
+    if(!t.hist.length){
+      t.hist.push({s:t.status,t:t.slaDeadline||'',n:'Loaded from sheet',by:'System'});
+    }
+  });
   return true;
 }
 
@@ -641,12 +786,13 @@ function onCat(){const c=document.getElementById('tC').value,s=document.getEleme
 function onSub(){uPri();const c=document.getElementById('tC').value,s=document.getElementById('tS').value,w=document.getElementById('probeW'),l=document.getElementById('probeL');const m=getMeta(c,s);const hasAny=m.checklist.length||m.probes.length;if(hasAny){w.style.display='block';let h='';m.checklist.forEach(q=>{h+=`<label class="chk"><input type="checkbox"><span>${q}</span></label>`});m.probes.forEach(p=>{h+=`<div style="margin:4px 0"><div style="font-size:10px;color:var(--t2);margin-bottom:2px">${p.q}</div><select class="fc" style="font-size:11px;padding:4px 6px"><option value="">—</option>${(p.opts||[]).map(o=>`<option>${o}</option>`).join('')}</select></div>`});l.innerHTML=h}else w.style.display='none'}
 
 function uPri(){const s=document.getElementById('tS').value,c=document.getElementById('tC').value;let u=UMAP[s]||(CATS[c]?CATS[c].pri:'medium');const sla=SLAH[u]||CATS[c]?.sla||24;
-  const pe=document.getElementById('tP'),se=document.getElementById('tSL');if(u&&c){pe.textContent={critical:'🔴 Critical',high:'🟠 High',medium:'🟡 Medium',low:'🟢 Low'}[u];pe.className='pri '+{critical:'c',high:'h',medium:'m',low:'l'}[u];se.textContent='⏱ '+sla+'h';se.className='sla '+(u==='critical'?'breach':u==='high'?'warn':'safe');se.style.display='inline-flex'}else{pe.textContent='—';se.style.display='none'}}
+  const pe=document.getElementById('tP'),se=document.getElementById('tSL');if(u&&c){pe.textContent=PRILABELS[u]||u;pe.className='pri '+(PRICOLORS[u]||'m');se.textContent='⏱ '+sla+'h';se.className='sla '+(u==='critical'?'breach':u==='high'?'warn':'safe');se.style.display='inline-flex'}else{pe.textContent='—';se.style.display='none'}}
 
 function raiseTicket(){const o=document.getElementById('tO').value,c=document.getElementById('tC').value,s=document.getElementById('tS').value,d=document.getElementById('tD').value;if(!o||!c||!s||!d){nf('Missing','All fields required','warn');return}
   tCnt++;const id='RMT-0'+tCnt;const u=UMAP[s]||(CATS[c]?CATS[c].pri:'medium');const sla=SLAH[u]||CATS[c]?.sla||24;
   const probes=[];document.querySelectorAll('#probeL input:checked').forEach(x=>probes.push(x.nextElementSibling?.textContent));
-  const t={id,issue:s,cat:c.charAt(0).toUpperCase()+c.slice(1),sub:s,out:o,pri:u,sla:String(sla).padStart(2,'0')+':00',status:'raised',att:null,hist:[{s:'raised',t:ts(),n:'By '+userName+(probes.length?' · '+probes.length+' probes flagged':'')}],desc:d,otp:Math.floor(100000+Math.random()*900000),costs:[],by:phone,otpRevealed:false,issueRes:null,chat:[],puTask:null,vendor:null,slaExt:[],probes,locVisit:true,confirmStatus:null,reopened:false};
+  const deadline=new Date(Date.now()+(sla*3600000)).toISOString();
+  const t={id,issue:s,cat:c.charAt(0).toUpperCase()+c.slice(1),sub:s,out:o,pri:u,sla:'+'+String(sla).padStart(2,'0')+':00',slaDeadline:deadline,status:'raised',att:null,hist:[{s:'raised',t:ts(),n:'By '+userName+(probes.length?' · '+probes.length+' probes flagged':'')}],desc:d,otp:Math.floor(100000+Math.random()*900000),costs:[],by:phone,otpRevealed:false,issueRes:null,chat:[],puTask:null,vendor:null,slaExt:[],probes,locVisit:true,confirmStatus:null,reopened:false};
   const a=autoA(t);if(a){t.att=a.id;a.load++;t.status='assigned';t.hist.push({s:'assigned',t:ts(),n:'→ '+a.name})}
   TKS.unshift(t);['tO','tC','tD'].forEach(x=>document.getElementById(x).value='');document.getElementById('tS').innerHTML='<option value="">—</option>';document.getElementById('probeW').style.display='none';
   R();
@@ -702,7 +848,9 @@ function setIssueRes(id,i,v){const t=TKS.find(x=>x.id===id);if(t&&t.issueRes){t.
 function addLP(){const t=TKS.find(x=>x.id===curTkt);if(!t)return;const item=document.getElementById('lpI').value,qty=parseFloat(document.getElementById('lpQ').value)||1,amt=parseFloat(document.getElementById('lpA').value)||0,unit=document.getElementById('lpU').value,shop=document.getElementById('lpSh').value,rem=document.getElementById('lpRm').value;
   if(!item||!amt||!shop){nf('Required','Item, amount, shop','warn');return}
   const hQ=document.getElementById('lpQI').files.length>0,hB=document.getElementById('lpBI').files.length>0;
-  t.costs.push({item,qty,unit,amt:Math.round(amt*qty),rate:amt,shop,remarks:rem,v:hQ?'qr':'mn',qrImg:hQ,billImg:hB,payStatus:'pend',addedAt:ts()});
+  const newCost={item,qty,unit,amt:Math.round(amt*qty),rate:amt,shop,remarks:rem,v:hQ?'qr':'mn',qrImg:hQ,billImg:hB,payStatus:'mgr-pending',addedAt:ts()};
+  t.costs.push(newCost);
+  writePO(t,newCost);   // PHASE 6: write-through
   ['lpI','lpA','lpSh','lpRm'].forEach(x=>document.getElementById(x).value='');document.getElementById('lpQ').value='1';document.getElementById('lpU').value='pcs';
   document.getElementById('lpQL').textContent='Tap to upload';document.getElementById('lpQL').style.color='';document.getElementById('lpBL').textContent='Tap to upload';document.getElementById('lpBL').style.color='';
   document.getElementById('lpT').textContent='₹0';closeM('lpM');R();nf('✅ Added',item,'ok');showPurch(curTkt)}
@@ -711,8 +859,13 @@ function delLP(i,id){const t=TKS.find(x=>x.id===id);if(t&&confirm('Delete this i
 function editLP(i,id){const t=TKS.find(x=>x.id===id);if(!t)return;const c=t.costs[i],nv=prompt('New amount:',c.amt);if(nv!==null){c.amt=parseInt(nv)||c.amt;R();showPurch(id)}}
 
 function reqPayment(tid,i){const t=TKS.find(x=>x.id===tid);if(!t)return;const c=t.costs[i];c.payStatus='mgr-pending';t.hist.push({s:t.status,t:ts(),n:'💰 Pay request: '+c.item+' ₹'+c.amt});R();nf('Sent','Manager will approve','ok');showPurch(tid)}
-function mgrApprovePay(tid,i){const t=TKS.find(x=>x.id===tid);if(!t)return;const c=t.costs[i];const can=role==='manager'&&c.amt<=2000||role==='rmhead';if(!can){nf('Cannot',c.amt>2000?'>₹2K needs R&M Head':'','warn');return}c.payStatus='approved';c.approver=userName;t.hist.push({s:t.status,t:ts(),n:'✅ '+(role==='manager'?'Mgr':'R&M')+' approved: '+c.item});R();nf('Approved','To Finance','ok');showPurch(tid)}
-function finPay(tid,i,st){const t=TKS.find(x=>x.id===tid);if(!t)return;const c=t.costs[i];c.payStatus=st;const lbl={done:'💳 Paid',hold:'⏸ Hold',rej:'✕ Rejected'}[st];t.hist.push({s:t.status,t:ts(),n:lbl+': '+c.item});R();nf(lbl,c.item,'ok');showPurch(tid)}
+function mgrApprovePay(tid,i){const t=TKS.find(x=>x.id===tid);if(!t)return;const c=t.costs[i];const can=role==='manager'&&c.amt<=2000||role==='rmhead';if(!can){nf('Cannot',c.amt>2000?'>₹2K needs R&M Head':'','warn');return}
+  c.payStatus='approved';c.approver=userName;
+  t.hist.push({s:t.status,t:ts(),n:'✅ '+(role==='manager'?'Mgr':'R&M')+' approved: '+c.item});
+  // PHASE 6: write-through
+  if(c.poId)apiUpdate('Purchase_Orders','PO_ID',c.poId,{Pay_Status:'approved',Approver:userName});
+  writeApproval(t,1,c.amt);
+  R();nf('Approved','To Finance','ok');showPurch(tid)}function finPay(tid,i,st){const t=TKS.find(x=>x.id===tid);if(!t)return;const c=t.costs[i];c.payStatus=st;const lbl={done:'💳 Paid',hold:'⏸ Hold',rej:'✕ Rejected'}[st];t.hist.push({s:t.status,t:ts(),n:lbl+': '+c.item});R();nf(lbl,c.item,'ok');showPurch(tid)}
 
 function viewDocs(tid,i){const t=TKS.find(x=>x.id===tid);if(!t)return;const c=t.costs[i];
   const h=`<div style="margin-bottom:12px"><h4 style="font-size:12px;font-weight:700">${c.item}</h4><div style="font-size:10px;color:var(--t2)">${c.qty} ${c.unit||'pcs'} @ ₹${(c.rate||c.amt).toLocaleString('en-IN')} = ₹${c.amt.toLocaleString('en-IN')}</div><div style="font-size:9px;color:var(--t3);margin-top:3px">🏪 ${c.shop||'—'} · Added ${c.addedAt||'—'}</div>${c.remarks?`<div style="font-size:9px;font-style:italic;color:var(--t2);margin-top:4px">📝 ${c.remarks}</div>`:''}</div>
@@ -732,7 +885,7 @@ function showPurch(id){curTkt=id;const t=TKS.find(x=>x.id===id);if(!t)return;
       h+=`<div class="lp"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:12px">${c.item}</div><div style="font-size:9px;color:var(--t3)">🏪 ${c.shop||'—'}</div></div><div style="font-family:var(--m);font-weight:700;font-size:13px;color:var(--ac2)">₹${c.amt.toLocaleString('en-IN')}</div>${isAtt&&c.payStatus==='pend'?`<div class="dot-menu" style="margin-left:6px"><button class="dot-btn" onclick="event.stopPropagation();toggleD(this)">⋮</button><div class="dot-drop"><button class="dd-i" onclick="closeM('purchM');editLP(${i},'${t.id}')">✏️ Update</button><button class="dd-i dng" onclick="closeM('purchM');delLP(${i},'${t.id}')">🗑 Delete</button></div></div>`:''}</div>
       <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px"><span class="mt-tag">${c.qty} ${c.unit||'pcs'}</span><span class="mt-tag">@₹${(c.rate||c.amt).toLocaleString('en-IN')}</span>${c.qrImg?'<span class="mt-tag">📱</span>':''}${c.billImg?'<span class="mt-tag">📷</span>':''}</div>
       ${c.remarks?`<div style="font-size:9px;color:var(--t3);background:var(--c1);padding:4px 6px;border-radius:4px;margin-bottom:5px;font-style:italic">📝 ${c.remarks}</div>`:''}
-      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:5px;border-top:1px solid var(--bdr);gap:4px;flex-wrap:wrap"><div>${ps}${c.approver?`<div style="font-size:7px;color:var(--t3)">by ${c.approver}</div>`:''}</div><div style="display:flex;gap:3px;flex-wrap:wrap"><button class="btn btn-s btn-o" onclick="viewDocs('${t.id}',${i})" style="font-size:9px">📎</button>${isAtt&&c.payStatus==='pend'?`<button class="btn btn-s btn-p" onclick="reqPayment('${t.id}',${i})" style="font-size:9px">💰 Request</button>`:''}${(isMg||isRM)&&c.payStatus==='mgr-pending'?(c.amt<=2000||isRM?`<button class="btn btn-s btn-ok" onclick="mgrApprovePay('${t.id}',${i})" style="font-size:9px">✅</button>`:'<span style="font-size:8px;color:var(--wr)">R&M</span>'):''}${isFn&&c.payStatus==='approved'?`<button class="btn btn-s btn-ok" onclick="finPay('${t.id}',${i},'done')" style="font-size:9px">💳</button><button class="btn btn-s btn-o" onclick="finPay('${t.id}',${i},'hold')" style="font-size:9px">⏸</button><button class="btn btn-s btn-er" onclick="finPay('${t.id}',${i},'rej')" style="font-size:9px">✕</button>`:''}</div></div></div>`;
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:5px;border-top:1px solid var(--bdr);gap:4px;flex-wrap:wrap"><div>${ps}${c.approver?`<div style="font-size:7px;color:var(--t3)">by ${c.approver}</div>`:''}</div><div style="display:flex;gap:3px;flex-wrap:wrap"><button class="btn btn-s btn-o" onclick="viewDocs('${t.id}',${i})" style="font-size:9px">📎</button>${(isMg||isRM)&&c.payStatus==='mgr-pending'?(c.amt<=2000||isRM?`<button class="btn btn-s btn-ok" onclick="mgrApprovePay('${t.id}',${i})" style="font-size:9px">✅</button>`:'<span style="font-size:8px;color:var(--wr)">R&M</span>'):''}${isFn&&c.payStatus==='approved'?`<button class="btn btn-s btn-ok" onclick="finPay('${t.id}',${i},'done')" style="font-size:9px">💳</button><button class="btn btn-s btn-o" onclick="finPay('${t.id}',${i},'hold')" style="font-size:9px">⏸</button><button class="btn btn-s btn-er" onclick="finPay('${t.id}',${i},'rej')" style="font-size:9px">✕</button>`:''}</div></div></div>`;
     });
     h+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:linear-gradient(135deg,rgba(124,106,240,.12),rgba(66,201,190,.06));border:1px solid var(--ac);border-radius:var(--r);margin-top:8px"><div><div style="font-size:9px;color:var(--t3);text-transform:uppercase">Total</div></div><div style="font-family:var(--m);font-weight:700;font-size:20px;color:var(--ac2)">₹${tot.toLocaleString('en-IN')}</div></div>`;
   } else h+='<div style="text-align:center;color:var(--t3);padding:24px;font-size:11px">No purchases</div>';
@@ -848,7 +1001,14 @@ function rAppr(){const el=document.getElementById('apList');if(!el)return;
     h+=`<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-p btn-full" onclick="approveTicket('${t.id}')" style="font-weight:700">✅ Approve Ticket (${items.length} items · ₹${tktTotal.toLocaleString('en-IN')}${noteHigh})</button></div><div style="margin-top:6px"><button class="btn btn-s btn-o btn-full" onclick="openMgrFeedbackFor('${t.att||''}')">📣 Send Feedback to Attender</button><button class="btn btn-s btn-o btn-full" onclick="viewT('${t.id}')" style="margin-top:4px">↗ Open Ticket</button></div></div>`;
     return h;
   }).join('')}
-function approveTicket(tid){const t=TKS.find(x=>x.id===tid);if(!t)return;let n=0;t.costs.forEach(c=>{if(c.payStatus==='mgr-pending'){c.payStatus='approved';c.approver=userName;n++}});t.hist.push({s:t.status,t:ts(),n:'✅ Ticket approved ('+n+' items) by '+userName});R();nf('✅ Ticket Approved',n+' item(s) → Finance','ok')}
+function approveTicket(tid){const t=TKS.find(x=>x.id===tid);if(!t)return;let n=0;let total=0;
+  t.costs.forEach(c=>{if(c.payStatus==='mgr-pending'){c.payStatus='approved';c.approver=userName;n++;total+=c.amt;}});
+  t.hist.push({s:t.status,t:ts(),n:'✅ Ticket approved ('+n+' items) by '+userName});
+  // PHASE 6: write-through
+  apiUpdatePOsByTicket(tid,{Pay_Status:'approved',Approver:userName});
+  writeApproval(t,n,total);
+  writeHistory(tid,t.status,'✅ Ticket approved ('+n+' items) by '+userName,userName);
+  R();nf('✅ Ticket Approved',n+' item(s) → Finance','ok')}
 function openMgrFeedbackFor(aid){if(!aid){nf('No attender','This ticket has no attender','warn');return}const a=gA(aid);if(!a)return;const msg=prompt('Feedback for '+a.name+':');if(msg&&msg.trim()){if(!a.feedback)a.feedback=[];a.feedback.push({msg:msg.trim(),by:userName,when:ts()});R();nf('📣 Feedback sent','To '+a.name,'ok')}}
 
 function rFin(){const el=document.getElementById('fnList');if(!el)return;
@@ -883,11 +1043,22 @@ function rFin(){const el=document.getElementById('fnList');if(!el)return;
 let payOrderTkt='';
 function openPayOrder(tid){payOrderTkt=tid;document.getElementById('poProofL').textContent='Tap to upload proof';document.getElementById('poProofL').style.color='';document.getElementById('poProof').value='';document.getElementById('poRemarks').value='';openM('payOrderM')}
 function confirmPayOrder(){const t=TKS.find(x=>x.id===payOrderTkt);if(!t)return;const proof=document.getElementById('poProof').files.length>0;const remarks=document.getElementById('poRemarks').value;
-  let n=0;t.costs.forEach(c=>{if(c.payStatus==='approved'){c.payStatus='done';n++}});
+  let n=0;t.costs.forEach(c=>{if(c.payStatus==='approved'){c.payStatus='done';n++;}});
   t.payment={status:'paid',proofUploaded:proof,remarks,by:userName,when:ts()};
   t.hist.push({s:t.status,t:ts(),n:'💳 Order paid ('+n+' items) by '+userName+(proof?' · proof attached':'')});
+  // PHASE 6: write-through
+  t.costs.forEach(c=>{if(c.poId&&c.payStatus==='done')apiUpdate('Purchase_Orders','PO_ID',c.poId,{Pay_Status:'done'})});
+  writePayment(t,'paid',proof,remarks);
+  writeHistory(payOrderTkt,t.status,'💳 Order paid by '+userName,userName);
   closeM('payOrderM');R();nf('💳 Order Paid',n+' item(s) settled','ok')}
-function rejectOrder(tid){const t=TKS.find(x=>x.id===tid);if(!t)return;if(!confirm('Reject all approved items in this order?'))return;let n=0;t.costs.forEach(c=>{if(c.payStatus==='approved'){c.payStatus='rej';n++}});t.payment={status:'rejected',by:userName,when:ts()};t.hist.push({s:t.status,t:ts(),n:'✕ Order rejected by '+userName});R();nf('Order Rejected',n+' item(s)','warn')}
+function rejectOrder(tid){const t=TKS.find(x=>x.id===tid);if(!t)return;if(!confirm('Reject all approved items in this order?'))return;let n=0;
+  t.costs.forEach(c=>{if(c.payStatus==='approved'){c.payStatus='rej';n++;}});
+  t.payment={status:'rejected',by:userName,when:ts()};
+  t.hist.push({s:t.status,t:ts(),n:'✕ Order rejected by '+userName});
+  // PHASE 6: write-through
+  t.costs.forEach(c=>{if(c.poId&&c.payStatus==='rej')apiUpdate('Purchase_Orders','PO_ID',c.poId,{Pay_Status:'rej'})});
+  writePayment(t,'rejected',false,'');
+  R();nf('Order Rejected',n+' item(s)','warn')}
 
 function rPurchaser(){const el=document.getElementById('puList');if(!el)return;const tasks=TKS.filter(t=>t.puTask&&['assigned','rm-pending','approved'].includes(t.puTask.status));
   document.getElementById('puP').textContent=tasks.length;document.getElementById('puD').textContent=TKS.filter(t=>t.puTask&&t.puTask.status==='done').length;
@@ -902,16 +1073,133 @@ function rVendors(){const el=document.getElementById('venList');if(!el)return;co
   el.innerHTML=vens.map(t=>{const v=t.vendor;const stM={'requested':'<span class="pay-st mgr">📋 Pending Assignment</span>','assigned':'<span class="pay-st appr">🤝 Vendor Working</span>','completed':'<span class="pay-st done">✓ Done</span>'};
     return`<div class="lp"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="flex:1"><div style="font-weight:700;font-size:12px">${v.type} <span class="tid">${t.id}</span></div><div style="font-size:9px;color:var(--t2)">${t.issue} · ${t.out}</div><div style="font-size:9px;color:var(--t3);font-style:italic;margin-top:3px">📝 ${v.desc}</div>${v.vendorName?`<div style="font-size:10px;color:var(--ac2);margin-top:3px">🤝 ${v.vendorName} ${v.vendorPhone?'· '+v.vendorPhone:''}</div>`:''}</div><div style="text-align:right"><div>${stM[v.status]}</div><div style="font-family:var(--m);font-size:10px;margin-top:3px">Est ₹${v.estAmt||0}</div></div></div><div style="display:flex;gap:4px;padding-top:6px;border-top:1px solid var(--bdr)">${isMg&&v.status==='requested'?`<button class="btn btn-s btn-p" onclick="openAssignVendor('${t.id}')">🤝 Assign Vendor</button>`:''}<button class="btn btn-s btn-o" onclick="viewT('${t.id}')">↗ Ticket</button></div></div>`}).join('')}
 
-function rRpt(){const el=document.getElementById('rptB');if(!el)return;const oc={};TKS.forEach(t=>{oc[t.out]=(oc[t.out]||0)+1});const sr=Object.entries(oc).sort((a,b)=>b[1]-a[1]).slice(0,8);const mx=Math.max(...sr.map(x=>x[1]),1);
-  el.innerHTML=`<h4 style="font-size:11px;margin-bottom:8px">Outlet Volume</h4>`+sr.map(([o,c])=>`<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:2px"><span>${o}</span><span style="font-family:var(--m)">${c}</span></div><div class="pbar"><div class="fill" style="width:${c/mx*100}%;background:var(--ac)"></div></div></div>`).join('')+
-  `<h4 style="font-size:11px;margin-top:14px;margin-bottom:8px">Attender Performance</h4>`+ATTS.map(a=>`<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:2px"><span>${a.name}</span><span style="font-family:var(--m)">⭐${a.rating} · ${a.jobs} jobs</span></div><div class="pbar"><div class="fill" style="width:${a.rating/5*100}%;background:var(--ok)"></div></div></div>`).join('')}
+function rRpt(){const el=document.getElementById('rptB');if(!el)return;
 
+  // ── SECTION 1: TICKET SUMMARY ──
+  const total=TKS.length;
+  const open=TKS.filter(t=>t.status!=='closed').length;
+  const closed=TKS.filter(t=>t.status==='closed').length;
+  const breached=TKS.filter(t=>t.sla&&t.sla.startsWith('-')).length;
+  const critical=TKS.filter(t=>t.pri==='critical'&&t.status!=='closed').length;
+
+  // Tickets by outlet
+  const byOutlet={};TKS.forEach(t=>{if(!byOutlet[t.out])byOutlet[t.out]={total:0,open:0,closed:0};byOutlet[t.out].total++;if(t.status==='closed')byOutlet[t.out].closed++;else byOutlet[t.out].open++});
+  const outRows=Object.entries(byOutlet).sort((a,b)=>b[1].total-a[1].total).slice(0,8);
+  const outMax=Math.max(...outRows.map(x=>x[1].total),1);
+
+  // Tickets by category
+  const byCat={};TKS.forEach(t=>{const c=(t.cat||'other').toLowerCase();byCat[c]=(byCat[c]||0)+1});
+  const catRows=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const catMax=Math.max(...catRows.map(x=>x[1]),1);
+
+  // ── SECTION 2: FINANCIAL SUMMARY ──
+  const allCosts=TKS.flatMap(t=>t.costs||[]);
+  const totalSpend=allCosts.reduce((s,c)=>s+c.amt,0);
+  const pendingApproval=allCosts.filter(c=>c.payStatus==='mgr-pending').reduce((s,c)=>s+c.amt,0);
+  const approved=allCosts.filter(c=>c.payStatus==='approved').reduce((s,c)=>s+c.amt,0);
+  const paid=allCosts.filter(c=>c.payStatus==='done').reduce((s,c)=>s+c.amt,0);
+
+  // Spend by outlet
+  const spendByOutlet={};TKS.forEach(t=>(t.costs||[]).forEach(c=>{spendByOutlet[t.out]=(spendByOutlet[t.out]||0)+c.amt}));
+  const spendRows=Object.entries(spendByOutlet).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const spendMax=Math.max(...spendRows.map(x=>x[1]),1);
+
+  // ── SECTION 3: ATTENDER PERFORMANCE ──
+  const attRows=ATTS.filter(a=>a.active).map(a=>{
+    const mine=TKS.filter(t=>t.att===a.id);
+    const myOpen=mine.filter(t=>t.status!=='closed').length;
+    const myDone=mine.filter(t=>t.status==='closed').length;
+    return{...a,myOpen,myDone};
+  }).sort((a,b)=>b.rating-a.rating);
+
+  el.innerHTML=`
+  <!-- SECTION 1: TICKET SUMMARY -->
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-h"><h3>🎫 Ticket Summary</h3><span style="font-size:9px;color:var(--t3)">${total} total</span></div>
+    <div class="sts" style="grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">
+      <div class="st p"><div class="sv" style="font-size:16px">${total}</div><div class="sl">Total</div></div>
+      <div class="st o"><div class="sv" style="font-size:16px">${open}</div><div class="sl">Open</div></div>
+      <div class="st g"><div class="sv" style="font-size:16px">${closed}</div><div class="sl">Closed</div></div>
+      <div class="st rd"><div class="sv" style="font-size:16px">${breached}</div><div class="sl">Breached</div></div>
+    </div>
+    ${critical?`<div style="background:var(--erb);border-radius:var(--rs);padding:6px 10px;font-size:10px;color:var(--er);margin-bottom:10px">⚠ ${critical} critical ticket(s) still open</div>`:''}
+    <div style="font-size:10px;font-weight:700;margin-bottom:6px;color:var(--t2)">BY OUTLET</div>
+    ${outRows.map(([o,v])=>`<div style="margin-bottom:5px">
+      <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:2px">
+        <span>${o}</span>
+        <span style="font-family:var(--m);color:var(--t2)">${v.open} open · ${v.closed} closed</span>
+      </div>
+      <div class="pbar"><div class="fill" style="width:${v.total/outMax*100}%;background:var(--ac)"></div></div>
+    </div>`).join('')}
+    <div style="font-size:10px;font-weight:700;margin:10px 0 6px;color:var(--t2)">BY CATEGORY</div>
+    ${catRows.map(([c,v])=>`<div style="margin-bottom:5px">
+      <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:2px">
+        <span>${CATS[c]?CATS[c].label:c}</span>
+        <span style="font-family:var(--m)">${v}</span>
+      </div>
+      <div class="pbar"><div class="fill" style="width:${v/catMax*100}%;background:var(--inf)"></div></div>
+    </div>`).join('')}
+  </div>
+
+  <!-- SECTION 2: FINANCIAL SUMMARY -->
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-h"><h3>💰 Financial Summary</h3></div>
+    <div class="sts" style="grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:12px">
+      <div class="st p"><div class="sv" style="font-size:14px">₹${totalSpend.toLocaleString('en-IN')}</div><div class="sl">Total Spend</div></div>
+      <div class="st g"><div class="sv" style="font-size:14px">₹${paid.toLocaleString('en-IN')}</div><div class="sl">Paid</div></div>
+      <div class="st o"><div class="sv" style="font-size:14px">₹${approved.toLocaleString('en-IN')}</div><div class="sl">To Pay</div></div>
+      <div class="st rd"><div class="sv" style="font-size:14px">₹${pendingApproval.toLocaleString('en-IN')}</div><div class="sl">Pending Approval</div></div>
+    </div>
+    ${spendRows.length?`<div style="font-size:10px;font-weight:700;margin-bottom:6px;color:var(--t2)">SPEND BY OUTLET</div>
+    ${spendRows.map(([o,v])=>`<div style="margin-bottom:5px">
+      <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:2px">
+        <span>${o}</span><span style="font-family:var(--m);color:var(--ac2)">₹${v.toLocaleString('en-IN')}</span>
+      </div>
+      <div class="pbar"><div class="fill" style="width:${v/spendMax*100}%;background:var(--wr)"></div></div>
+    </div>`).join('')}`:'<div style="text-align:center;color:var(--t3);font-size:10px;padding:8px">No purchase data yet</div>'}
+  </div>
+
+  <!-- SECTION 3: ATTENDER PERFORMANCE -->
+  <div class="card">
+    <div class="card-h"><h3>🔧 Attender Performance</h3></div>
+    ${attRows.map(a=>`<div class="lp" style="margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="av" style="width:28px;height:28px;font-size:10px;flex-shrink:0">${a.ini}</div>
+          <div>
+            <div style="font-weight:600;font-size:11px">${a.name}</div>
+            <div style="font-size:8px;color:var(--t3)">${a.skills.join(', ')}</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;font-weight:700;color:var(--wr)">⭐ ${a.rating}</div>
+          <div style="font-size:8px;color:var(--t3)">${a.jobs} lifetime jobs</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <div style="flex:1;background:var(--c2);border-radius:var(--rs);padding:5px 8px;text-align:center">
+          <div style="font-size:13px;font-weight:700;color:var(--ac2)">${a.myOpen}</div>
+          <div style="font-size:8px;color:var(--t3)">Active</div>
+        </div>
+        <div style="flex:1;background:var(--c2);border-radius:var(--rs);padding:5px 8px;text-align:center">
+          <div style="font-size:13px;font-weight:700;color:var(--ok)">${a.myDone}</div>
+          <div style="font-size:8px;color:var(--t3)">Closed</div>
+        </div>
+        <div style="flex:1;background:var(--c2);border-radius:var(--rs);padding:5px 8px;text-align:center">
+          <div style="font-size:13px;font-weight:700;color:var(--er)">${a.load}</div>
+          <div style="font-size:8px;color:var(--t3)">Load</div>
+        </div>
+      </div>
+      <div style="margin-top:5px"><div class="pbar"><div class="fill" style="width:${a.rating/5*100}%;background:var(--ok)"></div></div></div>
+    </div>`).join('')}
+  </div>`;
+}
 // MANAGER ACTIONS PAGE
 function rMgrActions(){if(role!=='manager')return;
   // Re-assign list
   const ra=document.getElementById('mgReassignL');if(ra){const open=TKS.filter(t=>!['closed'].includes(t.status));ra.innerHTML=open.map(t=>{const a=gA(t.att);return`<div class="lp"><div style="display:flex;justify-content:space-between"><div style="flex:1"><div style="font-weight:600;font-size:11px">${t.id} · ${t.issue}</div><div style="font-size:9px;color:var(--t2)">🏪 ${t.out} · Currently: ${a?a.name:'Unassigned'}</div></div><button class="btn btn-s btn-p" onclick="openReassign('${t.id}')">↪ Re-assign</button></div></div>`}).join('')||'<div style="text-align:center;color:var(--t3);padding:14px;font-size:10px">No open tickets</div>'}
   // High priority
-  const hp=document.getElementById('mgHighL');if(hp){const high=TKS.filter(t=>['critical','high'].includes(t.pri)&&t.status!=='closed');hp.innerHTML=high.map(t=>{const a=gA(t.att);const sc=t.sla?.startsWith('-')?'breach':'warn';return`<div class="lp"><div style="display:flex;justify-content:space-between"><div style="flex:1"><div style="font-weight:600;font-size:11px"><span class="pri ${t.pri==='critical'?'c':'h'}">●</span> ${t.id} · ${t.issue}</div><div style="font-size:9px;color:var(--t2)">🏪 ${t.out} · ${a?a.name:'-'} · ${SL[t.status]}</div></div><span class="sla ${sc}">⏱${t.sla}</span></div></div>`}).join('')||'<div style="text-align:center;color:var(--t3);padding:14px;font-size:10px">No high priority</div>'}
+  const hp=document.getElementById('mgHighL');if(hp){const high=TKS.filter(t=>['critical','high'].includes(t.pri)&&t.status!=='closed');hp.innerHTML=high.map(t=>{const a=gA(t.att);const sc=t.sla?.startsWith('-')?'breach':'warn';return`<div class="lp"><div style="display:flex;justify-content:space-between"><div style="flex:1"><div style="font-weight:600;font-size:11px"><span class="pri ${PRICOLORS[t.pri]||'m'}">●</span> ${t.id} · ${t.issue}</div><div style="font-size:9px;color:var(--t2)">🏪 ${t.out} · ${a?a.name:'-'} · ${SL[t.status]}</div></div><span class="sla ${sc}">⏱${t.sla}</span></div></div>`}).join('')||'<div style="text-align:center;color:var(--t3);padding:14px;font-size:10px">No high priority</div>'}
   // Weekly off
   const wk=document.getElementById('mgWeekL');if(wk)wk.innerHTML=ATTS.map(a=>`<div class="lp"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600;font-size:11px">${a.name}</div><div style="font-size:9px;color:var(--t2)">${a.skills.join(', ')}</div></div><select class="fc" style="width:auto;font-size:11px;padding:4px 8px" onchange="ATTS.find(x=>x.id==='${a.id}').weekOff=this.value;nf('Updated','${a.name} weekly off','ok')"><option ${a.weekOff==='Sunday'?'selected':''}>Sunday</option><option ${a.weekOff==='Monday'?'selected':''}>Monday</option><option ${a.weekOff==='Tuesday'?'selected':''}>Tuesday</option><option ${a.weekOff==='Wednesday'?'selected':''}>Wednesday</option><option ${a.weekOff==='Thursday'?'selected':''}>Thursday</option><option ${a.weekOff==='Friday'?'selected':''}>Friday</option><option ${a.weekOff==='Saturday'?'selected':''}>Saturday</option></select></div></div>`).join('');
   // Feedback
@@ -1117,24 +1405,31 @@ function fillBootDropdowns(){
   if(fc)fc.innerHTML='<option value="">All Categories</option>'+Object.entries(CATS).map(([k,c])=>`<option value="${c.label.split(' ')[1]||k}">${c.label}</option>`).join('');
 }
 fillBootDropdowns();
-// PHASE 3B + 4: load Users and Outlets from the sheet at startup
+// PHASE 3B + 4 + 5 + 6: load all sheet data in parallel at startup
 let usersLoaded=false;
 (async function bootData(){
   const btn=document.getElementById('loginBtn');
-  if(btn){btn.disabled=true;btn.textContent='Checking sheet…';}
-  const ok=await loadUsersFromSheet();
-  await loadOutletsFromSheet();      // PHASE 4: outlets
-  await loadCategoriesFromSheet();   // PHASE 4: categories + sub-categories
-  await loadSubMetaFromSheet();      // PHASE 4: checklists, probing, solutions
-  await loadAttendersFromSheet();    // PHASE 4: attenders + skills + outlets
-  await loadTicketsFromSheet();      // PHASE 5C: tickets (sheet is now source of truth)
-  fillBootDropdowns();               // rebuild dropdowns with sheet data
-  usersLoaded=ok;
-  if(btn){btn.disabled=false;btn.textContent='Login →';}
-  if(!ok){
-    const w=document.getElementById('loginErr');
-    if(w)w.innerHTML='⚠ Could not reach the Users sheet. Login is disabled until the connection works. (If you opened this file directly, this is the expected file:// limitation — deploy to Netlify.)';
-  }
+  // Login is immediately available using hardcoded data as seed
+  usersLoaded=true;
+  if(btn){btn.textContent='Login →';}
+
+  // Fetch all sheet data silently in the background — no blocking
+  Promise.all([
+    loadUsersFromSheet(),
+    loadOutletsFromSheet(),
+    loadPriorityRulesFromSheet(),
+    loadCategoriesFromSheet(),
+    loadSubMetaFromSheet(),
+    loadAttendersFromSheet(),
+    loadTicketsFromSheet()
+  ]).then(async ()=>{
+    await loadPurchaseOrdersFromSheet();
+  await loadTicketHistoryFromSheet();
+    fillBootDropdowns();
+    // If user hasn't logged in yet, silently update USERS from sheet
+    // If already logged in, refresh the current view with sheet data
+  if(document.getElementById('app').style.display!=='none'){R();}
+  });
 })();
 </script>
 </body>
