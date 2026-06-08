@@ -707,6 +707,12 @@ let TKS=[
 ];
 
 let role='',phone='',userName='',userIni='',attId='',curTkt='',selRV='requester',tCnt=455,logOpen={};
+function syncTCnt(){
+  TKS.forEach(t=>{
+    const n=parseInt((t.id||'').replace('RMT-0',''));
+    if(!isNaN(n)&&n>tCnt)tCnt=n;
+  });
+}
 let GSHEET={connected:false,url:'',lastSync:null,categories:false,users:false,tickets:false};
 
 // PHASE 4: attendance records + per-session punch state
@@ -1429,8 +1435,8 @@ let usersLoaded=false;
     // If user hasn't logged in yet, silently update USERS from sheet
     // If already logged in, refresh the current view with sheet data
   // Rebuild attender login dropdown with fresh sheet data
+    syncTCnt();   // ensure new ticket IDs don't collide with existing ones
     if(selRV==='attender'){toggleLoginMode();}
-    // If already logged in, refresh the current view
     if(document.getElementById('app').style.display!=='none'){R();}
   });
 })();
