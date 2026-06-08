@@ -1428,7 +1428,10 @@ let usersLoaded=false;
     fillBootDropdowns();
     // If user hasn't logged in yet, silently update USERS from sheet
     // If already logged in, refresh the current view with sheet data
-  if(document.getElementById('app').style.display!=='none'){R();}
+  // Rebuild attender login dropdown with fresh sheet data
+    if(selRV==='attender'){toggleLoginMode();}
+    // If already logged in, refresh the current view
+    if(document.getElementById('app').style.display!=='none'){R();}
   });
 })();
 </script>
