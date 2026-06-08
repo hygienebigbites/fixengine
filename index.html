@@ -764,8 +764,13 @@ function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove(
 	function openSB(){document.getElementById('sb').classList.add('open');document.getElementById('sov').classList.add('show')}
 function closeSB(){document.getElementById('sb').classList.remove('open');document.getElementById('sov').classList.remove('show')}
 
-function autoA(t){const sk={Electrical:'Electrical',Plumbing:'Plumbing',Equipment:'Equipment',Hvac:'HVAC',Civil:'Civil',Gas:'Gas',Pest:'Pest'}[t.cat]||t.cat;let c=ATTS.filter(a=>a.active&&a.load<a.max&&a.skills.includes(sk)&&a.outs.includes(t.out));if(!c.length)c=ATTS.filter(a=>a.active&&a.load<a.max&&a.skills.includes(sk));if(!c.length)c=ATTS.filter(a=>a.active&&a.load<a.max);if(!c.length)return null;c.sort((a,b)=>a.load-b.load);return c[0]}
-function gA(id){return ATTS.find(a=>a.id===id)}
+function autoA(t){
+  // Assignment rule: outlet coverage only — pick least-loaded attender covering this outlet
+  let c=ATTS.filter(a=>a.active&&a.load<a.max&&a.outs.includes(t.out));
+  if(!c.length)return null;
+  c.sort((a,b)=>a.load-b.load);
+  return c[0];
+}function gA(id){return ATTS.find(a=>a.id===id)}
 
 // ===== PHASE 4: Punch In/Out =====
 function rAttHistory(){const el=document.getElementById('ahList');if(!el||role!=='attender')return;
