@@ -121,7 +121,37 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 <div class="page" id="pg-raise-ticket"><div class="card fin" style="max-width:540px">
   <div class="card-h"><h3>🎫 New Ticket</h3></div>
   <div class="fg"><label>Outlet *</label><select class="fc" id="tO"><option value="">Select</option></select></div>
-  <div class="fr"><div class="fg"><label>Category *</label><select class="fc" id="tC" onchange="onCat()"><option value="">Select</option></select></div><div class="fg"><label>Sub-Category *</label><select class="fc" id="tS" onchange="onSub()"><option value="">—</option></select></div></div>
+  <div class="fg"><label>🔍 Describe the problem *</label>
+    <div style="position:relative">
+      <input class="fc" id="subSearch" placeholder="e.g. AC not working, drain blocked, gas smell..." oninput="onSubSearchAuto()" autocomplete="off" style="padding-right:70px">
+      <button type="button" id="srchClearBtn" onclick="clearSubSelection()" style="position:absolute;right:38px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;display:none">✕</button>
+      <button type="button" id="srchMicBtn" onclick="voiceSearch()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2);font-size:16px;cursor:pointer">🎤</button>
+    </div>
+    <div id="autoSuggestBar" style="display:none;margin-top:6px;padding:10px 12px;background:var(--c2);border:1px solid var(--bdr);border-radius:var(--rs)">
+      <div style="font-size:9px;color:var(--t3);margin-bottom:6px">Best match found:</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <div>
+          <div id="suggestName" style="font-size:12px;font-weight:700;color:var(--ac2)"></div>
+          <div id="suggestMeta" style="font-size:9px;color:var(--t3);margin-top:1px"></div>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0">
+          <button type="button" onclick="confirmSuggest()" style="background:var(--ok);color:#000;border:none;border-radius:var(--rs);padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">✅ Yes</button>
+          <button type="button" onclick="showSuggestAlts()" style="background:var(--c1);color:var(--t2);border:1px solid var(--bdr);border-radius:var(--rs);padding:5px 10px;font-size:11px;cursor:pointer">🔄 Change</button>
+        </div>
+      </div>
+    </div>
+    <div id="subSearchResults" style="display:none;background:var(--c2);border:1px solid var(--bdr);border-radius:var(--rs);margin-top:4px;max-height:220px;overflow-y:auto;position:relative"></div>
+    <div id="subSelected" style="display:none;margin-top:6px;padding:8px 10px;background:rgba(124,106,240,.1);border:1px solid var(--ac);border-radius:var(--rs)">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div id="subSelectedName" style="font-size:12px;font-weight:700;color:var(--ac2)"></div><div id="subSelectedCat" style="font-size:9px;color:var(--t3);margin-top:1px"></div></div>
+        <button type="button" onclick="clearSubSelection()" style="background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer">✕ Change</button>
+      </div>
+    </div>
+  </div>
+  <select id="tC" style="display:none" onchange="onCat()"><option value="">Select</option></select>
+  <select id="tS" style="display:none" onchange="onSub()"><option value="">—</option></select>
+  <div style="margin-bottom:8px"><button type="button" class="btn btn-s btn-o" onclick="toggleCatDropdowns()" id="browseToggle" style="font-size:9px">📂 Browse by Category</button></div>
+  <div id="catSubDropdowns" style="display:none" class="fr"><div class="fg"><label>Category</label><select class="fc" id="tCv" onchange="onCatVisible()"><option value="">Select</option></select></div><div class="fg"><label>Sub-Category</label><select class="fc" id="tSv" onchange="onSubVisible()"><option value="">—</option></select></div></div>
   <div class="fg"><label>Auto Priority & SLA</label><div style="display:flex;gap:6px;align-items:center;padding:7px 10px;background:var(--c2);border-radius:var(--rs)"><span id="tP" class="pri">—</span><span id="tSL" class="sla safe" style="display:none">—</span></div></div>
   <div class="fg" id="probeW" style="display:none"><label>📋 Diagnostic Checklist</label><div id="probeL"></div></div>
   <div class="fg"><label>Description *</label><div style="position:relative"><textarea class="fc" id="tD" rows="2" placeholder="Detailed remarks..." style="padding-right:38px"></textarea><button onclick="voiceInput('tD')" type="button" id="vBtnTD" style="position:absolute;right:6px;top:6px;background:var(--c1);border:1px solid var(--bdr);border-radius:50%;width:28px;height:28px;cursor:pointer;color:var(--t2);font-size:13px">🎤</button></div></div>
@@ -760,7 +790,7 @@ function doLogin(){
 
 function logout(){punchedIn=false;currentPunch=null;document.getElementById('app').style.display='none';document.getElementById('loginP').style.display='flex'}
 function buildNav(){const n=NAV[role]||[];document.getElementById('sbN').innerHTML='<div class="sb-sec">Menu</div>'+n.map(x=>`<div class="ni" data-p="${x.id}" onclick="go('${x.id}')"><span class="ic">${x.ic}</span>${x.l}</div>`).join('');document.getElementById('mnI').innerHTML=n.map(x=>`<button class="mi" data-p="${x.id}" onclick="go('${x.id}')"><span class="ic">${x.ic}</span>${x.l}</button>`).join('')}
-function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));const pg=document.getElementById('pg-'+p);if(pg)pg.classList.add('on');document.querySelectorAll('.ni,.mi').forEach(x=>x.classList.toggle('on',x.dataset.p===p));document.getElementById('pgT').textContent={dashboard:'Home','raise-ticket':'New Ticket',tickets:'Tickets',detail:'Details','att-dash':'My Jobs','att-history':'Ticket History',approvals:'Approvals',finance:'Payments',purchaser:'Purchase Tasks',vendors:'Vendors','mgr-actions':'Mgr Actions',config:'Configuration',reports:'Reports'}[p]||'';closeSB();document.getElementById('cA').scrollTop=0;if(p==='raise-ticket')refreshCatDropdown()}
+function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));const pg=document.getElementById('pg-'+p);if(pg)pg.classList.add('on');document.querySelectorAll('.ni,.mi').forEach(x=>x.classList.toggle('on',x.dataset.p===p));document.getElementById('pgT').textContent={dashboard:'Home','raise-ticket':'New Ticket',tickets:'Tickets',detail:'Details','att-dash':'My Jobs','att-history':'Ticket History',approvals:'Approvals',finance:'Payments',purchaser:'Purchase Tasks',vendors:'Vendors','mgr-actions':'Mgr Actions',config:'Configuration',reports:'Reports'}[p]||'';closeSB();document.getElementById('cA').scrollTop=0;if(p==='raise-ticket'){refreshCatDropdown();clearSubSelection();}}
 	function openSB(){document.getElementById('sb').classList.add('open');document.getElementById('sov').classList.add('show')}
 function closeSB(){document.getElementById('sb').classList.remove('open');document.getElementById('sov').classList.remove('show')}
 
@@ -792,6 +822,613 @@ function getGeo(cb){if(!navigator.geolocation||location.protocol==='file:'){cb(n
 function doPunchIn(){getGeo(g=>{const loc=g?`${g.lat}, ${g.lng}`:'Location unavailable (needs HTTPS)';const rec={attId,inTime:ts(),inLat:g?.lat||null,inLng:g?.lng||null,inLoc:loc,outTime:null,outLat:null,outLng:null,outLoc:null};ATTENDANCE.push(rec);currentPunch=rec;punchedIn=true;R();renderPunch();nf('✅ Punched In',loc,'ok')})}
 function doPunchOut(){const my=TKS.filter(t=>t.att===attId&&t.status!=='closed');if(my.length){if(!confirm('You still have '+my.length+' open job(s). Punch out anyway?'))return}
   getGeo(g=>{const loc=g?`${g.lat}, ${g.lng}`:'Location unavailable (needs HTTPS)';if(currentPunch){currentPunch.outTime=ts();currentPunch.outLat=g?.lat||null;currentPunch.outLng=g?.lng||null;currentPunch.outLoc=loc}punchedIn=false;currentPunch=null;R();renderPunch();nf('🔚 Punched Out',loc,'ok')})}
+
+
+// ===== VOICE ALIASES =====
+const VOICE_ALIASES={
+  // ══ BAIN MARIE (highest frequency ticket) ══
+  'bain marie':'bain marie','bainmarie':'bain marie','ban meri':'bain marie',
+  'banmari':'bain marie','ban marie':'bain marie','bain mary':'bain marie',
+  'bainmeri':'bain marie','bane mari':'bain marie','banberry':'bain marie',
+  'brain mari':'bain marie','bain meri':'bain marie','baine marie':'bain marie',
+  'bainmarrie':'bain marie','bain marrie':'bain marie','bain mariy':'bain marie',
+  'bin meri':'bain marie','bian marie':'bain marie','ban mary':'bain marie',
+  'bain maire':'bain marie','banmare':'bain marie','bain marine':'bain marie',
+  'bain merie':'bain marie','baine mari':'bain marie','banmure':'bain marie',
+  'bainmari':'bain marie','bainmar':'bain marie','banmery':'bain marie',
+  'banbare':'bain marie','ban beri':'bain marie','marwars bainmarie':'bain marie',
+  'baine meri':'bain marie','ban merie':'bain marie','bainmery':'bain marie',
+  'bain mery':'bain marie','bm not working':'bain marie','banmere':'bain marie',
+  'baenmari':'bain marie','benmary':'bain marie','bainmarei':'bain marie',
+  'brain marie':'bain marie','ban marei':'bain marie','bain marei':'bain marie',
+
+  // ══ OIL FRYER ══
+  'oil fry':'deep fryer','oil fryer':'deep fryer','oil fri':'deep fryer',
+  'frayer':'deep fryer','fryer':'deep fryer','frier':'deep fryer',
+  'oilfryer':'deep fryer','oil fire':'deep fryer','oli fryer':'deep fryer',
+  'friyar':'deep fryer','oil fryier':'deep fryer','veg fryer':'deep fryer',
+  'non veg fryer':'deep fryer','oill fry':'deep fryer','oil fryar':'deep fryer',
+  'friyer':'deep fryer','friyar':'deep fryer','oil frier':'deep fryer',
+  'oil frior':'deep fryer','oil fryier':'deep fryer','oil fryr':'deep fryer',
+  'oilfriy':'deep fryer','oil freyer':'deep fryer','fryar':'deep fryer',
+  'oil freyr':'deep fryer','freyr':'deep fryer','oil frir':'deep fryer',
+  'oil fray':'deep fryer','oilfire':'deep fryer','oil fre':'deep fryer',
+  'frier not':'deep fryer','frayer not':'deep fryer','friyar not':'deep fryer',
+  'oil flyer':'deep fryer','oil flt':'deep fryer','oli fry':'deep fryer',
+
+  // ══ DEEP FREEZER ══
+  'deep freezer':'deep freezer','freezer':'deep freezer','deep freeze':'deep freezer',
+  'deep frezzer':'deep freezer','frezzer':'deep freezer','deepfreezer':'deep freezer',
+  'chest freezer':'deep freezer','frizer':'deep freezer','frezeer':'deep freezer',
+  'blast freeze':'deep freezer','blast freezer':'deep freezer','frezar':'deep freezer',
+  'frezer':'deep freezer','deap freezer':'deep freezer','depfreezer':'deep freezer',
+  'deep frezar':'deep freezer','dfrezer':'deep freezer','deepfreeze':'deep freezer',
+
+  // ══ CHILLER / REFRIGERATOR ══
+  'chiller':'refrigerator','chillar':'refrigerator','chiler':'refrigerator',
+  'visi cooler':'refrigerator','visi cooller':'refrigerator','visicooler':'refrigerator',
+  'four door chiller':'refrigerator','4 door chiller':'refrigerator',
+  'western chiller':'refrigerator','blue star chiller':'refrigerator',
+  'chileer':'refrigerator','chillor':'refrigerator','paratha chiller':'refrigerator',
+  'holding chiller':'refrigerator','agp chiller':'refrigerator','visi':'refrigerator',
+  'pe chiller':'refrigerator','bt chiller':'refrigerator','rrc chiller':'refrigerator',
+  'hoshizaki chiller':'refrigerator','celfrost chiller':'refrigerator',
+  '2 door chiller':'refrigerator','single door chiller':'refrigerator',
+  'chillar not':'refrigerator','chiler not':'refrigerator','chilled not':'refrigerator',
+  'chillr':'refrigerator','chillor not':'refrigerator','chiler issue':'refrigerator',
+  'cooling issue':'refrigerator','temperature issue':'refrigerator',
+  'temperature not coming':'refrigerator','temp issue':'refrigerator',
+  'not cooling':'refrigerator','not getting cold':'refrigerator',
+
+  // ══ AC / HVAC ══
+  'ac':'ac not cooling','air condition':'ac not cooling','air conditioner':'ac not cooling',
+  'thanda nahi':'ac not cooling','cooling nahi':'ac not cooling',
+  'ac band':'ac not cooling','ac kharab':'ac not cooling','ac not cool':'ac not cooling',
+  'ac leaking':'ac leaking','ac dripping':'ac leaking','ac pani':'ac leaking',
+  'ventilation':'ventilation fan','exhaust fan kitchen':'ventilation fan',
+
+  // ══ GAS LEAK ══
+  'gas smell':'gas leak smell','gas leak':'gas leak smell','gas leakage':'gas leak smell',
+  'gas aa raha':'gas leak smell','gas nikal':'gas leak smell',
+  'gas lickage':'gas leak smell','gas lekage':'gas leak smell',
+  'gas likage':'gas leak smell','gas lekedge':'gas leak smell',
+  'gass leakage':'gas leak smell','gas likedge':'gas leak smell',
+  'gas leaked':'gas leak smell','gas leakeage':'gas leak smell',
+  'gas lekeage':'gas leak smell','gas leakge':'gas leak smell',
+  'gas leakng':'gas leak smell','gas leeakage':'gas leak smell',
+  'gas lickege':'gas leak smell','gas liakage':'gas leak smell',
+  'gas smell coming':'gas leak smell','gas odour':'gas leak smell',
+  'BORNUR':'gas leak smell','gas bunk leak':'gas leak smell',
+
+  // ══ GAS REGULATOR ══
+  'regulator':'regulator issue','gas regulator':'regulator issue',
+  'regulator leakage':'regulator issue','regulator issue':'regulator issue',
+  'regulator problem':'regulator issue','bharat gas regulator':'regulator issue',
+  'hp gas regulator':'regulator issue','regulater':'regulator issue',
+  'regualtor':'regulator issue','gas regulater':'regulator issue',
+  'gas regualtor':'regulator issue','regulator change':'regulator issue',
+
+  // ══ GAS BURNER / STOVE ══
+  'burner':'gas burner/stove','stove':'gas burner/stove','chulha':'gas burner/stove',
+  'gas stove':'gas burner/stove','gas burner':'gas burner/stove','burnal':'gas burner/stove',
+  'range burner':'gas burner/stove','gas range':'gas burner/stove',
+  'burner not working':'gas burner/stove','burner flame':'gas burner/stove',
+  'burner pressure':'gas burner/stove','burner service':'gas burner/stove',
+  'burner cleaning':'gas burner/stove','barnur':'gas burner/stove',
+  'gas barnur':'gas burner/stove','gas buner':'gas burner/stove',
+  'gas buranar':'gas burner/stove','buner':'gas burner/stove',
+  '2 range':'gas burner/stove','4 range':'gas burner/stove',
+  'tawa burner':'gas burner/stove','paratha tawa':'gas burner/stove',
+  'tawa':'gas burner/stove','gass burner':'gas burner/stove',
+
+  // ══ CYLINDER ══
+  'cylinder':'cylinder change','gas cylinder':'cylinder change',
+  'cylinder change':'cylinder change','cylinder khatam':'cylinder change',
+
+  // ══ SWITCH BOARD / ELECTRICAL ══
+  'switch board':'socket/switch','swich board':'socket/switch',
+  'swith board':'socket/switch','switch bord':'socket/switch',
+  'swetch board':'socket/switch','swithboard':'socket/switch',
+  'switchboard':'socket/switch','switch box':'socket/switch',
+  'swich box':'socket/switch','switch borad':'socket/switch',
+  'swich bord':'socket/switch','swithc board':'socket/switch',
+  'swich boared':'socket/switch','swith borad':'socket/switch',
+  'switch boared':'socket/switch','switch broad':'socket/switch',
+  'swicher board':'socket/switch','switc board':'socket/switch',
+  'swicth board':'socket/switch','swicth bord':'socket/switch',
+  'swiched board':'socket/switch','swit board':'socket/switch',
+  'switcg board':'socket/switch','swtich board':'socket/switch',
+  'swotch board':'socket/switch','swish board':'socket/switch',
+  'swich borad':'socket/switch','switich board':'socket/switch',
+  'swithcboard':'socket/switch','panel board':'socket/switch',
+  'pannel board':'socket/switch','electric board':'socket/switch',
+  'electrical board':'socket/switch','junction box':'socket/switch',
+  'plug point':'socket/switch','socket':'socket/switch',
+  'plug burned':'socket/switch','switch broken':'socket/switch',
+  'three pin':'socket/switch','3 pin':'socket/switch',
+  'plug top':'socket/switch','plug board':'socket/switch',
+  'main board':'socket/switch','db board':'socket/switch',
+  'board not working':'socket/switch','board burn':'socket/switch',
+
+  // ══ MCB / TRIPPING ══
+  'mcb':'mcb tripping','trip':'mcb tripping','tripping':'mcb tripping',
+  'mcb trip':'mcb tripping','power trip':'mcb tripping','triping':'mcb tripping',
+  'mcb triping':'mcb tripping','mcb tripping':'mcb tripping','mcb burnt':'mcb tripping',
+  'mcp':'mcb tripping','mccb':'mcb tripping','main mcb':'mcb tripping',
+  'power fluctuation':'mcb tripping','electricity fluctuation':'mcb tripping',
+  'mcb firing':'mcb tripping','mcb burning':'mcb tripping','mcb blown':'mcb tripping',
+  'mcb not working':'mcb tripping','main switch':'mcb tripping',
+
+  // ══ LIGHT ══
+  'light not working':'light fixture','tube light':'light fixture',
+  'tubelight':'light fixture','bulb':'light fixture','led light':'light fixture',
+  'light fuse':'light fixture','light change':'light fixture',
+  'tube lite':'light fixture','tuble light':'light fixture',
+  'light not on':'light fixture','light not coming':'light fixture',
+
+  // ══ EXHAUST FAN ══
+  'exhaust fan':'exhaust fan','exhust fan':'exhaust fan','exchaust fan':'exhaust fan',
+  'excaust fan':'exhaust fan','exhaustfan':'exhaust fan','exhust':'exhaust fan',
+  'exhaust not working':'exhaust fan','exhaust dirty':'exhaust fan',
+  'exhaust oil dripping':'exhaust fan','exhaust cleaning':'exhaust fan',
+  'exast fan':'exhaust fan','echust fan':'exhaust fan','exast':'exhaust fan',
+  'excust fan':'exhaust fan','exhust':'exhaust fan','exhauster':'exhaust fan',
+  'exahust fan':'exhaust fan','exhayust fan':'exhaust fan','exhust not':'exhaust fan',
+  'adjust fan':'exhaust fan','tolite exhaust':'exhaust fan',
+
+  // ══ FAN (GENERAL) ══
+  'ceiling fan':'exhaust fan','celing fan':'exhaust fan','celling fan':'exhaust fan',
+  'fan not working':'exhaust fan','fan problem':'exhaust fan',
+  'fan slow':'exhaust fan','fan kapasitor':'exhaust fan',
+
+  // ══ DRAINAGE / PLUMBING ══
+  'drain':'drain blockage','drainage':'drain blockage','naali':'drain blockage',
+  'drainage issue':'drain blockage','drain block':'drain blockage',
+  'drain jam':'drain blockage','naali block':'drain blockage',
+  'blocked drain':'drain blockage','washing area block':'drain blockage',
+  'sink block':'drain blockage','water block':'drain blockage',
+  'drainage blocked':'drain blockage','3 sink block':'drain blockage',
+  'pot wash block':'drain blockage','washing area drainage':'drain blockage',
+  'floor drainage':'drain blockage','outside drainage':'drain blockage',
+  'nani trap':'drain blockage','nani trip':'drain blockage',
+  'drainage chamber':'drain blockage','sewer block':'drain blockage',
+  'waste water block':'drain blockage','drain pipe block':'drain blockage',
+  'naali jam':'drain blockage','dranaige':'drain blockage','drinage':'drain blockage',
+  'darinage':'drain blockage','drainge':'drain blockage','dranage':'drain blockage',
+
+  // ══ WATER LEAKAGE ══
+  'water leak':'water leakage','pani leak':'water leakage',
+  'water drip':'water leakage','pipe leak':'water leakage','leakage':'water leakage',
+  'water overflow':'water leakage','water flooding':'water leakage',
+  'chhat se pani':'water leakage','ceiling water':'water leakage',
+  'pipe damage':'water leakage','pipe broken':'water leakage',
+  'water coming from':'water leakage','water droping':'water leakage',
+  'water dropping':'water leakage','water falling':'water leakage',
+  'water spill':'water leakage','pani aa raha':'water leakage',
+
+  // ══ TAP / FAUCET ══
+  'tap':'tap/faucet','tap leak':'tap/faucet','tap nahi':'tap/faucet',
+  'faucet':'tap/faucet','nal':'tap/faucet','tap damage':'tap/faucet',
+  'tap broken':'tap/faucet','water tap':'tap/faucet','basin tap':'tap/faucet',
+  'sink tap':'tap/faucet','washing tap':'tap/faucet','hand wash tap':'tap/faucet',
+  'raw water tap':'tap/faucet','ro water tap':'tap/faucet',
+  'tap leakage':'tap/faucet','tap fitting':'tap/faucet','tap change':'tap/faucet',
+  'tab':'tap/faucet','water nal':'tap/faucet','tab not working':'tap/faucet',
+  'tab leaking':'tap/faucet','water nul':'tap/faucet','ro tap':'tap/faucet',
+
+  // ══ WATER MOTOR / PUMP ══
+  'motor':'water tank/motor','pump':'water tank/motor','water pump':'water tank/motor',
+  'water motor':'water tank/motor','motar':'water tank/motor','mator':'water tank/motor',
+  'sump motor':'water tank/motor','raw water motor':'water tank/motor',
+  'ro motor':'water tank/motor','bore motor':'water tank/motor',
+  'motor switch':'water tank/motor','motor not working':'water tank/motor',
+  'motor burnt':'water tank/motor','motor board':'water tank/motor',
+  'sump moter':'water tank/motor','smup moter':'water tank/motor',
+  'watar motar':'water tank/motor','water motar':'water tank/motor',
+
+  // ══ RO WATER ══
+  'ro water':'ro water issue','ro machine':'ro water issue','ro plant':'ro water issue',
+  'ro not working':'ro water issue','ro pump':'ro water issue',
+  'rosa water':'ro water issue','ro tank':'ro water issue',
+  'ro filter':'ro water issue','ro pipe':'ro water issue',
+  'ro membrane':'ro water issue','ro candle':'ro water issue',
+  'ro purifier':'ro water issue','ro motor':'ro water issue',
+  'ro water not coming':'ro water issue','ro water leakage':'ro water issue',
+  'ro water slow':'ro water issue','ro water taste':'ro water issue',
+  'ro water tank':'ro water issue','row water':'ro water issue',
+  'ro mashin':'ro water issue','ro machin':'ro water issue',
+
+  // ══ CHIMNEY / HOOD ══
+  'chimney':'chimney/hood','hood':'chimney/hood','chimney not working':'chimney/hood',
+  'chimney cleaning':'chimney/hood','chimney oil':'chimney/hood',
+  'smoke not going':'chimney/hood','smoke issue':'chimney/hood',
+  'chimney dirty':'chimney/hood','hood not working':'chimney/hood',
+
+  // ══ MIXER GRINDER ══
+  'mixer':'mixer/grinder','grinder':'mixer/grinder','mixie':'mixer/grinder',
+  'mixer grinder':'mixer/grinder','mixigrander':'mixer/grinder','mixi':'mixer/grinder',
+  'mixer jar':'mixer/grinder','grinder blade':'mixer/grinder',
+  'mixer not working':'mixer/grinder','mixergrinder':'mixer/grinder',
+  'mixi grander':'mixer/grinder','miser grinder':'mixer/grinder',
+  'blender':'mixer/grinder','mixer machine':'mixer/grinder',
+
+  // ══ MICROWAVE ══
+  'microwave':'microwave oven','micro oven':'microwave oven',
+  'micro van':'microwave oven','macrowave':'microwave oven',
+  'mirco oven':'microwave oven','microvane':'microwave oven',
+  'microvan':'microwave oven','celfrost':'microwave oven',
+  'cellfrost':'microwave oven','microven':'microwave oven',
+  'mircrooven':'microwave oven','microoven':'microwave oven',
+  'lg microwave':'microwave oven','commercial microwave':'microwave oven',
+  'micro wave':'microwave oven','micorwave':'microwave oven',
+  'mirowave':'microwave oven','microven':'microwave oven',
+  'micrwave':'microwave oven','micro owan':'microwave oven',
+  'microwan':'microwave oven','micro ovan':'microwave oven',
+  'microvan':'microwave oven','microvane':'microwave oven',
+  'microoven not':'microwave oven','macroman':'microwave oven',
+  'mircowan':'microwave oven','microwevs':'microwave oven',
+  'microven not':'microwave oven','mirowave not':'microwave oven',
+  'micromen':'microwave oven','microvave':'microwave oven',
+  'microweves':'microwave oven','microwe':'microwave oven',
+
+  // ══ INDUCTION ══
+  'induction':'induction cooktop','induction cooker':'induction cooktop',
+  'induction stove':'induction cooktop','induction not working':'induction cooktop',
+  'induction kharab':'induction cooktop',
+
+  // ══ WEIGHING MACHINE ══
+  'weighing':'weighing scale','weight machine':'weighing scale',
+  'tarazu':'weighing scale','wighting machine':'weighing scale',
+  'weighing machine':'weighing scale','wight machine':'weighing scale',
+  'wighting scale':'weighing scale','wight scale':'weighing scale',
+  'waight machine':'weighing scale','weghing':'weighing scale',
+  'weighting machine':'weighing scale','wighing machine':'weighing scale',
+  'small weighing':'weighing scale','10kg weighing':'weighing scale',
+  '100kg weighing':'weighing scale','weighing not working':'weighing scale',
+  'weight scale':'weighing scale','weghing scale':'weighing scale',
+  'waighting machine':'weighing scale','wighting':'weighing scale',
+  'wieght':'weighing scale','wheight machine':'weighing scale',
+  'weghit':'weighing scale','weght machine':'weighing scale',
+
+  // ══ RICE COOKER ══
+  'rice cooker':'rice cooker not working','cooker not working':'rice cooker not working',
+  'rice cooker switch':'rice cooker not working','electric cooker':'rice cooker not working',
+  'electric rice cooker':'rice cooker not working','rice coocker':'rice cooker not working',
+  'rice cooked not working':'rice cooker not working',
+
+  // ══ GEYSER / WATER HEATER ══
+  'geyser':'water boiler','water heater':'water boiler','gyser':'water boiler',
+  'geysir':'water boiler','geysar':'water boiler','hot water not coming':'water boiler',
+  'staff room geyser':'water boiler','gijar':'water boiler',
+
+  // ══ OVEN / DECK OVEN ══
+  'oven':'oven/otg','otg':'oven/otg','deck oven':'oven/otg',
+  'baking oven':'oven/otg','oven not heating':'oven/otg','oven temperature':'oven/otg',
+  'commercial oven':'oven/otg','celfrost oven':'oven/otg',
+
+  // ══ DISHWASHER ══
+  'dishwasher':'dishwasher','dish wash machine':'dishwasher',
+
+  // ══ ICE MACHINE ══
+  'ice machine':'ice machine','ice maker':'ice machine','ice not forming':'ice machine',
+
+  // ══ COFFEE MACHINE ══
+  'coffee machine':'coffee machine','coffee maker':'coffee machine',
+
+  // ══ TROLLEY / RACK ══
+  'trolley':'trolley/rack','rack':'trolley/rack','shelf':'trolley/rack',
+  'trolley wheel':'trolley/rack','rack broken':'trolley/rack',
+
+  // ══ TANDOOR ══
+  'tandoor':'tandoor','tandoor not working':'tandoor','tandur':'tandoor',
+
+  // ══ TILES / CIVIL ══
+  'tile':'tile repair','tiles broken':'tile repair','tile damage':'tile repair',
+  'tile repair':'tile repair','floor tile':'tile repair','wall tile':'tile repair',
+  'tile cracked':'tile repair','tile replace':'tile repair','tiles toot':'tile repair',
+  'floor tiles':'tile repair','tails broken':'tile repair',
+
+  // ══ PAINTING ══
+  'paint':'painting','painting':'painting','colour':'painting',
+  'wall painting':'painting','ceiling paint':'painting','wall color':'painting',
+  'wall flakes':'painting','paint peeling':'painting','repainting':'painting',
+  'color the wall':'painting','outlet painting':'painting',
+
+  // ══ DOOR / WINDOW / SHUTTER ══
+  'door':'door/window','window':'door/window','shutter':'door/window',
+  'door not closing':'door/window','window broken':'door/window',
+  'door lock':'door/window','door handle':'door/window','door latch':'door/window',
+  'shutter not working':'door/window','entrance door':'door/window',
+  'door broken':'door/window','door hinge':'door/window',
+
+  // ══ WATERPROOFING ══
+  'waterproofing':'waterproofing','seepage':'waterproofing','nami':'waterproofing',
+  'roof leak':'roof leak','ceiling leak':'roof leak',
+  'rain water coming':'roof leak','water seepage from ceiling':'waterproofing',
+
+  // ══ WALL CRACK ══
+  'wall crack':'wall crack','crack':'wall crack','darar':'wall crack',
+  'wall broken':'wall crack','wall damage':'wall crack',
+
+  // ══ PEST / COCKROACH ══
+  'cockroach':'cockroach','roach':'cockroach','keeda':'cockroach',
+  'roaches':'cockroach','cockroaches':'cockroach','kockroach':'cockroach',
+  'cokroach':'cockroach','cockroches':'cockroach','roches':'cockroach',
+
+  // ══ RODENT / RAT ══
+  'rat':'rodent/rat','mouse':'rodent/rat','chuha':'rodent/rat',
+  'rodent':'rodent/rat','rat issue':'rodent/rat','rat entry':'rodent/rat',
+  'chuhey':'rodent/rat','rat bite':'rodent/rat','rodent issue':'rodent/rat',
+  'rat problem':'rodent/rat','rat cut wire':'rodent/rat',
+  'rat entry point':'rodent/rat','rat holes':'rodent/rat',
+  'rat infestation':'rodent/rat','rats coming':'rodent/rat',
+
+  // ══ FUMIGATION / PEST CONTROL ══
+  'pest control':'general fumigation','fumigation':'general fumigation',
+  'pest spray':'general fumigation','bedbug':'general fumigation',
+  'bed bug':'general fumigation','fly catcher':'general fumigation',
+  'flycatcher':'general fumigation','fly catchers':'general fumigation',
+  'pest service':'general fumigation','rodent service':'general fumigation',
+  'pest o flash':'general fumigation','pesto flash':'general fumigation',
+  'termite':'termite','ant':'ant','cheenti':'ant',
+
+  // ══ CCTV ══
+  'cctv':'cctv','camera':'cctv','dvr':'cctv','camera not working':'cctv',
+  'cctv offline':'cctv','cctv not recording':'cctv','camera offline':'cctv',
+  'dvr issue':'cctv','cctv playback':'cctv','hard disk full':'cctv',
+  'cctv timing':'cctv','cc camera':'cctv','camera wire cut':'cctv',
+
+  // ══ INTERNET / WIFI ══
+  'internet':'internet','wifi':'wifi','router':'router','network':'internet',
+  'lan cable':'internet','internet slow':'internet','wifi not working':'internet',
+  'internet issue':'internet','internet recharge':'internet',
+  'net not working':'internet','wifi slow':'internet',
+
+  // ══ PRINTER ══
+  'printer':'printer not working','kot printer':'printer not working',
+  'bill printer':'printer not working','label printer':'printer not working',
+  'kot not working':'printer not working','printer not printing':'printer not working',
+  'billing printer':'printer not working','tsc printer':'printer not working',
+  'tvs printer':'printer not working','printer issue':'printer not working',
+
+  // ══ COMPUTER / SYSTEM ══
+  'computer':'computer','laptop':'computer','keyboard':'computer',
+  'monitor':'computer','mouse':'computer','cpu':'computer',
+  'system slow':'computer','system hanging':'computer','desktop':'computer',
+  'system not working':'computer','keyboard not working':'computer',
+
+  // ══ UPS / DG ══
+  'ups':'ups not working','ups not working':'ups not working',
+  'ups battery':'ups not working','ups backup':'ups not working',
+  'dg':'dg not working','generator':'dg not working',
+  'dg not working':'dg not working','dg triping':'dg not working',
+  'dg overload':'dg not working','dg not starting':'dg not working',
+  'changeover':'dg not working','change over':'dg not working',
+  'dg running':'dg not working','diesel':'dg not working'
+};
+
+// ===== FUZZY SEARCH =====
+function fuzzySearchSubs(query){
+  const q=query.toLowerCase().trim();
+
+  // Step 1: try alias mapping — longest match wins
+  let searchTerm=q;
+  let bestAliasLen=0;
+  for(const[alias,mapped]of Object.entries(VOICE_ALIASES)){
+    if(alias&&q.includes(alias)&&alias.length>bestAliasLen){
+      if(mapped)searchTerm=mapped;
+      bestAliasLen=alias.length;
+    }
+  }
+
+  // Step 2: also keep original query tokens for direct matching
+  const origTokens=q.split(/\s+/).filter(w=>w.length>=3);
+  const searchTokens=searchTerm.split(/\s+/).filter(w=>w.length>=3);
+  const allTokens=[...new Set([...origTokens,...searchTokens])];
+  if(!allTokens.length)return[];
+
+  const scored=[];
+  Object.entries(CATS).forEach(([catId,cat])=>{
+    if(cat.disabled)return;
+    (cat.subs||[]).forEach(sub=>{
+      const subL=sub.toLowerCase();
+      const catL=cat.label.toLowerCase().replace(/[^\w\s]/g,'');
+      let score=0;
+
+      // Exact full sub-category name in original query — massive boost
+      if(q.includes(subL))score+=20;
+      // Mapped search term matches sub-category
+      else if(subL.includes(searchTerm)&&searchTerm.length>3)score+=15;
+      else if(subL===searchTerm)score+=15;
+      // Category label match
+      if(catL.includes(searchTerm)&&searchTerm.length>3)score+=6;
+
+      // Token by token matching
+      allTokens.forEach(t=>{
+        if(t.length<3)return;
+        if(subL.includes(t))score+=4;
+        else if(catL.includes(t))score+=1;
+      });
+
+      if(score>0)scored.push({catId,catLabel:cat.label,sub,pri:UMAP[sub]||cat.pri,score});
+    });
+  });
+  return scored.sort((a,b)=>b.score-a.score).slice(0,12);
+}
+// ===== SMART SEARCH =====
+let subSearchSelected={cat:'',sub:''};
+let autoSuggestPending=null;
+let autoSuggestTimer=null;
+
+function onSubSearchAuto(){
+  const q=document.getElementById('subSearch').value.trim();
+  const bar=document.getElementById('autoSuggestBar');
+  const res=document.getElementById('subSearchResults');
+  const btn=document.getElementById('srchClearBtn');
+  if(btn)btn.style.display=q?'block':'none';
+  if(!q){bar.style.display='none';res.style.display='none';autoSuggestPending=null;return;}
+  clearTimeout(autoSuggestTimer);
+  autoSuggestTimer=setTimeout(()=>{
+    const matches=fuzzySearchSubs(q);
+    if(!matches.length){
+      bar.style.display='none';
+      res.style.display='block';
+      res.innerHTML='<div style="padding:12px;font-size:10px;color:var(--t3);text-align:center">No match — try different words or use 📂 Browse</div>';
+      return;
+    }
+    res.style.display='none';
+    autoSuggestPending=matches[0];
+    const priColor={critical:'var(--er)',high:'var(--or)',medium:'var(--wr)',low:'var(--ok)'}[matches[0].pri]||'var(--t3)';
+    const priLabel={critical:'🔴 P0 Critical',high:'🟠 P1 High',medium:'🟡 P2 Medium',low:'🟢 P3 Low'}[matches[0].pri]||matches[0].pri;
+    document.getElementById('suggestName').textContent=matches[0].sub;
+    document.getElementById('suggestMeta').innerHTML=matches[0].catLabel+' &nbsp;·&nbsp; <span style="color:'+priColor+';font-weight:700">'+priLabel+'</span>';
+    bar.style.display='block';
+  },400);
+}
+
+function confirmSuggest(){
+  if(!autoSuggestPending)return;
+  selectSubFromSearch(autoSuggestPending.catId,autoSuggestPending.sub,autoSuggestPending.catLabel,autoSuggestPending.pri);
+  document.getElementById('autoSuggestBar').style.display='none';
+  autoSuggestPending=null;
+}
+
+function showSuggestAlts(){
+  const q=document.getElementById('subSearch').value.trim();
+  const matches=fuzzySearchSubs(q);
+  const res=document.getElementById('subSearchResults');
+  document.getElementById('autoSuggestBar').style.display='none';
+  if(!matches.length)return;
+  res.style.display='block';
+  res.innerHTML=matches.slice(0,8).map(m=>{
+    const priColor={critical:'var(--er)',high:'var(--or)',medium:'var(--wr)',low:'var(--ok)'}[m.pri]||'var(--t3)';
+    const priLabel={critical:'P0',high:'P1',medium:'P2',low:'P3'}[m.pri]||m.pri;
+    return`<div onclick="selectSubFromSearch('${m.catId}','${m.sub.replace(/'/g,"\\'").replace(/"/g,'&quot;')}','${m.catLabel.replace(/'/g,"\\'").replace(/"/g,'&quot;')}','${m.pri}')" style="padding:10px 12px;border-bottom:1px solid var(--bdr);cursor:pointer" onmouseover="this.style.background='var(--c1)'" onmouseout="this.style.background=''">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-size:11px;font-weight:600">${m.sub}</div><div style="font-size:9px;color:var(--t3);margin-top:1px">${m.catLabel}</div></div>
+        <span style="font-size:9px;font-weight:700;color:${priColor};flex-shrink:0;margin-left:8px">${priLabel}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectSubFromSearch(catId,sub,catLabel,pri){
+  subSearchSelected={cat:catId,sub};
+  const tC=document.getElementById('tC');
+  const tS=document.getElementById('tS');
+  // Ensure category dropdown has this option (add it if missing)
+  if(!Array.from(tC.options).find(o=>o.value===catId)){
+    const opt=document.createElement('option');
+    opt.value=catId;opt.text=catLabel;
+    tC.appendChild(opt);
+  }
+  setTimeout(()=>{tC.value=catId;},10);
+  tS.innerHTML=`<option value="${sub}" selected>${sub}</option>`;
+  tS.value=sub;
+  const tCv=document.getElementById('tCv');
+  const tSv=document.getElementById('tSv');
+  if(tCv&&CATS[catId])tSv.innerHTML=`<option value="">—</option>`+CATS[catId].subs.map(s=>`<option${s===sub?' selected':''}>${s}</option>`).join('');
+  document.getElementById('subSearchResults').style.display='none';
+  document.getElementById('autoSuggestBar').style.display='none';
+  document.getElementById('subSearch').value=sub;
+  const btn=document.getElementById('srchClearBtn');if(btn)btn.style.display='block';
+  const selEl=document.getElementById('subSelected');
+  selEl.style.display='block';
+  document.getElementById('subSelectedName').textContent=sub;
+  document.getElementById('subSelectedCat').textContent=catLabel;
+  onSub();
+}
+
+function clearSubSelection(){
+  subSearchSelected={cat:'',sub:''};
+  autoSuggestPending=null;
+  document.getElementById('subSearch').value='';
+  document.getElementById('subSelected').style.display='none';
+  document.getElementById('subSearchResults').style.display='none';
+  document.getElementById('autoSuggestBar').style.display='none';
+  const btn=document.getElementById('srchClearBtn');if(btn)btn.style.display='none';
+  document.getElementById('tS').innerHTML='<option value="">—</option>';
+  document.getElementById('probeW').style.display='none';
+  const pe=document.getElementById('tP');const se=document.getElementById('tSL');
+  if(pe)pe.textContent='—';if(se)se.style.display='none';
+}
+
+function toggleCatDropdowns(){
+  const d=document.getElementById('catSubDropdowns');
+  const btn=document.getElementById('browseToggle');
+  const showing=d.style.display!=='none';
+  d.style.display=showing?'none':'grid';
+  btn.textContent=showing?'📂 Browse by Category':'✕ Hide';
+  if(!showing){
+    const tCv=document.getElementById('tCv');
+    tCv.innerHTML='<option value="">Select</option>'+Object.entries(CATS).filter(([k,c])=>!c.disabled).map(([k,c])=>`<option value="${k}">${c.label}</option>`).join('');
+  }
+}
+
+function onCatVisible(){
+  const c=document.getElementById('tCv').value;
+  const sv=document.getElementById('tSv');
+  sv.innerHTML='<option value="">—</option>';
+  if(CATS[c])CATS[c].subs.forEach(x=>sv.innerHTML+=`<option>${x}</option>`);
+  document.getElementById('tC').value=c;
+  document.getElementById('tS').innerHTML='<option value="">—</option>';
+  clearSubSelection();
+}
+
+function onSubVisible(){
+  const c=document.getElementById('tCv').value;
+  const s=document.getElementById('tSv').value;
+  if(!c||!s)return;
+  document.getElementById('tC').value=c;
+  const tS=document.getElementById('tS');
+  tS.innerHTML=`<option value="${s}" selected>${s}</option>`;
+  tS.value=s;
+  subSearchSelected={cat:c,sub:s};
+  document.getElementById('subSearch').value=s;
+  const btn=document.getElementById('srchClearBtn');if(btn)btn.style.display='block';
+  const selEl=document.getElementById('subSelected');
+  selEl.style.display='block';
+  document.getElementById('subSelectedName').textContent=s;
+  document.getElementById('subSelectedCat').textContent=CATS[c]?.label||c;
+  onSub();
+}
+
+// ===== VOICE SEARCH =====
+function voiceSearch(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const btn=document.getElementById('srchMicBtn');
+  if(!SR){nf('Not supported','Voice needs Chrome on Android/desktop','warn');return}
+  if(location.protocol==='file:'){nf('HTTPS required','Deploy to GitHub first','warn');return}
+  const r=new SR();
+  r.lang='en-IN';r.continuous=false;r.interimResults=false;
+  if(btn){btn.textContent='🔴';btn.style.color='var(--er)'}
+  nf('🎤 Listening','Speak the problem now...','ok');
+  r.onresult=e=>{
+    const txt=e.results[0][0].transcript.toLowerCase().trim();
+    const inp=document.getElementById('subSearch');
+    if(inp){inp.value=txt;}
+    const matches=fuzzySearchSubs(txt);
+    if(!matches.length){
+      nf('Heard','"'+txt+'" — no match found, try again','warn');
+    } else {
+      autoSuggestPending=matches[0];
+      const priColor={critical:'var(--er)',high:'var(--or)',medium:'var(--wr)',low:'var(--ok)'}[matches[0].pri]||'var(--t3)';
+      const priLabel={critical:'🔴 P0 Critical',high:'🟠 P1 High',medium:'🟡 P2 Medium',low:'🟢 P3 Low'}[matches[0].pri]||matches[0].pri;
+      document.getElementById('suggestName').textContent=matches[0].sub;
+      document.getElementById('suggestMeta').innerHTML=matches[0].catLabel+' &nbsp;·&nbsp; <span style="color:'+priColor+';font-weight:700">'+priLabel+'</span>';
+      document.getElementById('autoSuggestBar').style.display='block';
+      document.getElementById('subSearchResults').style.display='none';
+      nf('Heard','"'+txt+'"','ok');
+    }
+  };
+  r.onend=()=>{if(btn){btn.textContent='🎤';btn.style.color='var(--t2)'}};
+  r.onerror=e=>{
+    if(btn){btn.textContent='🎤';btn.style.color='var(--t2)'}
+    const msg={'not-allowed':'Mic access denied','no-speech':'No speech detected','network':'Network error'}[e.error]||e.error;
+    nf('Voice error',msg,'warn');
+  };
+  try{r.start()}catch(e){nf('Error',e.message,'warn')}
+}
 
 function onCat(){const c=document.getElementById('tC').value,s=document.getElementById('tS');s.innerHTML='<option value="">—</option>';if(CATS[c])CATS[c].subs.forEach(x=>s.innerHTML+=`<option>${x}</option>`);document.getElementById('probeW').style.display='none';uPri()}
 
