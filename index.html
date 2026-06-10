@@ -604,6 +604,7 @@ function ticketToSheetRow(t){
     Needs_Visit:t.locVisit?'TRUE':'FALSE',
     Is_Reopened:t.reopened?'TRUE':'FALSE',
     Confirm_Status:t.confirmStatus||'',
+    Photo_URLs:(t.photoUrls||[]).join(','),
     Created_At:ts(),
     Updated_At:ts()
   };
@@ -649,6 +650,7 @@ function sheetRowToTicket(r){
     locVisit:tf(r.Needs_Visit),
     confirmStatus:String(r.Confirm_Status||'').trim()||null,
     reopened:tf(r.Is_Reopened),
+    photoUrls:String(r.Photo_URLs||'').trim().split(',').filter(Boolean),
     synced:true
   };
 }
@@ -1437,13 +1439,24 @@ function onSub(){uPri();const c=document.getElementById('tC').value,s=document.g
 function uPri(){const s=document.getElementById('tS').value,c=document.getElementById('tC').value;let u=UMAP[s]||(CATS[c]?CATS[c].pri:'medium');const sla=SLAH[u]||CATS[c]?.sla||24;
   const pe=document.getElementById('tP'),se=document.getElementById('tSL');if(u&&c){pe.textContent=PRILABELS[u]||u;pe.className='pri '+(PRICOLORS[u]||'m');se.textContent='⏱ '+sla+'h';se.className='sla '+(u==='critical'?'breach':u==='high'?'warn':'safe');se.style.display='inline-flex'}else{pe.textContent='—';se.style.display='none'}}
 
-function raiseTicket(){const o=document.getElementById('tO').value,c=document.getElementById('tC').value,s=document.getElementById('tS').value,d=document.getElementById('tD').value;if(!o||!c||!s||!d){nf('Missing','All fields required','warn');return}
+async function raiseTicket(){const o=document.getElementById('tO').value,c=document.getElementById('tC').value,s=document.getElementById('tS').value,d=document.getElementById('tD').value;if(!o||!c||!s||!d){nf('Missing','All fields required','warn');return}
   tCnt++;const id='RMT-0'+tCnt;const u=UMAP[s]||(CATS[c]?CATS[c].pri:'medium');const sla=SLAH[u]||CATS[c]?.sla||24;
   const probes=[];document.querySelectorAll('#probeL input:checked').forEach(x=>probes.push(x.nextElementSibling?.textContent));
   const deadline=new Date(Date.now()+(sla*3600000)).toISOString();
   const t={id,issue:s,cat:c.charAt(0).toUpperCase()+c.slice(1),sub:s,out:o,pri:u,sla:'+'+String(sla).padStart(2,'0')+':00',slaDeadline:deadline,status:'raised',att:null,hist:[{s:'raised',t:ts(),n:'By '+userName+(probes.length?' · '+probes.length+' probes flagged':'')}],desc:d,otp:Math.floor(100000+Math.random()*900000),costs:[],by:phone,otpRevealed:false,issueRes:null,chat:[],puTask:null,vendor:null,slaExt:[],probes,locVisit:true,confirmStatus:null,reopened:false};
   const a=autoA(t);if(a){t.att=a.id;a.load++;t.status='assigned';t.hist.push({s:'assigned',t:ts(),n:'→ '+a.name})}
-  TKS.unshift(t);['tO','tC','tD'].forEach(x=>document.getElementById(x).value='');document.getElementById('tS').innerHTML='<option value="">—</option>';document.getElementById('probeW').style.display='none';
+  // Upload ticket photos to Google Drive
+  const imgInput=document.getElementById('tImg');
+  const imgUrls=[];
+  if(imgInput&&imgInput.files.length){
+    nf('Uploading…','Saving photos to Drive','ok');
+    for(const f of imgInput.files){
+      const url=await uploadToGDrive(f,'ticket_'+id);
+      if(url)imgUrls.push(url);
+    }
+  }
+  t.photoUrls=imgUrls;
+  TKS.unshift(t);['tO','tC','tD'].forEach(x=>document.getElementById(x).value='');document.getElementById('tS').innerHTML='<option value="">—</option>';document.getElementById('probeW').style.display='none';document.getElementById('tImg').value='';document.getElementById('tImgL').textContent='Tap to upload';
   R();
   // PHASE 5: write-through — save the new ticket to the sheet, then log its history
   nf('Saving…','Sending ticket to the sheet','ok');
@@ -1494,15 +1507,48 @@ function doReopen(){const r=document.getElementById('reR').value;if(!r){nf('Reas
 function renderIssueModal(t){document.getElementById('issueMBody').innerHTML=`<p style="font-size:10px;color:var(--t2);margin-bottom:8px">Mark resolution status for each ${t.cat}→${t.sub} issue:</p>`+t.issueRes.map((r,i)=>{const bg={fixed:'var(--okb)',partial:'var(--wrb)',notfixed:'var(--erb)'}[r.status];return`<div class="ires" style="background:${bg}"><span style="flex:1">${r.text}</span><select onchange="setIssueRes('${t.id}',${i},this.value)"><option value="fixed" ${r.status==='fixed'?'selected':''}>✅ Fixed</option><option value="partial" ${r.status==='partial'?'selected':''}>⚠️ Partial</option><option value="notfixed" ${r.status==='notfixed'?'selected':''}>❌ Not Fixed</option></select></div>`}).join('')}
 function setIssueRes(id,i,v){const t=TKS.find(x=>x.id===id);if(t&&t.issueRes){t.issueRes[i].status=v;renderIssueModal(t)}}
 
-function addLP(){const t=TKS.find(x=>x.id===curTkt);if(!t)return;const item=document.getElementById('lpI').value,qty=parseFloat(document.getElementById('lpQ').value)||1,amt=parseFloat(document.getElementById('lpA').value)||0,unit=document.getElementById('lpU').value,shop=document.getElementById('lpSh').value,rem=document.getElementById('lpRm').value;
+async function addLP(){
+  const t=TKS.find(x=>x.id===curTkt);if(!t)return;
+  const item=document.getElementById('lpI').value,
+        qty=parseFloat(document.getElementById('lpQ').value)||1,
+        amt=parseFloat(document.getElementById('lpA').value)||0,
+        unit=document.getElementById('lpU').value,
+        shop=document.getElementById('lpSh').value,
+        rem=document.getElementById('lpRm').value;
   if(!item||!amt||!shop){nf('Required','Item, amount, shop','warn');return}
-  const hQ=document.getElementById('lpQI').files.length>0,hB=document.getElementById('lpBI').files.length>0;
-  const newCost={item,qty,unit,amt:Math.round(amt*qty),rate:amt,shop,remarks:rem,v:hQ?'qr':'mn',qrImg:hQ,billImg:hB,payStatus:'mgr-pending',addedAt:ts()};
+
+  const qrFile=document.getElementById('lpQI').files[0];
+  const billFile=document.getElementById('lpBI').files[0];
+
+  let qrUrl=null,billUrl=null;
+  if(qrFile||billFile){
+    nf('Uploading…','Saving docs to Drive','ok');
+    if(qrFile)qrUrl=await uploadToGDrive(qrFile,'qr_'+curTkt);
+    if(billFile)billUrl=await uploadToGDrive(billFile,'bill_'+curTkt);
+  }
+
+  const newCost={
+    item,qty,unit,amt:Math.round(amt*qty),rate:amt,shop,remarks:rem,
+    v:qrUrl?'qr':'mn',
+    qrImg:!!qrUrl,billImg:!!billUrl,
+    qrUrl:qrUrl||'',billUrl:billUrl||'',
+    payStatus:'mgr-pending',addedAt:ts()
+  };
   t.costs.push(newCost);
-  writePO(t,newCost);   // PHASE 6: write-through
-  ['lpI','lpA','lpSh','lpRm'].forEach(x=>document.getElementById(x).value='');document.getElementById('lpQ').value='1';document.getElementById('lpU').value='pcs';
-  document.getElementById('lpQL').textContent='Tap to upload';document.getElementById('lpQL').style.color='';document.getElementById('lpBL').textContent='Tap to upload';document.getElementById('lpBL').style.color='';
-  document.getElementById('lpT').textContent='₹0';closeM('lpM');R();nf('✅ Added',item,'ok');showPurch(curTkt)}
+  writePO(t,newCost);
+  ['lpI','lpA','lpSh','lpRm'].forEach(x=>document.getElementById(x).value='');
+  document.getElementById('lpQ').value='1';
+  document.getElementById('lpU').value='pcs';
+  document.getElementById('lpQL').textContent='Tap to upload';
+  document.getElementById('lpQL').style.color='';
+  document.getElementById('lpBL').textContent='Tap to upload';
+  document.getElementById('lpBL').style.color='';
+  document.getElementById('lpQI').value='';
+  document.getElementById('lpBI').value='';
+  document.getElementById('lpT').textContent='₹0';
+  closeM('lpM');R();nf('✅ Added',item,'ok');showPurch(curTkt)
+}
+
 document.addEventListener('input',e=>{if(e.target.id==='lpQ'||e.target.id==='lpA'){const q=parseFloat(document.getElementById('lpQ')?.value)||0,a=parseFloat(document.getElementById('lpA')?.value)||0;const el=document.getElementById('lpT');if(el)el.textContent='₹'+(q*a).toLocaleString('en-IN')}});
 function delLP(i,id){const t=TKS.find(x=>x.id===id);if(t&&confirm('Delete this item?')){t.costs.splice(i,1);R();showPurch(id)}}
 function editLP(i,id){const t=TKS.find(x=>x.id===id);if(!t)return;const c=t.costs[i],nv=prompt('New amount:',c.amt);if(nv!==null){c.amt=parseInt(nv)||c.amt;R();showPurch(id)}}
@@ -1517,11 +1563,14 @@ function mgrApprovePay(tid,i){const t=TKS.find(x=>x.id===tid);if(!t)return;const
   R();nf('Approved','To Finance','ok');showPurch(tid)}function finPay(tid,i,st){const t=TKS.find(x=>x.id===tid);if(!t)return;const c=t.costs[i];c.payStatus=st;const lbl={done:'💳 Paid',hold:'⏸ Hold',rej:'✕ Rejected'}[st];t.hist.push({s:t.status,t:ts(),n:lbl+': '+c.item});R();nf(lbl,c.item,'ok');showPurch(tid)}
 
 function viewDocs(tid,i){const t=TKS.find(x=>x.id===tid);if(!t)return;const c=t.costs[i];
+  const qrBtn=c.qrUrl?`<a href="${c.qrUrl}" target="_blank" class="btn btn-s btn-o btn-full" style="margin-top:4px;font-size:9px">🔗 View QR</a>`:'';
+  const billBtn=c.billUrl?`<a href="${c.billUrl}" target="_blank" class="btn btn-s btn-o btn-full" style="margin-top:4px;font-size:9px">🔗 View Bill</a>`:'';
   const h=`<div style="margin-bottom:12px"><h4 style="font-size:12px;font-weight:700">${c.item}</h4><div style="font-size:10px;color:var(--t2)">${c.qty} ${c.unit||'pcs'} @ ₹${(c.rate||c.amt).toLocaleString('en-IN')} = ₹${c.amt.toLocaleString('en-IN')}</div><div style="font-size:9px;color:var(--t3);margin-top:3px">🏪 ${c.shop||'—'} · Added ${c.addedAt||'—'}</div>${c.remarks?`<div style="font-size:9px;font-style:italic;color:var(--t2);margin-top:4px">📝 ${c.remarks}</div>`:''}</div>
-  <div class="doc-grid"><div class="doc-item">${c.qrImg?'<div class="di-icon">📱</div><div class="di-label">QR Code</div><div class="di-status" style="color:var(--ok)">✅ Uploaded</div>':'<div class="di-icon" style="opacity:.3">📱</div><div class="di-label">QR</div><div class="di-status">Not uploaded</div>'}</div>
-  <div class="doc-item">${c.billImg?'<div class="di-icon">📷</div><div class="di-label">Bill</div><div class="di-status" style="color:var(--ok)">✅ Uploaded</div>':'<div class="di-icon" style="opacity:.3">📷</div><div class="di-label">Bill</div><div class="di-status">Not uploaded</div>'}</div></div>`;
+  <div class="doc-grid">
+    <div class="doc-item">${c.qrImg?`<div class="di-icon">📱</div><div class="di-label">QR Code</div><div class="di-status" style="color:var(--ok)">✅ Uploaded</div>${qrBtn}`:'<div class="di-icon" style="opacity:.3">📱</div><div class="di-label">QR</div><div class="di-status">Not uploaded</div>'}</div>
+    <div class="doc-item">${c.billImg?`<div class="di-icon">📷</div><div class="di-label">Bill</div><div class="di-status" style="color:var(--ok)">✅ Uploaded</div>${billBtn}`:'<div class="di-icon" style="opacity:.3">📷</div><div class="di-label">Bill</div><div class="di-status">Not uploaded</div>'}</div>
+  </div>`;
   document.getElementById('docMBody').innerHTML=h;openM('docM')}
-
 function showPurch(id){curTkt=id;const t=TKS.find(x=>x.id===id);if(!t)return;
   const isAtt=role==='attender',isMg=role==='manager',isRM=role==='rmhead',isFn=role==='finance';
   const canAdd=isAtt&&t.status!=='closed';const tot=t.costs.reduce((s,c)=>s+c.amt,0);
@@ -1585,7 +1634,37 @@ function doReassign(){const newAtt=document.getElementById('raA').value,r=docume
   const newA=gA(newAtt);if(newA)newA.load++;t.att=newAtt;
   t.hist.push({s:t.status,t:ts(),n:'↪ Re-assigned to '+newA.name+' ('+r+')'+(n?': '+n:'')});
   closeM('reassignM');['raA','raR','raN'].forEach(x=>document.getElementById(x).value='');R();viewT(curTkt);nf('Re-assigned','→ '+newA.name,'ok')}
+// ===== GOOGLE DRIVE IMAGE UPLOAD =====
+const GDRIVE_FOLDER_ID='1Mgh8dJgxYO3jmEhNGtmmpOvkGM-iUqi6';
 
+async function uploadToGDrive(file, prefix){
+  return new Promise((resolve)=>{
+    if(!file){resolve(null);return;}
+    const reader=new FileReader();
+    reader.onload=async function(e){
+      try{
+        const base64=e.target.result.split(',')[1];
+        const ext=file.name.split('.').pop()||'jpg';
+        const fileName=prefix+'_'+Date.now()+'.'+ext;
+        const res=await fetch(API_URL,{
+          method:'POST',
+          headers:{'Content-Type':'text/plain;charset=utf-8'},
+          body:JSON.stringify({
+            action:'uploadImage',
+            imageData:base64,
+            mimeType:file.type||'image/jpeg',
+            fileName:fileName,
+            folderId:GDRIVE_FOLDER_ID
+          })
+        });
+        const json=await res.json();
+        if(json&&json.ok){resolve(json.url);}
+        else{console.error('Upload failed',json);resolve(null);}
+      }catch(err){console.error('Upload error',err);resolve(null);}
+    };
+    reader.readAsDataURL(file);
+  });
+}
 // VOICE
 function voiceInput(targetId){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){nf('Not available','','warn');return}if(location.protocol==='file:'){nf('HTTPS required','Voice works only on Netlify deploy','warn');return}
   const r=new SR();r.lang='en-IN';r.continuous=false;r.interimResults=false;const btn=document.getElementById('vBtn');if(btn){btn.style.background='var(--er)';btn.textContent='🔴'}nf('🎤 Listening','Speak now','ok');
@@ -1691,15 +1770,42 @@ function rFin(){const el=document.getElementById('fnList');if(!el)return;
   }).join('')}
 let payOrderTkt='';
 function openPayOrder(tid){payOrderTkt=tid;document.getElementById('poProofL').textContent='Tap to upload proof';document.getElementById('poProofL').style.color='';document.getElementById('poProof').value='';document.getElementById('poRemarks').value='';openM('payOrderM')}
-function confirmPayOrder(){const t=TKS.find(x=>x.id===payOrderTkt);if(!t)return;const proof=document.getElementById('poProof').files.length>0;const remarks=document.getElementById('poRemarks').value;
-  let n=0;t.costs.forEach(c=>{if(c.payStatus==='approved'){c.payStatus='done';n++;}});
-  t.payment={status:'paid',proofUploaded:proof,remarks,by:userName,when:ts()};
-  t.hist.push({s:t.status,t:ts(),n:'💳 Order paid ('+n+' items) by '+userName+(proof?' · proof attached':'')});
-  // PHASE 6: write-through
-  t.costs.forEach(c=>{if(c.poId&&c.payStatus==='done')apiUpdate('Purchase_Orders','PO_ID',c.poId,{Pay_Status:'done'})});
-  writePayment(t,'paid',proof,remarks);
+async function confirmPayOrder(){
+  const t=TKS.find(x=>x.id===payOrderTkt);if(!t)return;
+  const proofFile=document.getElementById('poProof').files[0];
+  const remarks=document.getElementById('poRemarks').value;
+
+  let proofUrl=null;
+  if(proofFile){
+    nf('Uploading…','Saving payment proof to Drive','ok');
+    proofUrl=await uploadToGDrive(proofFile,'payment_'+payOrderTkt);
+  }
+
+  let n=0;
+  t.costs.forEach(c=>{if(c.payStatus==='approved'){c.payStatus='done';n++;}});
+  t.payment={
+    status:'paid',
+    proofUploaded:!!proofUrl,
+    proofUrl:proofUrl||'',
+    remarks,
+    by:userName,
+    when:ts()
+  };
+  t.hist.push({s:t.status,t:ts(),n:'💳 Order paid ('+n+' items) by '+userName+(proofUrl?' · 📷 proof saved':'')});
+
+  t.costs.forEach(c=>{
+    if(c.poId&&c.payStatus==='done')
+      apiUpdate('Purchase_Orders','PO_ID',c.poId,{Pay_Status:'done',Proof_Link:proofUrl||''});
+  });
+  writePayment(t,'paid',!!proofUrl,remarks);
   writeHistory(payOrderTkt,t.status,'💳 Order paid by '+userName,userName);
-  closeM('payOrderM');R();nf('💳 Order Paid',n+' item(s) settled','ok')}
+
+  document.getElementById('poProof').value='';
+  document.getElementById('poProofL').textContent='Tap to upload proof';
+  document.getElementById('poProofL').style.color='';
+  document.getElementById('poRemarks').value='';
+  closeM('payOrderM');R();nf('💳 Order Paid',n+' item(s) settled','ok')
+}
 function rejectOrder(tid){const t=TKS.find(x=>x.id===tid);if(!t)return;if(!confirm('Reject all approved items in this order?'))return;let n=0;
   t.costs.forEach(c=>{if(c.payStatus==='approved'){c.payStatus='rej';n++;}});
   t.payment={status:'rejected',by:userName,when:ts()};
@@ -1958,6 +2064,16 @@ function viewT(id){curTkt=id;const t=TKS.find(x=>x.id===id);if(!t)return;const p
   if(logOpen[t.id]){stH+='<div class="tl" style="margin-top:8px">';t.hist.forEach((h,i)=>{stH+=`<div class="tli ${i===t.hist.length-1?'nw':'dn'}"><div class="tl-d"></div><div class="tlc"><div class="tt">${h.t}</div><div class="th">${SL[h.s]||h.s}</div>${h.n?`<div class="td">${h.n}</div>`:''}</div></div>`});stH+='</div>'}
   stH+='</div>';
 
+// Ticket photos uploaded by requester
+  let photosH='';
+  if(t.photoUrls&&t.photoUrls.length){
+    photosH=`<div class="card"><div class="card-h"><h3>📷 Photos</h3></div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      ${t.photoUrls.map((url,i)=>`<a href="${url}" target="_blank" style="display:flex;align-items:center;gap:4px;padding:6px 10px;background:var(--c2);border-radius:var(--rs);font-size:10px;color:var(--ac2);text-decoration:none">📷 Photo ${i+1}</a>`).join('')}
+    </div></div>`;
+  }
+
+
   // Probes (visible to all if checked at raise)
   let probesH='';if(t.probes?.length){probesH=`<div class="card"><div class="card-h"><h3>📋 Probing Flagged at Raise</h3></div>${t.probes.map(p=>`<div class="chk" style="cursor:default">✅ ${p}</div>`).join('')}</div>`}
 
@@ -2024,7 +2140,7 @@ let workMetaH='';if(isA&&t.status!=='closed'){const m=getMeta((t.cat||'').toLowe
   let prg='<div class="prog" style="margin-top:4px">';for(let i=0;i<SF.length;i++)prg+=`<div class="dot ${i<si?'dn':i===si?'nw':''}"></div>`;prg+='</div>';
   pg.innerHTML=`<div class="fin"><button class="btn btn-s btn-o" onclick="go('${isA?'att-dash':'tickets'}')" style="margin-bottom:8px">← Back</button>
     <div style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap"><span class="tid" style="font-size:11px">${t.id}</span><span class="badge ${SBC[t.status]}">${SL[t.status]}</span><span class="pri ${pc}">● ${t.pri}</span><span class="sla ${sc}">⏱${t.sla||'—'}</span>${t.reopened?'<span class="badge reopen">🔄</span>':''}${t.vendor?'<span class="badge vendor">🤝 Vendor</span>':''}</div><h2 style="font-size:14px;margin-top:4px;font-weight:700">${t.issue}</h2><div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px"><span class="mt-tag">🏪${t.out}</span><span class="mt-tag">📂${t.cat}</span><span class="mt-tag">📝${ct}</span><span class="mt-tag">👤${cn}</span>${tot>0?`<span class="mt-tag" style="color:var(--ac2)">💰₹${tot.toLocaleString('en-IN')}</span>`:''}</div>${t.desc?`<div style="margin-top:4px;padding:5px 8px;background:var(--c2);border-radius:var(--rs);font-size:10px;color:var(--t2)">${t.desc}</div>`:''}${prg}${isR&&t.sla?.startsWith('-')&&t.status!=='closed'?'<div style="margin-top:4px"><button class="esc-btn" onclick="escalate(\''+t.id+'\')">⚠ Escalate</button></div>':''}</div>
-    <div class="g32"><div>${stH}${probesH}${workMetaH}${mgrFbH}${payProofH}${venH}${puH}${irH}${lpH}</div><div>${attH}${contactH}${otpH}${otpEH}${rateH}${reH}${chatH}</div></div></div>`;go('detail')}
+    <div class="g32"><div>${stH}${photosH}${probesH}${workMetaH}${mgrFbH}${payProofH}${venH}${puH}${irH}${lpH}</div><div>${attH}${contactH}${otpH}${otpEH}${rateH}${reH}${chatH}</div></div></div>`;go('detail')}
 
 function toggleLog(id){logOpen[id]=!logOpen[id];viewT(id)}
 function saveWorkAns(id,type,i,val){const t=TKS.find(x=>x.id===id);if(!t)return;if(!t.workAns)t.workAns={};t.workAns[type+i]=val}
