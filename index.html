@@ -95,6 +95,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <div class="logo"><div class="logo-i">🔧</div><div><h1>Fix Engine</h1><span>Cloud Kitchen R&M v7</span></div></div>
   <h2>Login</h2>
   <div class="fg" id="lPhWrap"><label>Mobile</label><input class="fc" id="lPh" type="tel" placeholder="9876543210" maxlength="10"></div>
+  <div class="fg" id="lOutWrap" style="display:none"><label>Your Outlet *</label><select class="fc" id="lOut"><option value="">Select your outlet</option></select></div>
   <div class="fg" id="lAttWrap" style="display:none"><label>Select Attender</label><select class="fc" id="lAtt"></select></div>
   <div class="fg"><label>Password</label><input class="fc" id="lPw" type="password" placeholder="1234"></div>
   <div class="fg"><label>Role</label><div class="lr-grid">
@@ -157,13 +158,24 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <div class="fg"><label>Description *</label><div style="position:relative"><textarea class="fc" id="tD" rows="2" placeholder="Detailed remarks..." style="padding-right:38px"></textarea><button onclick="voiceInput('tD')" type="button" id="vBtnTD" style="position:absolute;right:6px;top:6px;background:var(--c1);border:1px solid var(--bdr);border-radius:50%;width:28px;height:28px;cursor:pointer;color:var(--t2);font-size:13px">🎤</button></div></div>
 
   <div class="fg"><label>📷 Photos</label><div class="po" onclick="document.getElementById('tImg').click()"><div class="po-i">📷</div><div class="po-l" id="tImgL">Tap to upload</div><input type="file" accept="image/*" capture="environment" multiple style="display:none" id="tImg" onchange="document.getElementById('tImgL').textContent='✅ '+this.files.length+' file(s)'"></div></div>
-  <button class="btn-big green" onclick="raiseTicket()">🎫 Raise Ticket</button>
+  <button class="btn-big green" id="raiseBtn" onclick="raiseTicket()">🎫 Raise Ticket</button>
 </div></div>
 
-<div class="page" id="pg-tickets"><div class="filters fin"><select class="fc" style="width:auto" id="fSt"><option value="">All Status</option><option value="pending">⏳ Pending</option><option value="open">🟢 Open</option><option value="closed">⚫ Closed</option><option value="reopen">🔄 Re-opened</option><option value="breach">⚠ Breached</option></select><select class="fc" style="width:auto" id="fCt"><option value="">All Categories</option></select><select class="fc" style="width:auto" id="fOt"><option value="">All Outlets</option></select><button class="btn btn-s btn-p" onclick="rList()">Go</button><button class="btn btn-s btn-o" onclick="resetF()">↻</button></div><div id="tCards" class="fin"></div></div>
+<div class="page" id="pg-tickets"><div class="filters fin"><select class="fc" style="width:auto" id="fSt"><option value="">All Status</option><option value="pending">⏳ Pending</option><option value="open">🟢 Open</option><option value="closed">⚫ Closed</option><option value="reopen">🔄 Re-opened</option><option value="breach">⚠ Breached</option></select><select class="fc" style="width:auto" id="fPr"><option value="">All Priority</option><option value="critical">🔴 Critical</option><option value="high">🟠 High</option><option value="medium">🟡 Medium</option><option value="low">🟢 Low</option></select><select class="fc" style="width:auto" id="fCt"><option value="">All Categories</option></select><div style="position:relative;display:inline-block">
+  <button type="button" id="fOtBtn" onclick="toggleOutletPanel()" style="background:var(--c2);border:1px solid var(--bdr);border-radius:var(--rs);padding:5px 10px;color:var(--t);font-size:10px;cursor:pointer;white-space:nowrap">🏪 All Outlets ▾</button>
+  <div id="fOtPanel" style="display:none;position:absolute;top:100%;left:0;z-index:200;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);min-width:200px;max-height:260px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4);margin-top:3px">
+    <div style="padding:6px 10px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:9px;color:var(--t3);font-weight:600">SELECT OUTLETS</span>
+      <button type="button" onclick="clearOutletFilter()" style="background:none;border:none;color:var(--ac2);font-size:9px;cursor:pointer">Clear</button>
+    </div>
+    <div id="fOtList" style="padding:4px 0"></div>
+  </div>
+</div><button class="btn btn-s btn-p" onclick="rList()">Go</button><button class="btn btn-s btn-o" onclick="resetF()">↻</button></div><div id="tCards" class="fin"></div></div>
 
 <div class="page" id="pg-detail"></div>
-<div class="page" id="pg-att-dash"><div class="sts fin" id="aSt"></div><div id="attJobs" class="fin"></div></div>
+<div class="page" id="pg-att-dash"><div class="sts fin" id="aSt"></div>
+<div class="filters fin"><select class="fc" style="width:auto" id="aFPr" onchange="rAtt()"><option value="">All Priority</option><option value="critical">🔴 Critical</option><option value="high">🟠 High</option><option value="medium">🟡 Medium</option><option value="low">🟢 Low</option></select><select class="fc" style="width:auto" id="aFSt" onchange="rAtt()"><option value="">All Status</option><option value="assigned">Assigned</option><option value="accepted">Accepted</option><option value="in-progress">In Progress</option><option value="ready-closure">Ready to Close</option></select></div>
+<div id="attJobs" class="fin"></div></div>
 <div class="page" id="pg-punch"><div class="card fin" id="punchCard" style="max-width:480px;margin:0 auto"></div></div>
 <div class="page" id="pg-att-history"><div class="sts fin" id="ahSt"></div><div id="ahList" class="fin"></div></div>
 <div class="page" id="pg-approvals"><div class="sts fin"><div class="st o"><div class="sv" id="apP">0</div><div class="sl">Pending</div></div><div class="st g"><div class="sv" id="apD">0</div><div class="sl">Approved</div></div></div><div class="card fin"><div class="card-h"><h3>Cost Approvals</h3></div><div id="apList"></div></div></div>
@@ -202,8 +214,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <div class="fg"><label>📱 QR Code</label><div class="po" onclick="document.getElementById('lpQI').click()"><div class="po-i">📱</div><div class="po-l" id="lpQL">Tap to upload</div><input type="file" accept="image/*" capture="environment" style="display:none" id="lpQI" onchange="document.getElementById('lpQL').textContent='✅ Uploaded';document.getElementById('lpQL').style.color='var(--ok)'"></div></div>
   <div class="fg"><label>📷 Bill</label><div class="po" onclick="document.getElementById('lpBI').click()"><div class="po-i">📷</div><div class="po-l" id="lpBL">Tap to upload</div><input type="file" accept="image/*" capture="environment" style="display:none" id="lpBI" onchange="document.getElementById('lpBL').textContent='✅ Uploaded';document.getElementById('lpBL').style.color='var(--ok)'"></div></div>
   <div class="fg"><label>📝 Remarks</label><div style="position:relative"><textarea class="fc" id="lpRm" rows="2" style="padding-right:36px"></textarea><button onclick="voiceInput('lpRm')" type="button" id="vBtn" style="position:absolute;right:6px;top:6px;background:var(--c1);border:1px solid var(--bdr);border-radius:50%;width:28px;height:28px;cursor:pointer;color:var(--t2);font-size:13px">🎤</button></div></div>
-</div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('lpM')">Cancel</button><button class="btn btn-p" onclick="addLP()">Add</button></div></div></div>
-
+</div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('lpM')">Cancel</button><button class="btn btn-p" id="addLPBtn" onclick="addLP()">Add</button></div></div></div>
 <div class="modal-bg" id="reopenM"><div class="modal"><div class="modal-hd"><h3>🔄 Re-open</h3><button class="modal-x" onclick="closeM('reopenM')">✕</button></div><div class="modal-bd"><div class="fg"><label>Reason *</label><select class="fc" id="reR"><option value="">Select</option><option>Issue not resolved</option><option>Issue recurred within 24hrs</option><option>Wrong diagnosis</option><option>Additional issue found</option><option>Parts quality issue</option><option>Work incomplete</option></select></div><div class="fg"><label>Details</label><textarea class="fc" id="reN" rows="2"></textarea></div></div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('reopenM')">Cancel</button><button class="btn btn-er" onclick="doReopen()">Re-open</button></div></div></div>
 
 <div class="modal-bg" id="issueM"><div class="modal"><div class="modal-hd"><h3>🔍 Mark Issues Resolution</h3><button class="modal-x" onclick="closeM('issueM')">✕</button></div><div class="modal-bd" id="issueMBody"></div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('issueM')">Cancel</button><button class="btn btn-ok" onclick="confirmIssues()">Confirm & Request OTP</button></div></div></div>
@@ -651,6 +662,14 @@ function sheetRowToTicket(r){
     confirmStatus:String(r.Confirm_Status||'').trim()||null,
     reopened:tf(r.Is_Reopened),
     photoUrls:String(r.Photo_URLs||'').trim().split(',').filter(Boolean),
+    payment:String(r.Payment_Proof_URL||'').trim()?{
+      status:'paid',
+      proofUrl:String(r.Payment_Proof_URL||'').trim(),
+      proofUploaded:true,
+      by:String(r.Payment_By||'').trim(),
+      when:String(r.Payment_When||'').trim(),
+      remarks:''
+    }:null,
     synced:true
   };
 }
@@ -738,7 +757,7 @@ let TKS=[
   {id:'RMT-0440',issue:'Fumigation',cat:'Pest',sub:'General Fumigation',out:'MGP01.CHN01',pri:'low',sla:'—',status:'closed',att:'ATT-018',hist:[{s:'raised',t:'01 May'},{s:'closed',t:'02 May',n:'Done'}],desc:'Scheduled',otp:111222,costs:[],by:'9876543210',otpRevealed:true,issueRes:[{text:'Fumigation done',status:'fixed'}],chat:[],puTask:null,vendor:null,slaExt:[],probes:[],locVisit:true,confirmStatus:'resolved',reopened:false}
 ];
 
-let role='',phone='',userName='',userIni='',attId='',curTkt='',selRV='requester',tCnt=455,logOpen={};
+let role='',phone='',userName='',userIni='',attId='',userOutlet='',curTkt='',selRV='requester',tCnt=455,logOpen={};
 function syncTCnt(){
   TKS.forEach(t=>{
     const n=parseInt((t.id||'').replace('RMT-0',''));
@@ -762,7 +781,19 @@ const NAV={
 };
 
 function selR(e){document.querySelectorAll('.lr-c').forEach(x=>x.classList.remove('on'));e.classList.add('on');selRV=e.dataset.r;toggleLoginMode()}
-function toggleLoginMode(){const isAtt=selRV==='attender';document.getElementById('lPhWrap').style.display=isAtt?'none':'block';document.getElementById('lAttWrap').style.display=isAtt?'block':'none';if(isAtt){const sel=document.getElementById('lAtt');sel.innerHTML=ATTS.filter(a=>a.active).map(a=>`<option value="${a.id}">${a.name} (${a.id})</option>`).join('')||'<option value="">No active attenders</option>'}}
+function toggleLoginMode(){
+  const isAtt=selRV==='attender';
+  const isReq=selRV==='requester';
+  document.getElementById('lPhWrap').style.display=isAtt?'none':'block';
+  document.getElementById('lAttWrap').style.display=isAtt?'block':'none';
+  const outWrap=document.getElementById('lOutWrap');
+  if(outWrap)outWrap.style.display=isReq?'block':'none';
+  if(isReq){
+    const sel=document.getElementById('lOut');
+    if(sel){sel.innerHTML='<option value="">Select your outlet</option>'+OL.map(o=>`<option value="${o}">${o}</option>`).join('');}
+  }
+  if(isAtt){const sel=document.getElementById('lAtt');sel.innerHTML=ATTS.filter(a=>a.active).map(a=>`<option value="${a.id}">${a.name} (${a.id})</option>`).join('')||'<option value="">No active attenders</option>';}
+}
 function doLogin(){
   if(!usersLoaded){nf('Please wait','Still loading users from the sheet (or it failed to load)','warn');return}
   const pw=document.getElementById('lPw').value;
@@ -785,6 +816,7 @@ function doLogin(){
     if(!u.active){nf('Account disabled','Contact admin','warn');return}
     if((u.password||'1234')!==pw){nf('Wrong password','Check credentials','warn');return}
     role=u.role;phone=ph;userName=u.name;userIni=u.ini;if(u.attId)attId=u.attId;
+    if(role==='requester'){const lo=document.getElementById('lOut');userOutlet=lo?lo.value:'';if(userOutlet)selectedOutlets=[userOutlet];}
   }
   document.getElementById('loginP').style.display='none';document.getElementById('app').style.display='flex';
   document.getElementById('uN').textContent=userName;document.getElementById('uR').textContent=role+' · '+(phone||attId);document.getElementById('uAv').textContent=userIni;
@@ -792,7 +824,7 @@ function doLogin(){
 
 function logout(){punchedIn=false;currentPunch=null;document.getElementById('app').style.display='none';document.getElementById('loginP').style.display='flex'}
 function buildNav(){const n=NAV[role]||[];document.getElementById('sbN').innerHTML='<div class="sb-sec">Menu</div>'+n.map(x=>`<div class="ni" data-p="${x.id}" onclick="go('${x.id}')"><span class="ic">${x.ic}</span>${x.l}</div>`).join('');document.getElementById('mnI').innerHTML=n.map(x=>`<button class="mi" data-p="${x.id}" onclick="go('${x.id}')"><span class="ic">${x.ic}</span>${x.l}</button>`).join('')}
-function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));const pg=document.getElementById('pg-'+p);if(pg)pg.classList.add('on');document.querySelectorAll('.ni,.mi').forEach(x=>x.classList.toggle('on',x.dataset.p===p));document.getElementById('pgT').textContent={dashboard:'Home','raise-ticket':'New Ticket',tickets:'Tickets',detail:'Details','att-dash':'My Jobs','att-history':'Ticket History',approvals:'Approvals',finance:'Payments',purchaser:'Purchase Tasks',vendors:'Vendors','mgr-actions':'Mgr Actions',config:'Configuration',reports:'Reports'}[p]||'';closeSB();document.getElementById('cA').scrollTop=0;if(p==='raise-ticket'){refreshCatDropdown();clearSubSelection();}}
+function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));const pg=document.getElementById('pg-'+p);if(pg)pg.classList.add('on');document.querySelectorAll('.ni,.mi').forEach(x=>x.classList.toggle('on',x.dataset.p===p));document.getElementById('pgT').textContent={dashboard:'Home','raise-ticket':'New Ticket',tickets:'Tickets',detail:'Details','att-dash':'My Jobs','att-history':'Ticket History',approvals:'Approvals',finance:'Payments',purchaser:'Purchase Tasks',vendors:'Vendors','mgr-actions':'Mgr Actions',config:'Configuration',reports:'Reports'}[p]||'';closeSB();document.getElementById('cA').scrollTop=0;if(p==='raise-ticket'){refreshCatDropdown();clearSubSelection();setTimeout(refreshOutletDropdown,50);}}
 	function openSB(){document.getElementById('sb').classList.add('open');document.getElementById('sov').classList.add('show')}
 function closeSB(){document.getElementById('sb').classList.remove('open');document.getElementById('sov').classList.remove('show')}
 
@@ -1439,7 +1471,15 @@ function onSub(){uPri();const c=document.getElementById('tC').value,s=document.g
 function uPri(){const s=document.getElementById('tS').value,c=document.getElementById('tC').value;let u=UMAP[s]||(CATS[c]?CATS[c].pri:'medium');const sla=SLAH[u]||CATS[c]?.sla||24;
   const pe=document.getElementById('tP'),se=document.getElementById('tSL');if(u&&c){pe.textContent=PRILABELS[u]||u;pe.className='pri '+(PRICOLORS[u]||'m');se.textContent='⏱ '+sla+'h';se.className='sla '+(u==='critical'?'breach':u==='high'?'warn':'safe');se.style.display='inline-flex'}else{pe.textContent='—';se.style.display='none'}}
 
-async function raiseTicket(){const o=document.getElementById('tO').value,c=document.getElementById('tC').value,s=document.getElementById('tS').value,d=document.getElementById('tD').value;if(!o||!c||!s||!d){nf('Missing','All fields required','warn');return}
+async function raiseTicket(){
+  const btn=document.getElementById('raiseBtn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Raising Ticket...';}
+  const o=document.getElementById('tO').value,c=document.getElementById('tC').value,s=document.getElementById('tS').value,d=document.getElementById('tD').value;
+  if(!o||!c||!s||!d){
+    nf('Missing','All fields required','warn');
+    if(btn){btn.disabled=false;btn.textContent='🎫 Raise Ticket';}
+    return;
+  }
   tCnt++;const id='RMT-0'+tCnt;const u=UMAP[s]||(CATS[c]?CATS[c].pri:'medium');const sla=SLAH[u]||CATS[c]?.sla||24;
   const probes=[];document.querySelectorAll('#probeL input:checked').forEach(x=>probes.push(x.nextElementSibling?.textContent));
   const deadline=new Date(Date.now()+(sla*3600000)).toISOString();
@@ -1470,12 +1510,33 @@ async function raiseTicket(){const o=document.getElementById('tO').value,c=docum
       t.synced=false;nf('⚠ Not saved',id+' is local only — sheet write failed','warn');
     }
   });
-  setTimeout(()=>go('tickets'),800)}
+  setTimeout(()=>{
+    const btn=document.getElementById('raiseBtn');
+    if(btn){btn.disabled=false;btn.textContent='🎫 Raise Ticket';}
+    go('tickets');
+  },800)}
 
-function setSt(id,ns,note){const t=TKS.find(x=>x.id===id);if(!t)return;t.status=ns;t.hist.push({s:ns,t:ts(),n:note||SL[ns]});if(ns==='closed'){const a=gA(t.att);if(a)a.load=Math.max(0,a.load-1)}R();
-  // PHASE 5B: write-through — update the Tickets row + log the history event
+function setSt(id,ns,note){
+  const t=TKS.find(x=>x.id===id);if(!t)return;
+  t.status=ns;
+  t.hist.push({s:ns,t:ts(),n:note||SL[ns]});
+  if(ns==='closed'){const a=gA(t.att);if(a)a.load=Math.max(0,a.load-1)}
+  R();
   apiUpdate('Tickets','Ticket_ID',id,{Status:ns,Assigned_To:t.att||'',Updated_At:ts()});
-  writeHistory(id,ns,note||SL[ns],userName);
+  // Geo-capture — silent, never blocks status update
+  const histNote=note||SL[ns];
+  if(role==='attender'&&navigator.geolocation&&location.protocol!=='file:'){
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        const geo=`📍 ${pos.coords.latitude.toFixed(5)},${pos.coords.longitude.toFixed(5)}`;
+        writeHistory(id,ns,histNote+' · '+geo,userName);
+      },
+      ()=>writeHistory(id,ns,histNote,userName),
+      {timeout:5000,maximumAge:30000}
+    );
+  } else {
+    writeHistory(id,ns,histNote,userName);
+  }
 }
 function doAccept(id){setSt(id,'accepted','Accepted by '+userName);viewT(id)}
 function doVisitChoice(id,needVisit){const t=TKS.find(x=>x.id===id);if(!t)return;t.locVisit=needVisit;if(needVisit){setSt(id,'on-the-way','📍 Visit required — on the way')}else{t.hist.push({s:t.status,t:ts(),n:'No visit needed — remote work'});setSt(id,'job-started','▶ Started (remote)')}viewT(id)}
@@ -1508,7 +1569,17 @@ function renderIssueModal(t){document.getElementById('issueMBody').innerHTML=`<p
 function setIssueRes(id,i,v){const t=TKS.find(x=>x.id===id);if(t&&t.issueRes){t.issueRes[i].status=v;renderIssueModal(t)}}
 
 async function addLP(){
-  const t=TKS.find(x=>x.id===curTkt);if(!t)return;
+  const btn=document.getElementById('addLPBtn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Adding...';}
+  // Safety net — re-enable after 30 seconds no matter what
+  const safetyTimer=setTimeout(()=>{
+    if(btn){btn.disabled=false;btn.textContent='Add';}	
+    nf('Upload slow','If photo not saved, try without image first','warn');
+  },30000);
+  const t=TKS.find(x=>x.id===curTkt);if(!t){
+    clearTimeout(safetyTimer);
+    if(btn){btn.disabled=false;btn.textContent='Add';}return;
+  }
   const item=document.getElementById('lpI').value,
         qty=parseFloat(document.getElementById('lpQ').value)||1,
         amt=parseFloat(document.getElementById('lpA').value)||0,
@@ -1546,6 +1617,8 @@ async function addLP(){
   document.getElementById('lpQI').value='';
   document.getElementById('lpBI').value='';
   document.getElementById('lpT').textContent='₹0';
+  const btn2=document.getElementById('addLPBtn');
+  if(btn2){btn2.disabled=false;btn2.textContent='Add';}
   closeM('lpM');R();nf('✅ Added',item,'ok');showPurch(curTkt)
 }
 
@@ -1640,31 +1713,44 @@ const GDRIVE_FOLDER_ID='1Mgh8dJgxYO3jmEhNGtmmpOvkGM-iUqi6';
 async function uploadToGDrive(file, prefix){
   return new Promise((resolve)=>{
     if(!file){resolve(null);return;}
+    const img=new Image();
     const reader=new FileReader();
-    reader.onload=async function(e){
-      try{
-        const base64=e.target.result.split(',')[1];
-        const ext=file.name.split('.').pop()||'jpg';
-        const fileName=prefix+'_'+Date.now()+'.'+ext;
-        const res=await fetch(API_URL,{
-          method:'POST',
-          headers:{'Content-Type':'text/plain;charset=utf-8'},
-          body:JSON.stringify({
-            action:'uploadImage',
-            imageData:base64,
-            mimeType:file.type||'image/jpeg',
-            fileName:fileName,
-            folderId:GDRIVE_FOLDER_ID
-          })
-        });
-        const json=await res.json();
-        if(json&&json.ok){resolve(json.url);}
-        else{console.error('Upload failed',json);resolve(null);}
-      }catch(err){console.error('Upload error',err);resolve(null);}
+    reader.onload=function(e){
+      img.onload=async function(){
+        try{
+          // Compress — max 800px wide, 70% quality
+          const MAX=800;
+          const canvas=document.createElement('canvas');
+          let w=img.width,h=img.height;
+          if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+          canvas.width=w;canvas.height=h;
+          const ctx=canvas.getContext('2d');
+          ctx.drawImage(img,0,0,w,h);
+          const compressed=canvas.toDataURL('image/jpeg',0.7);
+          const base64=compressed.split(',')[1];
+          const fileName=prefix+'_'+Date.now()+'.jpg';
+          const res=await fetch(API_URL,{
+            method:'POST',
+            headers:{'Content-Type':'text/plain;charset=utf-8'},
+            body:JSON.stringify({
+              action:'uploadImage',
+              imageData:base64,
+              mimeType:'image/jpeg',
+              fileName:fileName,
+              folderId:GDRIVE_FOLDER_ID
+            })
+          });
+          const json=await res.json();
+          if(json&&json.ok){resolve(json.url);}
+          else{console.error('Upload failed',json);resolve(null);}
+        }catch(err){console.error('Upload error',err);resolve(null);}
+      };
+      img.src=e.target.result;
     };
     reader.readAsDataURL(file);
   });
 }
+
 // VOICE
 function voiceInput(targetId){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){nf('Not available','','warn');return}if(location.protocol==='file:'){nf('HTTPS required','Voice works only on Netlify deploy','warn');return}
   const r=new SR();r.lang='en-IN';r.continuous=false;r.interimResults=false;const btn=document.getElementById('vBtn');if(btn){btn.style.background='var(--er)';btn.textContent='🔴'}nf('🎤 Listening','Speak now','ok');
@@ -1685,19 +1771,29 @@ function renderTcard(t){const a=t.att?gA(t.att):null;const sc=t.sla?.startsWith(
   return`<div class="tcard" onclick="viewT('${t.id}')" ${confirmNeeded||otpReady?'style="border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)"':''}><div style="display:flex;justify-content:space-between"><span class="tid">${t.id}</span><span class="badge ${SBC[t.status]}">${SL[t.status]}</span></div><div style="font-size:12px;font-weight:600;margin:3px 0">${t.issue}${isReop?' <span class="badge reopen">🔄</span>':''}${t.vendor?' <span class="badge vendor">🤝</span>':''}</div>${confirmNeeded?'<div style="background:var(--ok);color:#000;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;margin:4px 0;text-align:center">✅ CONFIRM RESOLUTION</div>':otpReady?'<div style="background:linear-gradient(135deg,var(--ac),var(--inf));color:#fff;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;margin:4px 0;text-align:center">🔐 OTP READY</div>':''}<div style="display:flex;justify-content:space-between;align-items:center;font-size:8px;color:var(--t3);gap:4px;flex-wrap:wrap"><span>🏪 ${t.out}${a?' · 🔧 '+a.name:''}</span><span class="sla ${sc}" style="font-size:8px;padding:1px 3px">⏱${t.sla||'—'}</span></div>${tot>0?`<div style="margin-top:4px;font-size:9px;color:var(--ac2);font-weight:600">💰 ₹${tot.toLocaleString('en-IN')}</div>`:''}</div>`}
 
 function rList(){const el=document.getElementById('tCards');if(!el)return;let f=TKS;
-  const fs=document.getElementById('fSt')?.value,fc=document.getElementById('fCt')?.value?.toLowerCase(),fo=document.getElementById('fOt')?.value;
+  const fs=document.getElementById('fSt')?.value,fc=document.getElementById('fCt')?.value?.toLowerCase(),fo=document.getElementById('fOt')?.value,fp=document.getElementById('fPr')?.value;
   if(fs==='pending')f=f.filter(t=>['raised','assigned','accepted'].includes(t.status));else if(fs==='open')f=f.filter(t=>!['closed'].includes(t.status));else if(fs==='closed')f=f.filter(t=>t.status==='closed');else if(fs==='reopen')f=f.filter(t=>t.reopened);else if(fs==='breach')f=f.filter(t=>t.sla?.startsWith('-'));
-  if(fc)f=f.filter(t=>t.cat.toLowerCase().includes(fc));if(fo)f=f.filter(t=>t.out===fo);
+  if(fp)f=f.filter(t=>t.pri===fp);
+  if(fc)f=f.filter(t=>t.cat.toLowerCase().includes(fc));
+  // Multi-outlet filter
+  if(selectedOutlets.length>0)f=f.filter(t=>selectedOutlets.includes(t.out));
+  else if(role==='requester'&&userOutlet)f=f.filter(t=>t.out===userOutlet);
   if(role==='attender'){if(!punchedIn){el.innerHTML='<div style="text-align:center;color:var(--t3);padding:20px;font-size:11px">🔒 Punch In to see tickets.<br><button class="btn btn-s btn-p" onclick="go(\'punch\')" style="margin-top:10px">📍 Go to Punch</button></div>';return}const my=attId||'ATT-012';f=f.filter(t=>t.att===my)}
 
   el.innerHTML=f.length?f.map(t=>renderTcard(t)).join(''):'<div style="text-align:center;color:var(--t3);padding:20px;font-size:11px">No tickets match</div>'}
-function resetF(){['fSt','fCt','fOt'].forEach(x=>{const e=document.getElementById(x);if(e)e.value=''});rList()}
+function resetF(){['fSt','fPr','fCt','fOt'].forEach(x=>{const e=document.getElementById(x);if(e)e.value=''});selectedOutlets=role==='requester'&&userOutlet?[userOutlet]:[];updateOutletBtn();rList()}
 function escalate(id){const t=TKS.find(x=>x.id===id);if(t){t.hist.push({s:t.status,t:ts(),n:'⚠ ESCALATED by '+userName});R();nf('Escalated','R&M notified','warn')}}
 
 // ATTENDER DASHBOARD
 function rAtt(){const el=document.getElementById('attJobs');if(!el||role!=='attender')return;
   if(!punchedIn){const ast0=document.getElementById('aSt');if(ast0)ast0.innerHTML='';el.innerHTML='<div style="text-align:center;color:var(--t3);padding:30px;font-size:12px">🔒 Punch In to see your jobs.<br><button class="btn btn-s btn-p" onclick="go(\'punch\')" style="margin-top:10px">📍 Go to Punch</button></div>';return}
-  const my=attId||'ATT-012';const mine=TKS.filter(t=>t.att===my&&t.status!=='closed');const done=TKS.filter(t=>t.att===my&&t.status==='closed').length;
+  const my=attId||'ATT-012';
+  const aFPr=document.getElementById('aFPr')?.value;
+  const aFSt=document.getElementById('aFSt')?.value;
+  let mine=TKS.filter(t=>t.att===my&&t.status!=='closed');
+  if(aFPr)mine=mine.filter(t=>t.pri===aFPr);
+  if(aFSt)mine=mine.filter(t=>t.status===aFSt);
+const done=TKS.filter(t=>t.att===my&&t.status==='closed').length;
 
   const ast=document.getElementById('aSt');if(ast)ast.innerHTML=[{v:mine.length,l:'Active',c:'p'},{v:done,l:'Done',c:'g'},{v:gA(my)?.rating||0,l:'Rating',c:'b'}].map(x=>`<div class="st ${x.c}"><div class="sv">${x.v}</div><div class="sl">${x.l}</div></div>`).join('');
   if(!mine.length){el.innerHTML='<div style="text-align:center;color:var(--t3);padding:30px;font-size:12px">✅ No active jobs</div>';return}
@@ -1798,6 +1894,7 @@ async function confirmPayOrder(){
       apiUpdate('Purchase_Orders','PO_ID',c.poId,{Pay_Status:'done',Proof_Link:proofUrl||''});
   });
   writePayment(t,'paid',!!proofUrl,remarks);
+apiUpdate('Tickets','Ticket_ID',payOrderTkt,{Payment_Proof_URL:proofUrl||'',Payment_By:userName,Payment_When:ts()});
   writeHistory(payOrderTkt,t.status,'💳 Order paid by '+userName,userName);
 
   document.getElementById('poProof').value='';
@@ -2013,6 +2110,80 @@ function smAdd(type){const k=metaKey(smCat,smSub);if(!SUBMETA[k])SUBMETA[k]={che
 function smDel(type,i){const k=metaKey(smCat,smSub);if(SUBMETA[k]&&SUBMETA[k][type]){SUBMETA[k][type].splice(i,1);renderSubMeta()}}
 function addSubCat(){const v=document.getElementById('smNewSub').value.trim();if(!v){nf('Required','Enter name','warn');return}if(!CATS[smCat].subs.includes(v)){CATS[smCat].subs.push(v)}smSub=v;SUBMETA[metaKey(smCat,smSub)]={checklist:[],probes:[],solutions:[]};renderSubMeta();nf('Added',v,'ok')}
 
+// ===== MULTI-SELECT OUTLET FILTER =====
+let selectedOutlets=[];
+
+function buildOutletPanel(){
+  const list=document.getElementById('fOtList');
+  if(!list)return;
+  list.innerHTML=OL.map(o=>{
+    const checked=selectedOutlets.includes(o)?'checked':'';
+    return`<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--bdr)" onmouseover="this.style.background='var(--c2)'" onmouseout="this.style.background=''">
+      <input type="checkbox" value="${o}" ${checked} onchange="onOutletCheck(this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
+      <span>${o}</span>
+    </label>`;
+  }).join('');
+}
+
+function onOutletCheck(cb){
+  if(cb.checked){
+    if(!selectedOutlets.includes(cb.value))selectedOutlets.push(cb.value);
+  } else {
+    selectedOutlets=selectedOutlets.filter(o=>o!==cb.value);
+  }
+  updateOutletBtn();
+  rList();
+}
+
+function updateOutletBtn(){
+  const btn=document.getElementById('fOtBtn');
+  if(!btn)return;
+  if(selectedOutlets.length===0)btn.textContent='🏪 All Outlets ▾';
+  else if(selectedOutlets.length===1)btn.textContent='🏪 '+selectedOutlets[0]+' ▾';
+  else btn.textContent='🏪 '+selectedOutlets.length+' Outlets ▾';
+}
+
+function toggleOutletPanel(){
+  const panel=document.getElementById('fOtPanel');
+  if(!panel)return;
+  const open=panel.style.display!=='none';
+  if(!open){buildOutletPanel();panel.style.display='block';}
+  else panel.style.display='none';
+}
+
+function clearOutletFilter(){
+  selectedOutlets=[];
+  // If requester, re-add home outlet
+  if(role==='requester'&&userOutlet)selectedOutlets=[userOutlet];
+  buildOutletPanel();
+  updateOutletBtn();
+  rList();
+}
+
+// Close panel when clicking outside
+document.addEventListener('click',function(e){
+  const panel=document.getElementById('fOtPanel');
+  const btn=document.getElementById('fOtBtn');
+  if(panel&&btn&&!panel.contains(e.target)&&!btn.contains(e.target)){
+    panel.style.display='none';
+  }
+});
+
+function refreshOutletDropdown(){
+  const tO=document.getElementById('tO');
+  if(!tO)return;
+  if(role==='requester'&&userOutlet){
+    tO.innerHTML=`<option value="${userOutlet}">${userOutlet}</option>`;
+    tO.value=userOutlet;
+    tO.disabled=true;
+    tO.style.opacity='0.7';
+  } else {
+    tO.disabled=false;
+    tO.style.opacity='1';
+    tO.innerHTML='<option value="">Select</option>'+OL.map(o=>`<option value="${o}">${o}</option>`).join('');
+  }
+}
+
 function refreshCatDropdown(){const tcs=document.getElementById('tC');if(!tcs)return;const cur=tcs.value;tcs.innerHTML='<option value="">Select</option>';Object.entries(CATS).forEach(([k,c])=>{if(!c.disabled)tcs.innerHTML+=`<option value="${k}">${c.label}</option>`});if(cur&&CATS[cur]&&!CATS[cur].disabled)tcs.value=cur}
 
 function addCategory(){const nm=document.getElementById('cnNm').value.toLowerCase(),sb=document.getElementById('cnSb').value.split(',').map(s=>s.trim()).filter(Boolean),pr=document.getElementById('cnPr').value,sl=parseInt(document.getElementById('cnSl').value)||12;
@@ -2079,8 +2250,25 @@ function viewT(id){curTkt=id;const t=TKS.find(x=>x.id===id);if(!t)return;const p
 
 let mgrFbH='';if(isA){const a=gA(attId);if(a&&a.feedback&&a.feedback.length){mgrFbH='<div class="card"><div class="card-h"><h3>📣 Feedback from Manager</h3></div>'+a.feedback.slice(-5).reverse().map(f=>`<div class="lp"><div style="font-size:10px">${f.msg}</div><div style="font-size:8px;color:var(--t3);margin-top:3px">— ${f.by} · ${f.when}</div></div>`).join('')+'</div>'}}  
 
-let payProofH='';if(isA&&t.payment?.status==='paid'){payProofH=`<div class="card"><div class="card-h"><h3>💳 Payment Proof</h3><span class="pay-st done">✓ Paid</span></div><div style="text-align:center;padding:8px"><div style="font-size:32px">${t.payment.proofUploaded?'🧾':'💳'}</div><div style="font-size:10px;font-weight:600;margin-top:4px">${t.payment.proofUploaded?'Screenshot attached':'Payment confirmed'}</div><div style="font-size:8px;color:var(--t3);margin-top:3px">By ${t.payment.by} · ${t.payment.when}</div>${t.payment.remarks?`<div style="font-size:9px;color:var(--t2);font-style:italic;margin-top:4px">📝 ${t.payment.remarks}</div>`:''}</div><div style="font-size:8px;color:var(--t3);text-align:center">Show this to the merchant as proof</div></div>`}
-
+let payProofH='';if(t.payment?.status==='paid'){
+  const canSee=isA||isR||isMg||isRM||isFn;
+  if(canSee){
+    const total=t.costs.filter(c=>c.payStatus==='done').reduce((s,c)=>s+c.amt,0);
+    const viewBtn=t.payment.proofUrl?`<a href="${t.payment.proofUrl}" target="_blank" class="btn btn-s btn-o btn-full" style="margin-top:8px;font-size:10px">🔗 View Payment Proof</a>`:'';
+    payProofH=`<div class="card" style="border-color:var(--ok)">
+      <div class="card-h"><h3>💳 Payment Done</h3><span class="pay-st done">✓ Paid</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:9px;color:var(--t3)">Amount Paid</div>
+        <div style="font-family:var(--m);font-weight:700;font-size:16px;color:var(--ok)">₹${total.toLocaleString('en-IN')}</div>
+      </div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:2px">Paid by <span style="color:var(--t2);font-weight:600">${t.payment.by}</span> · ${t.payment.when}</div>
+      ${t.payment.remarks?`<div style="font-size:9px;color:var(--t2);font-style:italic;margin-top:4px;padding:5px 8px;background:var(--c2);border-radius:var(--rs)">📝 ${t.payment.remarks}</div>`:''}
+      ${t.payment.proofUploaded?`<div style="font-size:9px;color:var(--ok);margin-top:6px">🧾 Payment screenshot attached</div>`:''}
+      ${viewBtn}
+      ${isA?'<div style="font-size:8px;color:var(--t3);text-align:center;margin-top:6px">Show proof to merchant if needed</div>':''}
+    </div>`;
+  }
+}
 let workMetaH='';if(isA&&t.status!=='closed'){const m=getMeta((t.cat||'').toLowerCase(),t.sub);if(m.probes.length||m.solutions.length){workMetaH='<div class="card"><div class="card-h"><h3>🧭 Diagnostic & Solution Guide</h3></div>';if(m.probes.length){workMetaH+='<div style="font-size:9px;font-weight:700;color:var(--t2);margin-bottom:3px">Probing Questions</div>';m.probes.forEach((p,i)=>{workMetaH+=`<div style="margin-bottom:5px"><div style="font-size:10px">${p.q}</div><select class="fc" style="font-size:10px;padding:3px 6px" onchange="saveWorkAns('${t.id}','probe',${i},this.value)"><option value="">—</option>${(p.opts||[]).map(o=>`<option ${(t.workAns&&t.workAns['probe'+i]===o)?'selected':''}>${o}</option>`).join('')}</select></div>`})}if(m.solutions.length){workMetaH+='<div style="font-size:9px;font-weight:700;color:var(--t2);margin:8px 0 3px">Solution Steps</div>';m.solutions.forEach((s,i)=>{workMetaH+=`<div style="margin-bottom:5px"><div style="font-size:10px">${s.s}</div><select class="fc" style="font-size:10px;padding:3px 6px" onchange="saveWorkAns('${t.id}','sol',${i},this.value)"><option value="">—</option>${(s.opts||[]).map(o=>`<option ${(t.workAns&&t.workAns['sol'+i]===o)?'selected':''}>${o}</option>`).join('')}</select></div>`})}workMetaH+='</div>'}}
 
   // Vendor card
@@ -2165,10 +2353,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelec
 // BOOT — fill dropdowns from current OL/CATS (called after sheet data loads)
 function fillBootDropdowns(){
   const s=document.getElementById('tO'),f=document.getElementById('fOt'),fc=document.getElementById('fCt');
-  if(s)s.innerHTML='<option value="">Select</option>'+OL.map(o=>`<option value="${o}">${o}</option>`).join('');
-  if(f)f.innerHTML='<option value="">All Outlets</option>'+OL.map(o=>`<option value="${o}">${o}</option>`).join('');
-  if(fc)fc.innerHTML='<option value="">All Categories</option>'+Object.entries(CATS).map(([k,c])=>`<option value="${c.label.split(' ')[1]||k}">${c.label}</option>`).join('');
-}
+  if(s&&!(role==='requester'&&userOutlet))s.innerHTML='<option value="">Select</option>'+OL.map(o=>`<option value="${o}">${o}</option>`).join('');}
 fillBootDropdowns();
 // PHASE 3B + 4 + 5 + 6: load all sheet data in parallel at startup
 let usersLoaded=false;
