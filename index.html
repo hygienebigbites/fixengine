@@ -819,15 +819,25 @@ function doLogin(){
     // All other roles log in via mobile number, validated against User Master
     const ph=document.getElementById('lPh').value.replace(/\D/g,'').slice(-10);
     if(ph.length<10){nf('Enter mobile','10 digits','warn');return}
-    const u=USERS[ph];
-    if(!u){nf('User not found','No such mobile','warn');return}
-    if(u.role!==selRV){nf('Role mismatch','This mobile is registered as '+u.role,'warn');return}
-    if(!u.active){nf('Account disabled','Contact admin','warn');return}
-    if(selRV!=='requester'&&(u.password||'1234')!==pw){nf('Wrong password','Check credentials','warn');return}
-    role=u.role;phone=ph;userName=u.name;userIni=u.ini;if(u.attId)attId=u.attId;
-
-
-    if(role==='requester'){const lo=document.getElementById('lOut');userOutlet=lo?lo.value:'';if(userOutlet)selectedOutlets=[userOutlet];}
+    if(selRV==='requester'){
+      // Requester — no user validation needed
+      const lo=document.getElementById('lOut');
+      const outlet=lo?lo.value:'';
+      if(!outlet){nf('Select outlet','Please select your outlet','warn');return}
+      role='requester';phone=ph;
+      userName='Staff ('+ph.slice(-4)+')';
+      userIni=ph.slice(-2);
+      userOutlet=outlet;
+      selectedOutlets=[outlet];
+    } else {
+      const u=USERS[ph];
+      if(!u){nf('User not found','No such mobile','warn');return}
+      if(u.role!==selRV){nf('Role mismatch','This mobile is registered as '+u.role,'warn');return}
+      if(!u.active){nf('Account disabled','Contact admin','warn');return}
+      if((u.password||'1234')!==pw){nf('Wrong password','Check credentials','warn');return}
+      role=u.role;phone=ph;userName=u.name;userIni=u.ini;if(u.attId)attId=u.attId;
+      if(role==='requester'){const lo=document.getElementById('lOut');userOutlet=lo?lo.value:'';if(userOutlet)selectedOutlets=[userOutlet];}
+    }
   }
   document.getElementById('loginP').style.display='none';document.getElementById('app').style.display='flex';
   document.getElementById('uN').textContent=userName;document.getElementById('uR').textContent=role+' · '+(phone||attId);document.getElementById('uAv').textContent=userIni;
@@ -2454,7 +2464,7 @@ let usersLoaded=false;
     loadUsersFromSheet(),
     loadOutletsFromSheet(),
     loadPriorityRulesFromSheet(),
-    loadCategoriesFromSheet(),
+    loadCategoriesFromSheet(),	
     loadSubMetaFromSheet(),
     loadAttendersFromSheet(),
     loadTicketsFromSheet()
