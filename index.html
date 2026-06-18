@@ -103,7 +103,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <div class="fg" id="lPhWrap"><label>Mobile</label><input class="fc" id="lPh" type="tel" placeholder="9876543210" maxlength="10"></div>
   <div class="fg" id="lOutWrap" style="display:none"><label>Your Outlet *</label><select class="fc" id="lOut"><option value="">Select your outlet</option></select></div>
   <div class="fg" id="lAttWrap" style="display:none"><label>Select Attender</label><select class="fc" id="lAtt"></select></div>
-  <div class="fg"><label>Password</label><input class="fc" id="lPw" type="password" placeholder="1234"></div>
+  <div class="fg" id="lPwWrap"><label>Password</label><input class="fc" id="lPw" type="password" placeholder="1234"></div>
   <div class="fg"><label>Role</label><div class="lr-grid">
     <div class="lr-c on" data-r="requester" onclick="selR(this)"><div class="i">📋</div><div class="n">Requester</div></div>
     <div class="lr-c" data-r="attender" onclick="selR(this)"><div class="i">🔧</div><div class="n">Attender</div></div>
@@ -167,7 +167,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <button class="btn-big green" id="raiseBtn" onclick="raiseTicket()">🎫 Raise Ticket</button>
 </div></div>
 
-<div class="page" id="pg-tickets"><div class="filters fin"><select class="fc" style="width:auto" id="fSt"><option value="">All Status</option><option value="pending">⏳ Pending</option><option value="open">🟢 Open</option><option value="closed">⚫ Closed</option><option value="reopen">🔄 Re-opened</option><option value="breach">⚠ Breached</option></select><select class="fc" style="width:auto" id="fPr"><option value="">All Priority</option><option value="critical">🔴 Critical</option><option value="high">🟠 High</option><option value="medium">🟡 Medium</option><option value="low">🟢 Low</option></select><select class="fc" style="width:auto" id="fCt"><option value="">All Categories</option></select><div style="position:relative;display:inline-block">
+<div class="page" id="pg-tickets"><div class="filters fin"><select class="fc" style="width:auto" id="fSt"><option value="">All Status</option><option value="pending">⏳ Pending</option><option value="open">🟢 Open</option><option value="closed">⚫ Closed</option><option value="reopen">🔄 Re-opened</option><option value="breach">⚠ Breached</option></select><select class="fc" style="width:auto" id="fPr"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="fCt"><option value="">All Categories</option></select><div style="position:relative;display:inline-block">
   <button type="button" id="fOtBtn" onclick="toggleOutletPanel()" style="background:var(--c2);border:1px solid var(--bdr);border-radius:var(--rs);padding:5px 10px;color:var(--t);font-size:10px;cursor:pointer;white-space:nowrap">🏪 All Outlets ▾</button>
   <div id="fOtPanel" style="display:none;position:absolute;top:100%;left:0;z-index:200;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);min-width:200px;max-height:260px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4);margin-top:3px">
     <div style="padding:6px 10px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center">
@@ -180,7 +180,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 
 <div class="page" id="pg-detail"></div>
 <div class="page" id="pg-att-dash"><div class="sts fin" id="aSt"></div>
-<div class="filters fin"><select class="fc" style="width:auto" id="aFPr" onchange="rAtt()"><option value="">All Priority</option><option value="critical">🔴 Critical</option><option value="high">🟠 High</option><option value="medium">🟡 Medium</option><option value="low">🟢 Low</option></select><select class="fc" style="width:auto" id="aFSt" onchange="rAtt()"><option value="">All Status</option><option value="assigned">Assigned</option><option value="accepted">Accepted</option><option value="in-progress">In Progress</option><option value="ready-closure">Ready to Close</option></select></div>
+<div class="filters fin"><select class="fc" style="width:auto" id="aFPr" onchange="rAtt()"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="aFSt" onchange="rAtt()"><option value="">All Status</option><option value="assigned">Assigned</option><option value="accepted">Accepted</option><option value="in-progress">In Progress</option><option value="ready-closure">Ready to Close</option></select></div>
 <div id="attJobs" class="fin"></div></div>
 <div class="page" id="pg-punch"><div class="card fin" id="punchCard" style="max-width:480px;margin:0 auto"></div></div>
 <div class="page" id="pg-att-history"><div class="sts fin" id="ahSt"></div><div id="ahList" class="fin"></div></div>
@@ -794,6 +794,9 @@ function toggleLoginMode(){
   document.getElementById('lAttWrap').style.display=isAtt?'block':'none';
   const outWrap=document.getElementById('lOutWrap');
   if(outWrap)outWrap.style.display=isReq?'block':'none';
+  const pwWrap=document.getElementById('lPwWrap');
+  if(pwWrap)pwWrap.style.display=isReq?'none':'block';
+
   if(isReq){
     const sel=document.getElementById('lOut');
     if(sel){sel.innerHTML='<option value="">Select your outlet</option>'+OL.map(o=>`<option value="${o}">${o}</option>`).join('');}
@@ -820,8 +823,10 @@ function doLogin(){
     if(!u){nf('User not found','No such mobile','warn');return}
     if(u.role!==selRV){nf('Role mismatch','This mobile is registered as '+u.role,'warn');return}
     if(!u.active){nf('Account disabled','Contact admin','warn');return}
-    if((u.password||'1234')!==pw){nf('Wrong password','Check credentials','warn');return}
+    if(selRV!=='requester'&&(u.password||'1234')!==pw){nf('Wrong password','Check credentials','warn');return}
     role=u.role;phone=ph;userName=u.name;userIni=u.ini;if(u.attId)attId=u.attId;
+
+
     if(role==='requester'){const lo=document.getElementById('lOut');userOutlet=lo?lo.value:'';if(userOutlet)selectedOutlets=[userOutlet];}
   }
   document.getElementById('loginP').style.display='none';document.getElementById('app').style.display='flex';
@@ -905,7 +910,10 @@ const VOICE_ALIASES={
   'deep frezar':'deep freezer','dfrezer':'deep freezer','deepfreeze':'deep freezer',
 
   // ══ CHILLER / REFRIGERATOR ══
-  'chiller':'refrigerator','chillar':'refrigerator','chiler':'refrigerator',
+  'chiller':'refrigerator not cooling','chillar':'refrigerator not cooling','chiler':'refrigerator not cooling',
+  'fridge':'refrigerator not cooling','fridge not':'refrigerator not cooling',
+  'refrigerator':'refrigerator not cooling','fridge kharab':'refrigerator not cooling',
+  'four door chiller':'refrigerator not cooling','4 door chiller':'refrigerator not cooling',
   'visi cooler':'refrigerator','visi cooller':'refrigerator','visicooler':'refrigerator',
   'four door chiller':'refrigerator','4 door chiller':'refrigerator',
   'western chiller':'refrigerator','blue star chiller':'refrigerator',
@@ -966,7 +974,13 @@ const VOICE_ALIASES={
   'cylinder change':'cylinder change','cylinder khatam':'cylinder change',
 
   // ══ SWITCH BOARD / ELECTRICAL ══
-  'switch board':'socket/switch','swich board':'socket/switch',
+  'switch board':'panel board issue','swich board':'panel board issue',
+  'switchboard':'panel board issue','switch bord':'panel board issue',
+  'swith board':'panel board issue','switch box':'panel board issue',
+  'swich box':'panel board issue','board not working':'panel board issue',
+  'board burn':'panel board issue','panel board':'panel board issue',
+  'electric board':'panel board issue','switch broken':'switch damaged',
+  'switch damage':'switch damaged','switch not working':'switch damaged',
   'swith board':'socket/switch','switch bord':'socket/switch',
   'swetch board':'socket/switch','swithboard':'socket/switch',
   'switchboard':'socket/switch','switch box':'socket/switch',
@@ -1248,10 +1262,18 @@ const VOICE_ALIASES={
 };
 
 // ===== FUZZY SEARCH =====
+
 function fuzzySearchSubs(query){
   const q=query.toLowerCase().trim();
 
-  // Step 1: try alias mapping — longest match wins
+  // Words that match too broadly — ignore them for scoring
+  const STOPWORDS=new Set(['not','the','and','for','are','was','its','our','has','have',
+    'working','broken','issue','problem','please','need','help','urgent','asap',
+    'kindly','required','request','immediately','check','repair','fix','change',
+    'send','replace','service','done','very','also','from','this','that','with',
+    'been','being','getting','giving','showing','making','coming','going','doing']);
+
+  // Step 1: alias mapping — longest match wins
   let searchTerm=q;
   let bestAliasLen=0;
   for(const[alias,mapped]of Object.entries(VOICE_ALIASES)){
@@ -1261,9 +1283,9 @@ function fuzzySearchSubs(query){
     }
   }
 
-  // Step 2: also keep original query tokens for direct matching
-  const origTokens=q.split(/\s+/).filter(w=>w.length>=3);
-  const searchTokens=searchTerm.split(/\s+/).filter(w=>w.length>=3);
+  // Step 2: tokens — filter stopwords
+  const origTokens=q.split(/\s+/).filter(w=>w.length>=3&&!STOPWORDS.has(w));
+  const searchTokens=searchTerm.split(/\s+/).filter(w=>w.length>=3&&!STOPWORDS.has(w));
   const allTokens=[...new Set([...origTokens,...searchTokens])];
   if(!allTokens.length)return[];
 
@@ -1275,19 +1297,21 @@ function fuzzySearchSubs(query){
       const catL=cat.label.toLowerCase().replace(/[^\w\s]/g,'');
       let score=0;
 
-      // Exact full sub-category name in original query — massive boost
-      if(q.includes(subL))score+=20;
-      // Mapped search term matches sub-category
-      else if(subL.includes(searchTerm)&&searchTerm.length>3)score+=15;
-      else if(subL===searchTerm)score+=15;
-      // Category label match
-      if(catL.includes(searchTerm)&&searchTerm.length>3)score+=6;
+      // Exact full sub match in query — massive boost
+      if(q.includes(subL))score+=30;
 
-      // Token by token matching
+      // Mapped search term matches sub directly
+      if(searchTerm.length>3){
+        if(subL===searchTerm)score+=25;
+        else if(subL.includes(searchTerm))score+=20;
+        else if(catL.includes(searchTerm))score+=8;
+      }
+
+      // Token matching — only meaningful tokens
       allTokens.forEach(t=>{
-        if(t.length<3)return;
-        if(subL.includes(t))score+=4;
-        else if(catL.includes(t))score+=1;
+        if(STOPWORDS.has(t)||t.length<3)return;
+        if(subL.includes(t))score+=5;
+        else if(catL.includes(t))score+=2;
       });
 
       if(score>0)scored.push({catId,catLabel:cat.label,sub,pri:UMAP[sub]||cat.pri,score});
@@ -1295,6 +1319,7 @@ function fuzzySearchSubs(query){
   });
   return scored.sort((a,b)=>b.score-a.score).slice(0,12);
 }
+
 // ===== SMART SEARCH =====
 let subSearchSelected={cat:'',sub:''};
 let autoSuggestPending=null;
@@ -2410,8 +2435,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelec
 // BOOT — fill dropdowns from current OL/CATS (called after sheet data loads)
 function fillBootDropdowns(){
   const s=document.getElementById('tO'),f=document.getElementById('fOt'),fc=document.getElementById('fCt');
-  if(s&&!(role==='requester'&&userOutlet))s.innerHTML='<option value="">Select</option>'+OL.map(o=>`<option value="${o}">${o}</option>`).join('');}
-fillBootDropdowns();
+  if(s&&!(role==='requester'&&userOutlet))s.innerHTML='<option value="">Select</option>'+OL.map(o=>`<option value="${o}">${o}</option>`).join('');
+  if(f)f.innerHTML='<option value="">All Outlets</option>'+OL.map(o=>`<option value="${o}">${o}</option>`).join('');
+  if(fc)fc.innerHTML='<option value="">All Categories</option>'+Object.entries(CATS).map(([k,c])=>`<option value="${k}">${c.label}</option>`).join('');
+}
+
+toggleLoginMode();
 // PHASE 3B + 4 + 5 + 6: load all sheet data in parallel at startup
 let usersLoaded=false;
 (async function bootData(){
