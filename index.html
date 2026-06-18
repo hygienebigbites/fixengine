@@ -874,9 +874,32 @@ function renderPunch(){const el=document.getElementById('punchCard');if(!el||rol
   if(myRecs.length){h+=`<div style="margin-top:14px"><div style="font-size:10px;font-weight:700;margin-bottom:6px">History</div>`;myRecs.slice().reverse().forEach(r=>{h+=`<div class="lp"><div style="font-size:10px;font-weight:600">IN: ${r.inTime}</div><div style="font-size:8px;color:var(--t3)">📍 ${r.inLoc}</div>${r.outTime?`<div style="font-size:10px;font-weight:600;margin-top:3px">OUT: ${r.outTime}</div><div style="font-size:8px;color:var(--t3)">📍 ${r.outLoc}</div>`:'<div style="font-size:9px;color:var(--wr);margin-top:3px">Still active</div>'}</div>`});h+=`</div>`}
   el.innerHTML=h}
 function getGeo(cb){if(!navigator.geolocation||location.protocol==='file:'){cb(null);return}navigator.geolocation.getCurrentPosition(p=>cb({lat:p.coords.latitude.toFixed(5),lng:p.coords.longitude.toFixed(5)}),()=>cb(null),{timeout:6000})}
-function doPunchIn(){getGeo(g=>{const loc=g?`${g.lat}, ${g.lng}`:'Location unavailable (needs HTTPS)';const rec={attId,inTime:ts(),inLat:g?.lat||null,inLng:g?.lng||null,inLoc:loc,outTime:null,outLat:null,outLng:null,outLoc:null};ATTENDANCE.push(rec);currentPunch=rec;punchedIn=true;R();renderPunch();nf('✅ Punched In',loc,'ok')})}
+function doPunchIn(){getGeo(g=>{const loc=g?`${g.lat}, ${g.lng}`:'Location unavailable (needs HTTPS)';const rec={attId,inTime:ts(),inLat:g?.lat||null,inLng:g?.lng||null,inLoc:loc,outTime:null,outLat:null,outLng:null,outLoc:null};ATTENDANCE.push(rec);currentPunch=rec;punchedIn=true;
+  // Save to sheet
+  rec.sheetId='ATT-'+Date.now();
+  apiAppend('Attendance',{
+    Attendance_ID:rec.sheetId,
+    Attender_ID:attId,
+    Attender_Name:userName,
+    Punch_In_Time:rec.inTime,
+    Punch_In_Lat:rec.inLat||'',
+    Punch_In_Lng:rec.inLng||'',
+    Punch_Out_Time:'',
+    Punch_Out_Lat:'',
+    Punch_Out_Lng:'',
+    Date:new Date().toLocaleDateString('en-IN')
+  });
+  R();renderPunch();nf('✅ Punched In',loc,'ok')})}
 function doPunchOut(){const my=TKS.filter(t=>t.att===attId&&t.status!=='closed');if(my.length){if(!confirm('You still have '+my.length+' open job(s). Punch out anyway?'))return}
-  getGeo(g=>{const loc=g?`${g.lat}, ${g.lng}`:'Location unavailable (needs HTTPS)';if(currentPunch){currentPunch.outTime=ts();currentPunch.outLat=g?.lat||null;currentPunch.outLng=g?.lng||null;currentPunch.outLoc=loc}punchedIn=false;currentPunch=null;R();renderPunch();nf('🔚 Punched Out',loc,'ok')})}
+  getGeo(g=>{const loc=g?`${g.lat}, ${g.lng}`:'Location unavailable (needs HTTPS)';if(currentPunch){currentPunch.outTime=ts();currentPunch.outLat=g?.lat||null;currentPunch.outLng=g?.lng||null;currentPunch.outLoc=loc}// Update sheet row with punch out details
+  if(currentPunch?.sheetId){
+    apiUpdate('Attendance','Attendance_ID',currentPunch.sheetId,{
+      Punch_Out_Time:ts(),
+      Punch_Out_Lat:g?.lat||'',
+      Punch_Out_Lng:g?.lng||''
+    });
+  }
+  punchedIn=false;currentPunch=null;R();renderPunch();nf('🔚 Punched Out',loc,'ok')})}
 
 
 // ===== VOICE ALIASES =====
