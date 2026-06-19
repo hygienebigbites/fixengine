@@ -1296,6 +1296,30 @@ const VOICE_ALIASES={
 
 // ===== FUZZY SEARCH =====
 
+
+// ===== PHONETIC MATCHING (handles browser mishears) =====
+function soundCode(word){
+  let w=(word||'').toLowerCase().replace(/[^a-z]/g,'');
+  if(!w)return '';
+  const repl={b:'1',p:'1',f:'1',v:'1',c:'2',k:'2',q:'2',g:'2',j:'2',
+    d:'3',t:'3',m:'4',n:'4',s:'5',z:'5',x:'5',l:'6',r:'6',
+    w:'',h:'',y:'',a:'',e:'',i:'',o:'',u:''};
+  let enc='';
+  for(const ch of w)enc+=(repl[ch]!==undefined?repl[ch]:'7');
+  if(!enc)return '';
+  let out=enc[0];
+  for(let i=1;i<enc.length;i++)if(enc[i]!==out[out.length-1])out+=enc[i];
+  return out;
+}
+function phoneticMatch(a,b){
+  const ca=soundCode(a),cb=soundCode(b);
+  if(!ca||!cb||ca.length<3||cb.length<3)return false;
+  if(ca===cb)return true;
+  if(ca.includes(cb)||cb.includes(ca))return true;
+  if(ca.slice(-3)===cb.slice(-3))return true;
+  return false;
+}
+
 function fuzzySearchSubs(query){
   const q=query.toLowerCase().trim();
 
@@ -1350,6 +1374,25 @@ function fuzzySearchSubs(query){
       if(score>0)scored.push({catId,catLabel:cat.label,sub,pri:UMAP[sub]||cat.pri,score});
     });
   });
+
+  // PASS 2: phonetic fallback — only if normal matching found nothing
+  if(!scored.length){
+    Object.entries(CATS).forEach(([catId,cat])=>{
+      if(cat.disabled)return;
+      (cat.subs||[]).forEach(sub=>{
+        const subWords=sub.toLowerCase().split(/[\s/]+/);
+        let score=0;
+        allTokens.forEach(t=>{
+          if(STOPWORDS.has(t)||t.length<3)return;
+          for(const sw of subWords){
+            if(sw.length>=3&&phoneticMatch(t,sw)){score+=4;break;}
+          }
+        });
+        if(score>0)scored.push({catId,catLabel:cat.label,sub,pri:UMAP[sub]||cat.pri,score});
+      });
+    });
+  }
+
   return scored.sort((a,b)=>b.score-a.score).slice(0,12);
 }
 
