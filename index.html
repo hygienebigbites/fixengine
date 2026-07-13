@@ -404,8 +404,23 @@ function writePayment(t,status,proof,remarks){
     Remarks:remarks||'',Paid_By:userName,Paid_At:ts()
   });
 }
+// Save one chat message to the Ticket_Chat tab (fire-and-forget)
+let chatSeq=0;
+function writeChat(ticketId,msg,isOtp){
+  chatSeq++;
+  apiAppend('Ticket_Chat',{
+    Chat_ID:'CHT-'+Date.now()+'-'+chatSeq,
+    Ticket_ID:ticketId,
+    Sender_Name:userName,
+    Sender_Role:role,
+    Message:msg,
+    Is_OTP:isOtp?'TRUE':'FALSE',
+    Timestamp:ts()
+  });
+}
 // PHASE 5B: write one history event to the Ticket_History tab (fire-and-forget)
 let histSeq=0;
+
 function writeHistory(ticketId,status,note,actionBy){
   histSeq++;
   const row={
@@ -722,6 +737,26 @@ async function loadPurchaseOrdersFromSheet(){
   return true;
 }
 
+// Chat reassembly: load Ticket_Chat and attach to tickets
+async function loadTicketChatFromSheet(){
+  const rows=await apiRead('Ticket_Chat');
+  if(!rows)return false;
+  TKS.forEach(t=>t.chat=[]);
+  rows.forEach(r=>{
+    const tid=String(r.Ticket_ID||'').trim();
+    if(!tid)return;
+    const t=TKS.find(x=>x.id===tid);
+    if(!t)return;
+    t.chat.push({
+      by:String(r.Sender_Name||'').trim(),
+      role:String(r.Sender_Role||'').trim(),
+      msg:String(r.Message||'').trim(),
+      time:String(r.Timestamp||'').trim(),
+      isOtp:(r.Is_OTP===true||String(r.Is_OTP).toUpperCase()==='TRUE')
+    });
+  });
+  return true;
+}
 // History reassembly: load Ticket_History and attach to tickets
 async function loadTicketHistoryFromSheet(){
   const rows=await apiRead('Ticket_History');
@@ -845,7 +880,7 @@ function doLogin(){
   buildNav();R();go(NAV[role][0].id);document.getElementById('fab').style.display=role==='requester'?'flex':'none'}
 
 function logout(){punchedIn=false;currentPunch=null;document.getElementById('app').style.display='none';document.getElementById('loginP').style.display='flex'}
-async function doRefresh(){const btn=document.getElementById('refreshBtn');btn.classList.add('spinning');btn.disabled=true;try{await Promise.all([loadTicketsFromSheet(),loadTicketHistoryFromSheet(),loadAttendersFromSheet(),loadUsersFromSheet(),loadOutletsFromSheet(),loadCategoriesFromSheet(),loadPriorityRulesFromSheet(),loadPurchaseOrdersFromSheet(),loadSubMetaFromSheet()]);R();btn.classList.remove('spinning');btn.innerHTML='✓';setTimeout(()=>{btn.innerHTML='🔄';btn.disabled=false},1500)}catch(e){console.error('Refresh failed:',e);btn.classList.remove('spinning');btn.innerHTML='❌';setTimeout(()=>{btn.innerHTML='🔄';btn.disabled=false},2000)}}
+async function doRefresh(){const btn=document.getElementById('refreshBtn');btn.classList.add('spinning');btn.disabled=true;try{await Promise.all([loadTicketsFromSheet(),loadTicketHistoryFromSheet(),loadAttendersFromSheet(),loadUsersFromSheet(),loadOutletsFromSheet(),loadCategoriesFromSheet(),loadPriorityRulesFromSheet(),loadPurchaseOrdersFromSheet(),loadSubMetaFromSheet()]);await loadTicketChatFromSheet();R();btn.classList.remove('spinning');btn.innerHTML='✓';setTimeout(()=>{btn.innerHTML='🔄';btn.disabled=false},1500)}catch(e){console.error('Refresh failed:',e);btn.classList.remove('spinning');btn.innerHTML='❌';setTimeout(()=>{btn.innerHTML='🔄';btn.disabled=false},2000)}}
 function buildNav(){const n=NAV[role]||[];document.getElementById('sbN').innerHTML='<div class="sb-sec">Menu</div>'+n.map(x=>`<div class="ni" data-p="${x.id}" onclick="go('${x.id}')"><span class="ic">${x.ic}</span>${x.l}</div>`).join('');document.getElementById('mnI').innerHTML=n.map(x=>`<button class="mi" data-p="${x.id}" onclick="go('${x.id}')"><span class="ic">${x.ic}</span>${x.l}</button>`).join('')}
 function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));const pg=document.getElementById('pg-'+p);if(pg)pg.classList.add('on');document.querySelectorAll('.ni,.mi').forEach(x=>x.classList.toggle('on',x.dataset.p===p));document.getElementById('pgT').textContent={dashboard:'Home','raise-ticket':'New Ticket',tickets:'Tickets',detail:'Details','att-dash':'My Jobs','att-history':'Ticket History',approvals:'Approvals',finance:'Payments',purchaser:'Purchase Tasks',vendors:'Vendors','mgr-actions':'Mgr Actions',config:'Configuration',reports:'Reports'}[p]||'';closeSB();document.getElementById('cA').scrollTop=0;if(p==='raise-ticket'){refreshCatDropdown();clearSubSelection();setTimeout(refreshOutletDropdown,50);}}
 	function openSB(){document.getElementById('sb').classList.add('open');document.getElementById('sov').classList.add('show')}
@@ -1669,8 +1704,11 @@ function confirmResolved(){const t=TKS.find(x=>x.id===curTkt);if(!t)return;t.con
   if(!t.otp)t.otp=Math.floor(100000+Math.random()*900000);
   t.otpRevealed=true;
   if(!t.chat)t.chat=[];t.chat.push({by:userName,role,msg:'🔐 OTP: '+t.otp,time:ts(),isOtp:true});
+  writeChat(curTkt,'🔐 OTP: '+t.otp,true);
+  apiUpdate('Tickets','Ticket_ID',curTkt,{OTP:t.otp,OTP_Revealed:'TRUE',Confirm_Status:'resolved'});
   setSt(curTkt,'ready-closure','✅ Requester confirmed. OTP auto-generated & posted to chat.');
   setTimeout(()=>viewT(curTkt),300);nf('OTP shared','Check the chat — give it to the attender','ok')}
+
 function confirmNotResolved(){const t=TKS.find(x=>x.id===curTkt);if(!t)return;t.confirmStatus='not-resolved';closeM('confirmM');
   // PHASE 6: No → no OTP, ticket returns to In Progress
   t.otpRevealed=false;
@@ -2497,8 +2535,8 @@ let workMetaH='';if(isA&&t.status!=='closed'){const m=getMeta((t.cat||'').toLowe
 function toggleLog(id){logOpen[id]=!logOpen[id];viewT(id)}
 function saveWorkAns(id,type,i,val){const t=TKS.find(x=>x.id===id);if(!t)return;if(!t.workAns)t.workAns={};t.workAns[type+i]=val}
 
-function sendC(){const i=document.getElementById('chI');if(!i||!i.value.trim())return;const t=TKS.find(x=>x.id===curTkt);if(!t)return;if(!t.chat)t.chat=[];t.chat.push({by:userName,role,msg:i.value,time:ts()});i.value='';viewT(curTkt)}
-function shareOTPInChat(id){const t=TKS.find(x=>x.id===id);if(!t)return;if(!t.chat)t.chat=[];t.chat.push({by:userName,role,msg:'🔐 OTP: '+t.otp,time:ts(),isOtp:true});viewT(id)}
+function sendC(){const i=document.getElementById('chI');if(!i||!i.value.trim())return;const t=TKS.find(x=>x.id===curTkt);if(!t)return;if(!t.chat)t.chat=[];const m=i.value;t.chat.push({by:userName,role,msg:m,time:ts()});writeChat(curTkt,m,false);i.value='';viewT(curTkt)}
+function shareOTPInChat(id){const t=TKS.find(x=>x.id===id);if(!t)return;if(!t.chat)t.chat=[];t.chat.push({by:userName,role,msg:'🔐 OTP: '+t.otp,time:ts(),isOtp:true});writeChat(id,'🔐 OTP: '+t.otp,true);viewT(id)}
 
 function openM(id){document.getElementById(id).classList.add('show')}
 function closeM(id){document.getElementById(id).classList.remove('show')}
@@ -2543,6 +2581,7 @@ let usersLoaded=false;
   ]).then(async ()=>{
     await loadPurchaseOrdersFromSheet();
   await loadTicketHistoryFromSheet();
+  await loadTicketChatFromSheet();
     fillBootDropdowns();
     // If user hasn't logged in yet, silently update USERS from sheet
     // If already logged in, refresh the current view with sheet data
