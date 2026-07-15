@@ -102,7 +102,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <div class="logo"><div class="logo-i">🔧</div><div><h1>Fix Engine</h1><span>Cloud Kitchen R&M v7</span></div></div>
   <h2>Login</h2>
   <div class="fg" id="lPhWrap"><label>Mobile</label><input class="fc" id="lPh" type="tel" placeholder="9876543210" maxlength="10"></div>
-  <div class="fg" id="lOutWrap" style="display:none"><label>Your Outlet *</label><select class="fc" id="lOut"><option value="">Select your outlet</option></select></div>
+  <div class="fg" id="lOutWrap" style="display:none"><label>Your Outlet *</label><div style="position:relative"><input class="fc" id="lOutSearch" placeholder="Type to search outlet..." autocomplete="off" oninput="filterOutlets()"><input type="hidden" id="lOut"><div id="lOutResults" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:300;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);max-height:200px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4)"></div></div></div>
   <div class="fg" id="lAttWrap" style="display:none"><label>Select Attender</label><select class="fc" id="lAtt"></select></div>
   <div class="fg" id="lPwWrap"><label>Password</label><input class="fc" id="lPw" type="password" placeholder="1234"></div>
   <div class="fg"><label>Role</label><div class="lr-grid">
@@ -1624,7 +1624,7 @@ async function raiseTicket(){
     if(btn){btn.disabled=false;btn.textContent='🎫 Raise Ticket';}
     return;
   }
-  tCnt++;const id='RMT-0'+tCnt;const u=UMAP[s]||(CATS[c]?CATS[c].pri:'medium');const sla=SLAH[u]||CATS[c]?.sla||24;
+  tCnt++;const id=o.replace(/[^A-Za-z]/g,'').slice(0,3).toUpperCase()+'-0'+tCnt;const u=UMAP[s]||(CATS[c]?CATS[c].pri:'medium');const sla=SLAH[u]||CATS[c]?.sla||24;
   const probes=[];document.querySelectorAll('#probeL input:checked').forEach(x=>probes.push(x.nextElementSibling?.textContent));
   const deadline=new Date(Date.now()+(sla*3600000)).toISOString();
   const t={id,issue:s,cat:c.charAt(0).toUpperCase()+c.slice(1),sub:s,out:o,pri:u,sla:'+'+String(sla).padStart(2,'0')+':00',slaDeadline:deadline,status:'raised',att:null,hist:[{s:'raised',t:ts(),n:'By '+userName+(probes.length?' · '+probes.length+' probes flagged':'')}],desc:d,otp:Math.floor(100000+Math.random()*900000),costs:[],by:phone,otpRevealed:false,issueRes:null,chat:[],puTask:null,vendor:null,slaExt:[],probes,locVisit:true,confirmStatus:null,reopened:false};
