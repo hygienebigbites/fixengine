@@ -72,7 +72,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 .tcard{background:var(--c1);border:1px solid var(--bdr);border-radius:var(--r);padding:10px;margin-bottom:8px;cursor:pointer}.tcard:active{border-color:var(--ac)}
 .prog{display:flex;gap:2px;margin-top:6px}.prog .dot{flex:1;height:3px;border-radius:2px;background:var(--bdr)}.prog .dot.dn{background:var(--ok)}.prog .dot.nw{background:var(--ac)}
 .po{display:flex;flex-direction:column;align-items:center;gap:3px;padding:14px 6px;border:2px dashed var(--bdr);border-radius:var(--r);cursor:pointer;background:var(--c2)}.po:active{border-color:var(--ac);background:rgba(124,106,240,.06)}.po .po-i{font-size:24px}.po .po-l{font-size:11px;font-weight:600;color:var(--t)}.po .po-s{font-size:8px;color:var(--t3);text-align:center}
-.job-card{background:var(--c1);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:10px}.job-card .jc-head{padding:12px;border-bottom:1px solid var(--bdr)}.job-card .jc-status{padding:10px 12px;background:var(--c2)}.job-card .jc-action{padding:12px}
+.job-card{background:linear-gradient(180deg,var(--c2),var(--c1));border:1px solid var(--bdr);border-left:3px solid var(--ac);border-radius:var(--r);overflow:hidden;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.35)}.job-card .jc-head{padding:12px;border-bottom:1px solid var(--bdr)}.job-card .jc-status{padding:10px 12px;background:var(--c2)}.job-card .jc-action{padding:12px}
 .job-card .jc-bar{display:flex;border-top:1px solid var(--bdr);flex-wrap:wrap}.job-card .jc-bar-btn{flex:1;min-width:60px;display:flex;align-items:center;justify-content:center;gap:4px;padding:9px 4px;font-size:10px;font-weight:500;color:var(--t2);background:none;border:none;cursor:pointer;border-right:1px solid var(--bdr);text-decoration:none}.job-card .jc-bar-btn:last-child{border-right:none}.job-card .jc-bar-btn:active{background:var(--c2);color:var(--t)}
 .fab{position:fixed;bottom:calc(56px + var(--sb));right:12px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--inf));color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 4px 14px var(--acg);z-index:90;display:flex;align-items:center;justify-content:center}
 .mn{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--c1);border-top:1px solid var(--bdr);z-index:100;padding:3px 0 var(--sb)}.mn .mni{display:flex;justify-content:space-around;overflow-x:auto}.mn .mi{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 2px;font-size:8px;color:var(--t3);cursor:pointer;border:none;background:none;flex:1;min-width:55px}.mn .mi.on{color:var(--ac2)}.mn .mi .ic{font-size:16px}
@@ -120,8 +120,8 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 </div></div>
 <div id="app" class="app" style="display:none">
 <div class="sidebar-ov" id="sov" onclick="closeSB()"></div>
-<aside class="sidebar" id="sb"><div class="sb-logo"><div class="li">🔧</div><div><h1>Fix Engine</h1><span>Cloud Kitchen R&M</span></div></div><nav class="sb-nav" id="sbN"></nav><div class="sb-u"><div class="av" id="uAv">U</div><div style="flex:1"><div class="un" id="uN">User</div><div class="ur" id="uR">Role</div></div><button class="btn-s" id="refreshBtn" onclick="doRefresh()" title="Refresh all data" style="font-size:12px;padding:3px 6px;margin-right:6px">🔄</button><button class="btn-s btn-o" onclick="logout()" style="font-size:9px;padding:3px 6px">↩</button></div></aside>
-<div class="main"><header class="topbar"><div style="display:flex;align-items:center;gap:8px"><button class="mt-btn" onclick="openSB()">☰</button><h2 id="pgT">Home</h2></div></header>
+<aside class="sidebar" id="sb"><div class="sb-logo"><div class="li">🔧</div><div><h1>Fix Engine</h1><span>Cloud Kitchen R&M</span></div></div><nav class="sb-nav" id="sbN"></nav><div class="sb-u"></div></aside>
+<div class="main"><header class="topbar"><div style="display:flex;align-items:center;gap:8px"><button class="mt-btn" onclick="openSB()">☰</button><h2 id="pgT">Home</h2></div><div style="display:flex;align-items:center;gap:8px"><button class="tb" id="refreshBtn" onclick="doRefresh()" title="Refresh all data">🔄</button><div style="display:flex;align-items:center;gap:6px"><div class="av" id="uAv" style="width:26px;height:26px;font-size:9px">U</div><div style="line-height:1.15;max-width:110px;overflow:hidden"><div id="uN" style="font-size:10px;font-weight:600;white-space:nowrap;text-overflow:ellipsis;overflow:hidden">User</div><div id="uR" style="font-size:8px;color:var(--t3);white-space:nowrap;text-overflow:ellipsis;overflow:hidden">Role</div></div></div><button class="tb" onclick="logout()" title="Switch user">↩</button></div></header>
 <div class="cnt-area" id="cA">
 
 <div class="page on" id="pg-dashboard"><div class="sts fin" id="dSt"></div><div class="card fin"><div class="card-h"><h3>Recent Tickets</h3><button class="btn btn-s btn-o" onclick="go('tickets')">View All</button></div><div id="dCards"></div></div></div>
@@ -255,7 +255,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <div class="fg"><label>Vendor Phone</label><input class="fc" id="vaP" type="tel"></div>
   <div class="fg"><label>Notes</label><textarea class="fc" id="vaNt" rows="2"></textarea></div>
 </div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('venAssignM')">Cancel</button><button class="btn btn-ok" onclick="assignVendor()">Assign</button></div></div></div>
-
+<div class="modal-bg" id="callM"><div class="modal"><div class="modal-hd"><h3>📞 Call</h3><button class="modal-x" onclick="closeM('callM')">✕</button></div><div class="modal-bd" id="callMBody"></div></div></div>
 <div class="modal-bg" id="confirmM"><div class="modal"><div class="modal-hd"><h3>✅ Confirm Resolution</h3><button class="modal-x" onclick="closeM('confirmM')">✕</button></div><div class="modal-bd">
   <div style="text-align:center;padding:10px"><div style="font-size:36px;margin-bottom:8px">🔧</div><p style="font-size:13px;font-weight:600">Is your issue fully resolved?</p><p style="font-size:10px;color:var(--t2);margin-top:6px">Confirming will let you share the OTP to close the ticket</p></div>
   <div style="display:flex;gap:8px;margin-top:14px"><button class="btn-big green" onclick="confirmResolved()">✅ Yes, Resolved</button><button class="btn-big red" onclick="confirmNotResolved()">❌ Not Resolved</button></div>
@@ -293,6 +293,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 <script>
 let OL=['ANR01.BLR22','BLD01.BLR25','BOM01.BLR04','BSK01.BLR19','BTM01.BLR03','CK-Corp Office','CMP01.CHN10','CRN01.BLR17','HSR01.BLR02','IND01.BLR01','KOR01.BLR12','MGP01.CHN01','SKM01.CHN03','VDP01.CHN02','WFD01.BLR06','WFD02.BLR13','YLK01.BLR15'];
 let OUTPHONES={'HSR01.BLR02':'9988776601','KOR01.BLR12':'9988776602','WFD01.BLR06':'9988776603','MGP01.CHN01':'9988776604'};
+let OUTCONTACTS={};
 let CATS={electrical:{label:'⚡ Electrical',subs:['MCB Tripping','Wiring Issue','Socket/Switch','Light Fixture','Exhaust Fan','Stabilizer','Earthing'],pri:'medium',sla:12},plumbing:{label:'🔧 Plumbing',subs:['Water Leakage','Drain Blockage','Tap/Faucet','Water Tank/Motor','Pipeline Burst'],pri:'medium',sla:12},equipment:{label:'🍳 Equipment',subs:['Chimney/Hood','Gas Burner/Stove','Refrigerator','Deep Freezer','Mixer/Grinder','Oven/OTG','Deep Fryer','Tandoor','Induction Cooktop','Dishwasher','Ice Machine','Coffee Machine','Water Boiler','Trolley/Rack','Weighing Scale'],pri:'medium',sla:12},hvac:{label:'❄️ HVAC',subs:['AC Not Cooling','AC Leaking','AC Service','Ventilation Fan'],pri:'high',sla:5},civil:{label:'🏗️ Civil',subs:['Wall Crack','Tile Repair','Door/Window','Painting','Waterproofing','Roof Leak'],pri:'low',sla:24},gas:{label:'🔥 Gas',subs:['Gas Leak Smell','Regulator Issue','Pipeline','Cylinder Change','Safety Valve'],pri:'critical',sla:2},pest:{label:'🐛 Pest',subs:['Cockroach','Rodent/Rat','Termite','Ant','General Fumigation'],pri:'low',sla:24}};
 const PROBES={'AC Not Cooling':['Outdoor unit running?','Error display?','Unusual noise?','Water leaking?','Filter clogged?','Refrigerant leak suspected?'],'Gas Leak Smell':['Strong/faint smell?','Near cylinder/pipe?','Burners off?','Area evacuated?'],'Drain Blockage':['Complete/slow?','Bad odor?','Multiple drains?','Grease trap cleaned?'],'Refrigerator':['Not cooling at all?','Strange noise?','Door seal ok?','Ice buildup?','Compressor running?'],'Water Leakage':['Continuous?','From ceiling/wall/pipe?','Pressure normal?'],'MCB Tripping':['Which MCB?','Trips immediately?','New equipment added?','Earth fault?'],'Chimney/Hood':['Not pulling smoke?','Vibration?','Filter cleaned?','Motor hot?'],'Gas Burner/Stove':['Flame color?','Ignition working?','Gas smell?'],'Tap/Faucet':['Not closing?','Reduced flow?','Dripping?'],'Wall Crack':['Length?','Width?','Water seepage?','Structural concern?'],'Cockroach':['Kitchen/storage?','Near drains?','Food contamination?']};
 // PHASE 2: rich per-subcategory metadata. Key = "category|subcategory".
@@ -454,7 +455,7 @@ async function loadUsersFromSheet(){
 async function loadOutletsFromSheet(){
   const rows=await apiRead('Outlets');
   if(!rows)return false;
-  const codes=[];const phones={};
+  const codes=[];const phones={};const contacts={};
   rows.forEach(o=>{
     const code=String(o.Outlet_Code).trim();
     if(!code)return;
@@ -462,8 +463,9 @@ async function loadOutletsFromSheet(){
     if(!active)return;                       // skip disabled outlets
     codes.push(code);
     if(o.Phone)phones[code]=String(o.Phone).trim();
+    contacts[code]={shift:String(o.Shift_Manager_Phone||'').trim(),cluster:String(o.Cluster_Manager_Phone||'').trim(),ops:String(o.Ops_Head_Phone||'').trim()};
   });
-  if(codes.length){OL=codes;OUTPHONES=phones;}
+  if(codes.length){OL=codes;OUTPHONES=phones;OUTCONTACTS=contacts;}
   return true;
 }
 
@@ -802,7 +804,8 @@ let TKS=[
 let role='',phone='',userName='',userIni='',attId='',userOutlet='',curTkt='',selRV='requester',tCnt=455,logOpen={};
 function syncTCnt(){
   TKS.forEach(t=>{
-    const n=parseInt((t.id||'').replace('RMT-0',''));
+    const m=(t.id||'').match(/-0?(\d+)$/);
+    const n=m?parseInt(m[1]):NaN;
     if(!isNaN(n)&&n>tCnt)tCnt=n;
   });
 }
@@ -845,7 +848,7 @@ function filterOutlets() {
     const results = document.getElementById('lOutResults');
 
     const search = input.value.trim().toLowerCase();
-
+    document.getElementById('lOut').value = '';
     if (!search) {
         results.innerHTML = '';
         results.style.display = 'none';
@@ -865,14 +868,13 @@ function filterOutlets() {
 
     const matches = [...startsWith, ...contains];
 
-    results.innerHTML = matches.map(outlet => `
-        <div style="padding:8px 10px;cursor:pointer;border-bottom:1px solid #eee"
+    results.innerHTML = matches.length ? matches.map(outlet => `
+        <div style="padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--bdr);font-size:12px"
              onclick="selectOutlet('${outlet}')">
             ${outlet}
         </div>
-    `).join('');
-
-    results.style.display = matches.length ? 'block' : 'none';
+    `).join('') : '<div style="padding:10px;font-size:10px;color:var(--t3);text-align:center">No outlet found</div>';
+    results.style.display = 'block';
 }
 
 function selectOutlet(outlet) {
@@ -1702,8 +1704,13 @@ async function raiseTicket(){
     go('tickets');
   },800)}
 
+function openCallMenu(tid){const t=TKS.find(x=>x.id===tid);if(!t)return;const c=OUTCONTACTS[t.out]||{};const outP=OUTPHONES[t.out]||'';const reqP=t.by||'';
+  const row=(label,num)=>num?`<a href="tel:+91${num}" class="btn btn-o btn-full" style="text-decoration:none;justify-content:space-between;margin-bottom:6px;padding:11px 14px"><span>${label}</span><span style="font-family:var(--m);font-size:11px;color:var(--t2)">📞 ${num}</span></a>`:`<div class="btn btn-o btn-full" style="justify-content:space-between;margin-bottom:6px;padding:11px 14px;opacity:.4"><span>${label}</span><span style="font-size:10px">—</span></div>`;
+  document.getElementById('callMBody').innerHTML=`<div style="font-size:9px;color:var(--t3);margin-bottom:8px">🏪 ${t.out} · ${t.id}</div>`+row('👤 Requester',reqP)+row('🏪 Outlet',outP)+row('🧑‍💼 Shift Manager',c.shift)+row('🗺️ Cluster Manager',c.cluster)+row('🎯 Ops Head',c.ops);
+  openM('callM')}
 function generateWhatsAppLink(phone,msg){let p=phone.replace(/^\+?/,'');if(!p.startsWith('91'))p='91'+p;return 'https://wa.me/'+p+'?text='+encodeURIComponent(msg)}
-function notifyStatusViaWhatsApp(id){const t=TKS.find(x=>x.id===id);if(!t)return;const a=t.att?gA(t.att):null;const attName=a?a.name:'Team';const msg=`Your issue ${t.id} (${t.issue}) is ${SL[t.status].toLowerCase()}`;const link=generateWhatsAppLink(t.by,msg);const notifDiv=document.createElement('div');notifDiv.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--c1);border:1px solid var(--bdr);padding:12px 14px;border-radius:var(--rs);z-index:300;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:280px';notifDiv.innerHTML='<div style="font-size:11px;font-weight:600;margin-bottom:8px">📱 Notify requester?</div><button class="btn btn-s btn-p btn-full" onclick="window.open(\''+link+'\',\'_blank\');this.parentElement.remove()" style="font-size:9px">WhatsApp</button>';document.body.appendChild(notifDiv);setTimeout(()=>{if(notifDiv.parentElement)notifDiv.remove()},6000)}
+function notifyStatusWhatsApp(id){const t=TKS.find(x=>x.id===id);if(!t||!t.by)return;const msg=`Your issue ${t.id} (${t.issue}) is ${SL[t.status].toLowerCase()}`;window.open(generateWhatsAppLink(t.by,msg),'_blank')}
+function notifyStatusViaWhatsApp(id){const t=TKS.find(x=>x.id===id);if(!t)return;const a=t.att?gA(t.att):null;const attName=a?a.name:'Team';const msg=`Your issue ${t.id} (${t.issue}) is ${SL[t.status].toLowerCase()}`;const link=generateWhatsAppLink(t.by,msg);const notifDiv=document.createElement('div');notifDiv.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--c1);border:1px solid var(--bdr);padding:12px 14px;border-radius:var(--rs);z-index:300;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:280px';notifDiv.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:11px;font-weight:600">📱 Notify requester?</div><button onclick="this.closest(\'div[style]\').remove()" style="background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer;padding:0 0 0 10px">✕</button></div><button class="btn btn-s btn-p btn-full" onclick="window.open(\''+link+'\',\'_blank\');this.parentElement.remove()" style="font-size:9px">WhatsApp</button>';document.body.appendChild(notifDiv)}
 function shareOTPViaWhatsApp(id){const t=TKS.find(x=>x.id===id);if(!t||!t.otp)return;const msg=`🔐 OTP to close ticket ${t.id}: ${t.otp}`;const link=generateWhatsAppLink(t.by,msg);window.open(link,'_blank')}
 function setSt(id,ns,note){
   const t=TKS.find(x=>x.id===id);if(!t)return;
@@ -1726,7 +1733,7 @@ function setSt(id,ns,note){
  } else {
     writeHistory(id,ns,histNote,userName);
   }
-  if(role==='attender'&&ns!=='closed')setTimeout(()=>notifyStatusViaWhatsApp(id),300);
+  
 }
 function doAccept(id){setSt(id,'accepted','Accepted by '+userName);viewT(id)}
 function doVisitChoice(id,needVisit){const t=TKS.find(x=>x.id===id);if(!t)return;t.locVisit=needVisit;if(needVisit){setSt(id,'on-the-way','📍 Visit required — on the way')}else{t.hist.push({s:t.status,t:ts(),n:'No visit needed — remote work'});setSt(id,'job-started','▶ Started (remote)')}viewT(id)}
@@ -2046,12 +2053,12 @@ const done=TKS.filter(t=>t.att===my&&t.status==='closed').length;
     const btnMap={'assigned':{text:'✓ ACCEPT',cls:'green',fn:`doAccept('${t.id}')`},'accepted':null,'on-the-way':{text:'📍 REACHED OUTLET',cls:'orange',fn:`doReached('${t.id}')`},'reached-outlet':{text:'▶ START JOB',cls:'green',fn:`doStart('${t.id}')`},'job-started':{text:'🔧 IN PROGRESS',cls:'purple',fn:`doProgress('${t.id}')`},'in-progress':{text:'✅ MARK AS FIXED',cls:'green',fn:`doMarkFixed('${t.id}')`},'vendor-pending':{text:'✓ VENDOR DONE',cls:'green',fn:`vendorComplete('${t.id}')`},'ready-closure':{text:'🔐 ENTER OTP',cls:'orange',fn:`viewT('${t.id}')`}};
     let actionHtml='';
     if(t.status==='accepted'){actionHtml=`<div style="font-size:10px;color:var(--t3);text-align:center;margin-bottom:6px">Does this job need site visit?</div><div style="display:flex;gap:6px"><button class="btn-big blue" onclick="doVisitChoice('${t.id}',true)">🚗 YES — On Way</button><button class="btn-big purple" onclick="doVisitChoice('${t.id}',false)">💻 NO — Remote</button></div>`}
-    else{const btn=btnMap[t.status];if(btn)actionHtml=`<button class="btn-big ${btn.cls}" onclick="${btn.fn}">${btn.text}</button>`;else actionHtml=`<div style="text-align:center;padding:8px;color:var(--t3);font-size:11px">${SL[t.status]}</div>`}
+    else{const btn=btnMap[t.status];if(btn)actionHtml=`<div style="display:flex;gap:6px"><button class="btn-big ${btn.cls}" onclick="${btn.fn}" style="flex:1">${btn.text}</button><button onclick="notifyStatusWhatsApp('${t.id}')" style="width:52px;border:none;border-radius:var(--r);background:#25D366;color:#fff;font-size:20px;cursor:pointer;flex-shrink:0" title="WhatsApp requester">🟢</button></div>`;else actionHtml=`<div style="text-align:center;padding:8px;color:var(--t3);font-size:11px">${SL[t.status]}</div>`}
     const purchCnt=t.costs.length;const tot=t.costs.reduce((s,c)=>s+c.amt,0);
     return`<div class="job-card"><div class="jc-head"><div style="display:flex;justify-content:space-between;align-items:center"><span class="tid" style="font-size:11px">${t.id}</span><span class="sla ${sc}">⏱ ${t.sla||'—'}</span></div><div style="font-size:14px;font-weight:700;margin:4px 0">${t.issue}</div><div style="font-size:10px;color:var(--t2)">🏪 ${t.out} · ${t.cat}</div>${tot>0?`<div style="font-size:10px;color:var(--ac2);font-weight:600;margin-top:3px">💰 ₹${tot.toLocaleString('en-IN')}</div>`:''}${isBr?`<div style="margin-top:6px"><button class="btn btn-s btn-wr" onclick="openSLAExtend('${t.id}')" style="font-size:9px">⏱ Extend SLA</button></div>`:''}</div>
       <div class="jc-status"><div style="font-size:10px;color:var(--t3)">Status</div><div style="font-size:13px;font-weight:600">${SL[t.status]}</div></div>
       <div class="jc-action">${actionHtml}</div>
-      <div class="jc-bar"><button class="jc-bar-btn" onclick="showPurch('${t.id}')" style="${purchCnt?'color:var(--ac2);font-weight:700':''}">🛒${purchCnt?'<span style="background:var(--ac);color:#fff;padding:1px 5px;border-radius:8px;font-size:9px;margin-left:3px">'+purchCnt+'</span>':''}</button><a class="jc-bar-btn" href="tel:+91${reqPhone}">📞</a><a class="jc-bar-btn" href="tel:+91${outPhone}">🏪</a><button class="jc-bar-btn" onclick="openAssignPurchaser('${t.id}')">🛍️</button><button class="jc-bar-btn" onclick="openVendorReq('${t.id}')">🤝</button><button class="jc-bar-btn" onclick="viewT('${t.id}')">📋</button></div></div>`}).join('')}
+      <div class="jc-bar"><button class="jc-bar-btn" onclick="showPurch('${t.id}')" style="${purchCnt?'color:var(--ac2);font-weight:700':''}">🛒${purchCnt?'<span style="background:var(--ac);color:#fff;padding:1px 5px;border-radius:8px;font-size:9px;margin-left:3px">'+purchCnt+'</span>':''}</button><button class="jc-bar-btn" onclick="openCallMenu('${t.id}')">📞 Call</button><button class="jc-bar-btn" onclick="openAssignPurchaser('${t.id}')">🛍️</button><button class="jc-bar-btn" onclick="openVendorReq('${t.id}')">🤝</button><button class="jc-bar-btn" onclick="viewT('${t.id}')">📋</button></div></div>`}).join('')}
 
 function rAppr(){const el=document.getElementById('apList');if(!el)return;
   // PHASE 8: group pending items by ticket for ticket-wise approval
