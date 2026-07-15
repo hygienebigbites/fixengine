@@ -214,8 +214,9 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 
 <!-- MODALS -->
 <div class="modal-bg" id="lpM"><div class="modal"><div class="modal-hd"><h3>🛒 Add Purchase</h3><button class="modal-x" onclick="closeM('lpM')">✕</button></div><div class="modal-bd">
-  <div class="fg"><label>Item *</label><input class="fc" id="lpI" placeholder="R22 Gas"></div>
-  <div class="fr"><div class="fg"><label>Qty *</label><input class="fc" id="lpQ" type="number" value="1" step="0.01"></div><div class="fg"><label>Unit *</label><select class="fc" id="lpU"><option>pcs</option><option>kg</option><option>g</option><option>ltr</option><option>ml</option><option>mtr</option><option>ft</option><option>dozen</option><option>pkt</option><option>box</option><option>set</option><option>roll</option><option>bag</option><option>bottle</option><option>can</option></select></div></div>
+  <div class="fg"><label>🏪 Shop *</label><input class="fc" id="lpSh" placeholder="Vendor name"></div>
+  <div class="fg"><label>🧾 Items *</label><div id="lpItems"></div><button type="button" class="btn btn-s btn-o btn-full" onclick="lpAddRow()" style="margin-top:6px">＋ Add another item</button></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:var(--c2);border-radius:var(--rs);margin-bottom:10px"><span style="font-size:10px;color:var(--t2);font-weight:600">TOTAL</span><span style="font-family:var(--m);font-weight:700;font-size:15px;color:var(--ac2)" id="lpT">₹0</span></div>
   <div class="fr"><div class="fg"><label>₹/Unit *</label><input class="fc" id="lpA" type="number"></div><div class="fg"><label>Total</label><div style="padding:9px 11px;background:var(--c2);border-radius:var(--rs);font-family:var(--m);font-weight:700" id="lpT">₹0</div></div></div>
   <div class="fg"><label>🏪 Shop *</label><input class="fc" id="lpSh" placeholder="Vendor name"></div>
   <div class="fg"><label>📱 QR Code</label><div class="po" onclick="document.getElementById('lpQI').click()"><div class="po-i">📱</div><div class="po-l" id="lpQL">Tap to upload</div><input type="file" accept="image/*" capture="environment" style="display:none" id="lpQI" onchange="document.getElementById('lpQL').textContent='✅ Uploaded';document.getElementById('lpQL').style.color='var(--ok)'"></div></div>
@@ -1768,58 +1769,62 @@ function doReopen(){const r=document.getElementById('reR').value;if(!r){nf('Reas
 function renderIssueModal(t){document.getElementById('issueMBody').innerHTML=`<p style="font-size:10px;color:var(--t2);margin-bottom:8px">Mark resolution status for each ${t.cat}→${t.sub} issue:</p>`+t.issueRes.map((r,i)=>{const bg={fixed:'var(--okb)',partial:'var(--wrb)',notfixed:'var(--erb)'}[r.status];return`<div class="ires" style="background:${bg}"><span style="flex:1">${r.text}</span><select onchange="setIssueRes('${t.id}',${i},this.value)"><option value="fixed" ${r.status==='fixed'?'selected':''}>✅ Fixed</option><option value="partial" ${r.status==='partial'?'selected':''}>⚠️ Partial</option><option value="notfixed" ${r.status==='notfixed'?'selected':''}>❌ Not Fixed</option></select></div>`}).join('')}
 function setIssueRes(id,i,v){const t=TKS.find(x=>x.id===id);if(t&&t.issueRes){t.issueRes[i].status=v;renderIssueModal(t)}}
 
+let lpRowSeq=0;
+const LP_UNITS=['pcs','kg','g','ltr','ml','mtr','ft','dozen','pkt','box','set','roll','bag','bottle','can'];
+function lpAddRow(){lpRowSeq++;const wrap=document.getElementById('lpItems');if(!wrap)return;const rid='lpRow'+lpRowSeq;const div=document.createElement('div');div.className='lp';div.id=rid;
+  div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:8px;color:var(--t3);font-weight:600">ITEM</span><button type="button" onclick="lpDelRow('${rid}')" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;padding:0">✕</button></div>
+  <input class="fc lpi" placeholder="Item name" style="margin-bottom:4px">
+  <div style="display:flex;gap:4px;align-items:center"><input class="fc lpq" type="number" value="1" step="0.01" placeholder="Qty" style="width:60px" oninput="lpRecalc()"><select class="fc lpu" style="width:78px">${LP_UNITS.map(u=>`<option>${u}</option>`).join('')}</select><input class="fc lpa" type="number" placeholder="₹/unit" style="flex:1" oninput="lpRecalc()"><span class="lpline" style="font-family:var(--m);font-size:10px;font-weight:700;color:var(--ac2);white-space:nowrap">= ₹0</span></div>`;
+  wrap.appendChild(div);lpRecalc()}
+function lpDelRow(rid){const wrap=document.getElementById('lpItems');if(!wrap)return;if(wrap.children.length<=1){nf('Cannot remove','At least one item needed','warn');return}const el=document.getElementById(rid);if(el)el.remove();lpRecalc()}
+function lpRecalc(){let tot=0;document.querySelectorAll('#lpItems .lp').forEach(r=>{const q=parseFloat(r.querySelector('.lpq').value)||0;const a=parseFloat(r.querySelector('.lpa').value)||0;const line=q*a;const ln=r.querySelector('.lpline');if(ln)ln.textContent='= ₹'+Math.round(line).toLocaleString('en-IN');tot+=line});const el=document.getElementById('lpT');if(el)el.textContent='₹'+Math.round(tot).toLocaleString('en-IN')}
+function lpResetForm(){const wrap=document.getElementById('lpItems');if(wrap)wrap.innerHTML='';lpAddRow();['lpSh','lpRm'].forEach(x=>{const e=document.getElementById(x);if(e)e.value=''});const ql=document.getElementById('lpQL'),bl=document.getElementById('lpBL');if(ql){ql.textContent='Tap to upload';ql.style.color=''}if(bl){bl.textContent='Tap to upload';bl.style.color=''}const qi=document.getElementById('lpQI'),bi=document.getElementById('lpBI');if(qi)qi.value='';if(bi)bi.value='';lpRecalc()}
+
 async function addLP(){
   const btn=document.getElementById('addLPBtn');
   if(btn){btn.disabled=true;btn.textContent='⏳ Adding...';}
-  // Safety net — re-enable after 30 seconds no matter what
   const safetyTimer=setTimeout(()=>{
-    if(btn){btn.disabled=false;btn.textContent='Add';}	
+    if(btn){btn.disabled=false;btn.textContent='Add';}
     nf('Upload slow','If photo not saved, try without image first','warn');
   },30000);
-  const t=TKS.find(x=>x.id===curTkt);if(!t){
-    clearTimeout(safetyTimer);
-    if(btn){btn.disabled=false;btn.textContent='Add';}return;
-  }
-  const item=document.getElementById('lpI').value,
-        qty=parseFloat(document.getElementById('lpQ').value)||1,
-        amt=parseFloat(document.getElementById('lpA').value)||0,
-        unit=document.getElementById('lpU').value,
-        shop=document.getElementById('lpSh').value,
-        rem=document.getElementById('lpRm').value;
-  if(!item||!amt||!shop){nf('Required','Item, amount, shop','warn');return}
-
+  const done=()=>{clearTimeout(safetyTimer);if(btn){btn.disabled=false;btn.textContent='Add';}};
+  const t=TKS.find(x=>x.id===curTkt);if(!t){done();return;}
+  const shop=document.getElementById('lpSh').value.trim();
+  const rem=document.getElementById('lpRm').value;
+  const rows=[];
+  document.querySelectorAll('#lpItems .lp').forEach(r=>{
+    const item=r.querySelector('.lpi').value.trim();
+    const qty=parseFloat(r.querySelector('.lpq').value)||1;
+    const unit=r.querySelector('.lpu').value;
+    const rate=parseFloat(r.querySelector('.lpa').value)||0;
+    if(item||rate)rows.push({item,qty,unit,rate});
+  });
+  if(!shop){nf('Required','Shop name','warn');done();return;}
+  if(!rows.length){nf('Required','At least one item','warn');done();return;}
+  const bad=rows.find(r=>!r.item||!r.rate);
+  if(bad){nf('Incomplete item','Every item needs a name and ₹/unit','warn');done();return;}
   const qrFile=document.getElementById('lpQI').files[0];
   const billFile=document.getElementById('lpBI').files[0];
-
   let qrUrl=null,billUrl=null;
   if(qrFile||billFile){
     nf('Uploading…','Saving docs to Drive','ok');
     if(qrFile)qrUrl=await uploadToGDrive(qrFile,'qr_'+curTkt);
     if(billFile)billUrl=await uploadToGDrive(billFile,'bill_'+curTkt);
   }
-
-  const newCost={
-    item,qty,unit,amt:Math.round(amt*qty),rate:amt,shop,remarks:rem,
-    v:qrUrl?'qr':'mn',
-    qrImg:!!qrUrl,billImg:!!billUrl,
-    qrUrl:qrUrl||'',billUrl:billUrl||'',
-    payStatus:'mgr-pending',addedAt:ts()
-  };
-  t.costs.push(newCost);
-  writePO(t,newCost);
-  ['lpI','lpA','lpSh','lpRm'].forEach(x=>document.getElementById(x).value='');
-  document.getElementById('lpQ').value='1';
-  document.getElementById('lpU').value='pcs';
-  document.getElementById('lpQL').textContent='Tap to upload';
-  document.getElementById('lpQL').style.color='';
-  document.getElementById('lpBL').textContent='Tap to upload';
-  document.getElementById('lpBL').style.color='';
-  document.getElementById('lpQI').value='';
-  document.getElementById('lpBI').value='';
-  document.getElementById('lpT').textContent='₹0';
-  const btn2=document.getElementById('addLPBtn');
-  if(btn2){btn2.disabled=false;btn2.textContent='Add';}
-  closeM('lpM');R();nf('✅ Added',item,'ok');showPurch(curTkt)
+  rows.forEach(r=>{
+    const newCost={
+      item:r.item,qty:r.qty,unit:r.unit,amt:Math.round(r.rate*r.qty),rate:r.rate,shop,remarks:rem,
+      v:qrUrl?'qr':'mn',
+      qrImg:!!qrUrl,billImg:!!billUrl,
+      qrUrl:qrUrl||'',billUrl:billUrl||'',
+      payStatus:'mgr-pending',addedAt:ts()
+    };
+    t.costs.push(newCost);
+    writePO(t,newCost);
+  });
+  lpResetForm();
+  done();
+  closeM('lpM');R();nf('✅ Added',rows.length+' item(s) from '+shop,'ok');showPurch(curTkt)
 }
 
 document.addEventListener('input',e=>{if(e.target.id==='lpQ'||e.target.id==='lpA'){const q=parseFloat(document.getElementById('lpQ')?.value)||0,a=parseFloat(document.getElementById('lpA')?.value)||0;const el=document.getElementById('lpT');if(el)el.textContent='₹'+(q*a).toLocaleString('en-IN')}});
@@ -2610,6 +2615,7 @@ function fillBootDropdowns(){
 }
 
 toggleLoginMode();
+lpAddRow();
 // PHASE 3B + 4 + 5 + 6: load all sheet data in parallel at startup
 let usersLoaded=false;
 (async function bootData(){
@@ -2618,14 +2624,15 @@ let usersLoaded=false;
   usersLoaded=true;
   if(btn){btn.textContent='Login →';}
 
-  // Fetch all sheet data silently in the background — no blocking
+  // FAST PATH: load attenders alone first so the login dropdown is ready in ~1s
+  loadAttendersFromSheet().then(()=>{if(selRV==='attender')toggleLoginMode()});
+  // Fetch the rest silently in the background — no blocking
   Promise.all([
     loadUsersFromSheet(),
     loadOutletsFromSheet(),
     loadPriorityRulesFromSheet(),
-    loadCategoriesFromSheet(),	
+    loadCategoriesFromSheet(),
     loadSubMetaFromSheet(),
-    loadAttendersFromSheet(),
     loadTicketsFromSheet()
   ]).then(async ()=>{
     await loadPurchaseOrdersFromSheet();
