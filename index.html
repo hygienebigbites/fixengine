@@ -78,7 +78,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 .mn{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--c1);border-top:1px solid var(--bdr);z-index:100;padding:3px 0 var(--sb)}.mn .mni{display:flex;justify-content:space-around;overflow-x:auto}.mn .mi{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 2px;font-size:8px;color:var(--t3);cursor:pointer;border:none;background:none;flex:1;min-width:55px}.mn .mi.on{color:var(--ac2)}.mn .mi .ic{font-size:16px}
 .sidebar-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150}.sidebar-ov.show{display:block}
 .g32{display:grid;grid-template-columns:3fr 2fr;gap:12px}
-.page{display:none}.page.on{display:block}.fin{animation:fi .25s}@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page{display:none}.page.on{display:block}.fpanel-scroll{scrollbar-width:thin;scrollbar-color:var(--t3) var(--c2)}.fpanel-scroll::-webkit-scrollbar{width:9px}.fpanel-scroll::-webkit-scrollbar-track{background:var(--c2)}.fpanel-scroll::-webkit-scrollbar-thumb{background:var(--t3);border-radius:5px;border:2px solid var(--c2)}.fpanel-scroll::-webkit-scrollbar-thumb:hover{background:var(--ac)}.fin{animation:fi .25s}@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .pbar{height:3px;background:var(--bdr);border-radius:2px;overflow:hidden}.pbar .fill{height:100%;border-radius:2px}
 .npop{position:fixed;top:56px;right:10px;background:var(--c2);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 12px;z-index:2000;animation:npIn .3s;box-shadow:0 4px 16px rgba(0,0,0,.4);display:flex;gap:6px;max-width:300px}@keyframes npIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}.npop h4{font-size:10px;font-weight:600}.npop p{font-size:9px;color:var(--t2);margin-top:1px}
 .doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -124,20 +124,20 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 
 <div class="page on" id="pg-dashboard"><div class="sts fin" id="dSt"></div><div class="card fin"><div class="card-h"><h3>Recent Tickets</h3><button class="btn btn-s btn-o" onclick="go('tickets')">View All</button></div><div id="dCards"></div></div></div>
 
-<div class="page" id="pg-tickets"><div class="filters fin"><select class="fc" style="width:auto" id="fSt"><option value="">All Status</option><option value="pending">⏳ Pending</option><option value="open">🟢 Open</option><option value="closed">⚫ Closed</option><option value="reopen">🔄 Re-opened</option><option value="breach">⚠ Breached</option></select><select class="fc" style="width:auto" id="fPr"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="fCt"><option value="">All Categories</option></select><div style="position:relative;display:inline-block">
+<div class="page" id="pg-tickets"><div class="filters fin"><select class="fc" style="width:auto" id="fSt"><option value="">All Status</option><option value="pending">⏳ Pending</option><option value="open">🟢 Open</option><option value="closed">⚫ Closed</option><option value="reopen">🔄 Re-opened</option><option value="breach">⚠ Breached</option><option value="ready-closure">🔐 Ready to Close</option><option value="unassigned">🚫 Unassigned</option></select><select class="fc" style="width:auto" id="fPr"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="fCt"><option value="">All Categories</option></select><div style="position:relative;display:inline-block">
   <button type="button" id="fOtBtn" onclick="toggleOutletPanel()" style="background:var(--c2);border:1px solid var(--bdr);border-radius:var(--rs);padding:5px 10px;color:var(--t);font-size:10px;cursor:pointer;white-space:nowrap">🏪 All Outlets ▾</button>
-  <div id="fOtPanel" style="display:none;position:absolute;top:100%;left:0;z-index:200;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);min-width:200px;max-height:260px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4);margin-top:3px">
+  <div id="fOtPanel" class="fpanel-scroll" style="display:none;position:absolute;top:100%;left:0;z-index:200;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);min-width:200px;max-height:260px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4);margin-top:3px">
     <div style="padding:6px 10px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center">
       <span style="font-size:9px;color:var(--t3);font-weight:600">SELECT OUTLETS</span>
       <button type="button" onclick="clearOutletFilter()" style="background:none;border:none;color:var(--ac2);font-size:9px;cursor:pointer">Clear</button>
     </div>
     <div id="fOtList" style="padding:4px 0"></div>
   </div>
-</div><button class="btn btn-s btn-p" onclick="rList()">Go</button><button class="btn btn-s btn-o" onclick="resetF()">↻</button></div><div id="tCards" class="fin"></div></div>
+</div><button class="btn btn-s btn-p" onclick="rList()">Go</button><button class="btn btn-s btn-o" onclick="resetF()">↻</button></div><div class="filters fin" style="flex-wrap:nowrap"><select class="fc" style="width:auto" id="fAtt"><option value="">All Attenders</option></select><select class="fc" style="width:auto" id="fSort" onchange="rList()"><option value="">↕ Sort</option><option value="created_desc">📅 Newest First</option><option value="created_asc">📅 Oldest First</option><option value="priority_desc">🔺 Priority: High → Low</option><option value="priority_asc">🔻 Priority: Low → High</option><option value="sla_desc">⏱ SLA: Most Time Left</option><option value="sla_asc">⏱ SLA: Most Urgent First</option></select><input class="fc" id="fSearch" placeholder="🔍 Search ticket id, issue, outlet, requester, attender..." style="flex:1" onkeydown="if(event.key==='Enter')rList()"><button class="btn btn-s btn-p" onclick="rList()">Search</button><button class="btn btn-s btn-o" onclick="document.getElementById('fSearch').value='';rList()">↻</button></div><div id="tixBulkBar" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--c2);border:1px solid var(--ac);border-radius:var(--rs);padding:8px 10px;margin-bottom:10px"><span id="tixBulkCnt" style="font-size:11px;font-weight:600;color:var(--ac2)">0 selected</span><div style="display:flex;gap:6px"><button class="btn btn-s btn-o" onclick="clearJobSelection()">✕ Clear</button><button class="btn btn-s btn-p" onclick="openBulkTransfer()">🔄 Transfer</button></div></div><div id="tCards" class="fin"></div></div>
 
 <div class="page" id="pg-detail"></div>
 <div class="page" id="pg-att-dash"><div class="sts fin" id="aSt"></div>
-<div class="filters fin"><select class="fc" style="width:auto" id="aFPr" onchange="rAtt()"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="aFSt" onchange="rAtt()"><option value="">All Status</option><option value="assigned">Assigned</option><option value="accepted">Accepted</option><option value="in-progress">In Progress</option><option value="ready-closure">Ready to Close</option></select><select class="fc" style="width:auto" id="aFOt" onchange="rAtt()"><option value="">All Outlets</option></select><select class="fc" style="width:auto" id="aFCt" onchange="rAtt()"><option value="">All Categories</option></select></div>
+<div class="filters fin"><select class="fc" style="width:auto" id="aFPr" onchange="rAtt()"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="aFSt" onchange="rAtt()"><option value="">All Status</option><option value="assigned">Assigned</option><option value="accepted">Accepted</option><option value="in-progress">In Progress</option><option value="ready-closure">Ready to Close</option></select><select class="fc" style="width:auto" id="aFOt" onchange="rAtt()"><option value="">All Outlets</option></select><select class="fc" style="width:auto" id="aFCt" onchange="rAtt()"><option value="">All Categories</option></select><select class="fc" style="width:auto" id="aFSort" onchange="rAtt()"><option value="">↕ Sort</option><option value="created_desc">📅 Newest First</option><option value="created_asc">📅 Oldest First</option><option value="priority_desc">🔺 Priority: High → Low</option><option value="priority_asc">🔻 Priority: Low → High</option><option value="sla_desc">⏱ SLA: Most Time Left</option><option value="sla_asc">⏱ SLA: Most Urgent First</option></select></div>
 <div class="filters fin" style="flex-wrap:nowrap"><input class="fc" id="aFSearch" placeholder="🔍 Search ticket id, issue, outlet, requester..." style="flex:1" onkeydown="if(event.key==='Enter')rAtt()"><button class="btn btn-s btn-p" onclick="rAtt()">Search</button><button class="btn btn-s btn-o" onclick="document.getElementById('aFSearch').value='';rAtt()">↻</button></div>
 <div id="attBulkBar" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--c2);border:1px solid var(--ac);border-radius:var(--rs);padding:8px 10px;margin-bottom:10px"><span id="attBulkCnt" style="font-size:11px;font-weight:600;color:var(--ac2)">0 selected</span><div style="display:flex;gap:6px"><button class="btn btn-s btn-o" onclick="clearJobSelection()">✕ Clear</button><button class="btn btn-s btn-p" onclick="openBulkTransfer()">🔄 Transfer</button></div></div>
 <div id="attJobs" class="fin"></div></div>
@@ -163,7 +163,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <div id="cf-users" style="display:none"><div id="cfUsersL"></div></div>
   <div id="cf-gsheet" style="display:none"><div id="cfGsL"></div></div>
 </div></div>
-<div class="page" id="pg-reports"><div class="card fin"><div class="card-h"><h3>📈 Reports</h3></div><div id="rptB"></div></div></div>
+<div class="page" id="pg-reports"><div class="card fin" style="margin-bottom:10px"><div class="card-h"><h3>📈 Reports</h3></div><input type="text" id="reportSearch" class="fc" placeholder="🔍 Search date, attender, requester, category, outlet..." oninput="onReportSearchInput()" style="width:100%;margin-bottom:8px;box-sizing:border-box"><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="reportDatePills"><button type="button" onclick="setReportDateMode('all')" data-mode="all" class="rpt-date-pill" style="padding:6px 12px;border-radius:14px;font-size:11px;font-weight:700;border:1px solid var(--bdr);background:var(--ac);color:#fff;cursor:pointer">All Time</button><button type="button" onclick="setReportDateMode('thisWeek')" data-mode="thisWeek" class="rpt-date-pill" style="padding:6px 12px;border-radius:14px;font-size:11px;font-weight:700;border:1px solid var(--bdr);background:var(--c2);color:var(--t2);cursor:pointer">This Week</button><button type="button" onclick="setReportDateMode('lastWeek')" data-mode="lastWeek" class="rpt-date-pill" style="padding:6px 12px;border-radius:14px;font-size:11px;font-weight:700;border:1px solid var(--bdr);background:var(--c2);color:var(--t2);cursor:pointer">Last Week</button><button type="button" onclick="setReportDateMode('thisMonth')" data-mode="thisMonth" class="rpt-date-pill" style="padding:6px 12px;border-radius:14px;font-size:11px;font-weight:700;border:1px solid var(--bdr);background:var(--c2);color:var(--t2);cursor:pointer">This Month</button><button type="button" onclick="setReportDateMode('lastMonth')" data-mode="lastMonth" class="rpt-date-pill" style="padding:6px 12px;border-radius:14px;font-size:11px;font-weight:700;border:1px solid var(--bdr);background:var(--c2);color:var(--t2);cursor:pointer">Last Month</button><button type="button" onclick="setReportDateMode('custom')" data-mode="custom" class="rpt-date-pill" style="padding:6px 12px;border-radius:14px;font-size:11px;font-weight:700;border:1px solid var(--bdr);background:var(--c2);color:var(--t2);cursor:pointer">Custom</button></div><div id="reportCustomDateRow" style="display:none;gap:8px;margin-bottom:8px"><input type="date" id="reportDateStart" class="fc" onchange="onReportCustomDateChange()" style="flex:1"><input type="date" id="reportDateEnd" class="fc" onchange="onReportCustomDateChange()" style="flex:1"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;position:relative"><div style="position:relative;flex:1;min-width:100px"><button type="button" id="reportOtBtn" onclick="toggleReportPanel('Ot')" class="fc" style="width:100%;text-align:left;cursor:pointer;font-size:11.5px">All Outlets ▾</button><div id="reportOtPanel" class="fpanel-scroll" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:60;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);max-height:220px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.3)"><div style="padding:6px 8px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--c1);z-index:1"><input type="text" id="reportOtSearch" placeholder="🔍 Search outlets..." oninput="filterPanelList(this.value,'reportOtList')" style="width:100%;padding:5px 8px;font-size:10.5px;border:1px solid var(--bdr);border-radius:6px;background:var(--c2);color:var(--t);box-sizing:border-box" onclick="event.stopPropagation()"></div><div id="reportOtList"></div></div></div><div style="position:relative;flex:1;min-width:100px"><button type="button" id="reportCatBtn" onclick="toggleReportPanel('Cat')" class="fc" style="width:100%;text-align:left;cursor:pointer;font-size:11.5px">All Categories ▾</button><div id="reportCatPanel" class="fpanel-scroll" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:60;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);max-height:220px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.3)"><div style="padding:6px 8px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--c1);z-index:1"><input type="text" id="reportCatSearch" placeholder="🔍 Search categories..." oninput="filterPanelList(this.value,'reportCatList')" style="width:100%;padding:5px 8px;font-size:10.5px;border:1px solid var(--bdr);border-radius:6px;background:var(--c2);color:var(--t);box-sizing:border-box" onclick="event.stopPropagation()"></div><div id="reportCatList"></div></div></div><div style="position:relative;flex:1;min-width:100px"><button type="button" id="reportPriBtn" onclick="toggleReportPanel('Pri')" class="fc" style="width:100%;text-align:left;cursor:pointer;font-size:11.5px">All Priorities ▾</button><div id="reportPriPanel" class="fpanel-scroll" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:60;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);max-height:220px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.3)"><div id="reportPriList"></div></div></div><div style="position:relative;flex:1;min-width:100px"><button type="button" id="reportAttBtn" onclick="toggleReportPanel('Att')" class="fc" style="width:100%;text-align:left;cursor:pointer;font-size:11.5px">All Attenders ▾</button><div id="reportAttPanel" class="fpanel-scroll" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:60;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);max-height:220px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.3)"><div style="padding:6px 8px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--c1);z-index:1"><input type="text" id="reportAttSearch" placeholder="🔍 Search attenders..." oninput="filterPanelList(this.value,'reportAttList')" style="width:100%;padding:5px 8px;font-size:10.5px;border:1px solid var(--bdr);border-radius:6px;background:var(--c2);color:var(--t);box-sizing:border-box" onclick="event.stopPropagation()"></div><div id="reportAttList"></div></div></div><div style="position:relative;flex:1;min-width:100px"><button type="button" id="reportStBtn" onclick="toggleReportPanel('St')" class="fc" style="width:100%;text-align:left;cursor:pointer;font-size:11.5px">All Statuses ▾</button><div id="reportStPanel" class="fpanel-scroll" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:60;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);max-height:220px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.3)"><div id="reportStList"></div></div></div></div><button type="button" onclick="resetReportFilters()" style="background:none;border:none;color:var(--ac2);font-size:11px;text-decoration:underline;cursor:pointer;margin-bottom:2px">↺ Reset filters</button></div><div id="rptB"></div></div>
 
 </div></div>
 <nav class="mn" id="mobN"><div class="mni" id="mnI"></div></nav>
@@ -860,6 +860,42 @@ function autoA(t){
   return c[0];
 }
 function gA(id){return ATTS.find(a=>a.id===id)}
+// Parses an SLA string like "-01:23" (breached, over by 1h23m) or "06:15" (6h15m remaining)
+// into signed minutes so it can be sorted numerically. Returns null for "—"/closed tickets
+// or anything unparseable, so callers can sink those to the bottom instead of guessing.
+function parseSlaMinutes(sla){
+  if(!sla||sla==='—')return null;
+  const neg=sla.startsWith('-');
+  const clean=sla.replace('-','');
+  const m=clean.match(/^(\d+):(\d{2})$/);
+  if(!m)return null;
+  const mins=parseInt(m[1],10)*60+parseInt(m[2],10);
+  return neg?-mins:mins;
+}
+// Shared sort comparator for the "My Jobs" and "Tickets" sort dropdowns (aFSort/fSort).
+// sortKey is one of: created_desc, created_asc, priority_desc, priority_asc, sla_desc, sla_asc.
+// Returns null for '' (no sort selected) so callers can skip sorting entirely.
+function ticketSortComparator(sortKey){
+  if(!sortKey)return null;
+  if(sortKey==='created_desc')return(a,b)=>(getTicketCreatedDate(b)?.getTime()||0)-(getTicketCreatedDate(a)?.getTime()||0);
+  if(sortKey==='created_asc')return(a,b)=>(getTicketCreatedDate(a)?.getTime()||0)-(getTicketCreatedDate(b)?.getTime()||0);
+  if(sortKey==='priority_desc'||sortKey==='priority_asc'){
+    const rank={critical:4,high:3,medium:2,low:1};
+    const mul=sortKey==='priority_desc'?-1:1;
+    return(a,b)=>((rank[a.pri]||0)-(rank[b.pri]||0))*mul;
+  }
+  if(sortKey==='sla_desc'||sortKey==='sla_asc'){
+    const mul=sortKey==='sla_desc'?-1:1;
+    return(a,b)=>{
+      const av=parseSlaMinutes(a.sla),bv=parseSlaMinutes(b.sla);
+      if(av===null&&bv===null)return 0;
+      if(av===null)return 1; // no SLA (closed/malformed) always sinks to the bottom
+      if(bv===null)return-1;
+      return(av-bv)*mul;
+    };
+  }
+  return null;
+}
 
 // ===== PHASE 4: Punch In/Out =====
 function rAttHistory(){const el=document.getElementById('ahList');if(!el||role!=='attender')return;
@@ -1125,10 +1161,9 @@ function toggleJobSelect(id,checked){
 }
 function clearJobSelection(){selectedJobIds.clear();document.querySelectorAll('.jobChk').forEach(c=>c.checked=false);updateBulkBar();}
 function updateBulkBar(){
-  const bar=document.getElementById('attBulkBar');if(!bar)return;
   const n=selectedJobIds.size;
-  bar.style.display=n>0?'flex':'none';
-  const cnt=document.getElementById('attBulkCnt');if(cnt)cnt.textContent=n+' selected';
+  ['attBulkBar','tixBulkBar'].forEach(bid=>{const bar=document.getElementById(bid);if(bar)bar.style.display=n>0?'flex':'none';});
+  ['attBulkCnt','tixBulkCnt'].forEach(cid=>{const cnt=document.getElementById(cid);if(cnt)cnt.textContent=n+' selected';});
 }
 // Quick single-ticket re-assign, launched directly from a job card (reuses the bulk-transfer modal/logic)
 function quickTransfer(id){selectedJobIds.clear();selectedJobIds.add(id);openBulkTransfer()}
@@ -1144,11 +1179,12 @@ function doBulkTransfer(){
   const newAtt=document.getElementById('btA').value,r=document.getElementById('btR').value,n=document.getElementById('btN').value;
   if(!newAtt||!r){nf('Required','Attender and reason','warn');return}
   const newA=gA(newAtt);if(!newA)return;
-  const oldA=gA(attId);
   let count=0;
   selectedJobIds.forEach(id=>{
     const t=TKS.find(x=>x.id===id);
-    if(!t||t.att!==attId)return;
+    if(!t)return;
+    if(role==='attender'&&t.att!==attId)return; // attenders may only transfer jobs currently theirs; managers/rmhead/admin may reassign any selected ticket
+    const oldA=t.att?gA(t.att):null;
     t.att=newAtt;newA.load++;
     if(oldA)oldA.load=Math.max(0,oldA.load-1);
     if(t.status==='raised')t.status='assigned';
@@ -1273,21 +1309,58 @@ function rDash(){const op=TKS.filter(t=>t.status!=='closed').length,cl=TKS.filte
   const el=document.getElementById('dSt');if(el)el.innerHTML=(sm[role]||sm.requester).map(x=>`<div class="st ${x.c}"><div class="sv">${x.v}</div><div class="sl">${x.l}</div></div>`).join('');
   const dc=document.getElementById('dCards');if(dc){const r=TKS.slice(0,5);dc.innerHTML=r.length?r.map(t=>renderTcard(t)).join(''):'<div style="text-align:center;color:var(--t3);padding:16px;font-size:10px">No tickets</div>'}}
 
-function renderTcard(t){const a=t.att?gA(t.att):null;const sc=t.sla?.startsWith('-')?'breach':parseFloat(t.sla)<=2?'warn':'safe';const tot=t.costs.reduce((s,c)=>s+c.amt,0);const isReop=t.reopened&&t.status!=='closed';const otpReady=t.otpRevealed&&t.status!=='closed';const confirmNeeded=role==='requester'&&t.status==='requester-confirm';
-  return`<div class="tcard" onclick="viewT('${t.id}')" ${confirmNeeded||otpReady?'style="border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)"':''}><div style="display:flex;justify-content:space-between"><span class="tid">${t.id}</span><span class="badge ${SBC[t.status]}">${SL[t.status]}</span></div><div style="font-size:12px;font-weight:600;margin:3px 0">${t.issue}${isReop?' <span class="badge reopen">🔄</span>':''}${t.vendor?' <span class="badge vendor">🤝</span>':''}</div>${confirmNeeded?'<div style="background:var(--ok);color:#000;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;margin:4px 0;text-align:center">✅ CONFIRM RESOLUTION</div>':otpReady?'<div style="background:linear-gradient(135deg,var(--ac),var(--inf));color:#fff;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;margin:4px 0;text-align:center">🔐 OTP READY</div>':''}<div style="display:flex;justify-content:space-between;align-items:center;font-size:8px;color:var(--t3);gap:4px;flex-wrap:wrap"><span>🏪 ${t.out}${a?' · 🔧 '+a.name:''}</span><span class="sla ${sc}" style="font-size:8px;padding:1px 3px">⏱${t.sla||'—'}</span></div>${tot>0?`<div style="margin-top:4px;font-size:9px;color:var(--ac2);font-weight:600">💰 ₹${tot.toLocaleString('en-IN')}</div>`:''}</div>`}
+function renderTcard(t){const a=t.att?gA(t.att):null;const sc=t.sla?.startsWith('-')?'breach':parseFloat(t.sla)<=2?'warn':'safe';const tot=t.costs.reduce((s,c)=>s+c.amt,0);const isReop=t.reopened&&t.status!=='closed';const otpReady=t.otpRevealed&&t.status!=='closed';const confirmNeeded=role==='requester'&&t.status==='requester-confirm';const canMgrAct=['manager','rmhead','admin'].includes(role);
+  let styleParts=[];if(confirmNeeded||otpReady)styleParts.push('border-color:var(--ac)','box-shadow:0 0 0 1px var(--ac)');if(canMgrAct)styleParts.push('position:relative','padding-left:26px');const styleAttr=styleParts.length?` style="${styleParts.join(';')}"`:'';
+  let ckHtml='',actionHtml='';
+  if(canMgrAct){
+    const checked=selectedJobIds.has(t.id);
+    ckHtml=`<label style="position:absolute;top:10px;left:6px;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" class="jobChk" onclick="event.stopPropagation();toggleJobSelect('${t.id}',this.checked)" ${checked?'checked':''} style="width:15px;height:15px;accent-color:var(--ac)"></label>`;
+    const unread=getUnread(t);
+    const reassignBtn=t.status!=='closed'?`<button onclick="event.stopPropagation();quickTransfer('${t.id}')" style="width:28px;border:none;border-radius:var(--r);background:var(--c1);border:1px solid var(--bdr);color:var(--t2);font-size:12px;cursor:pointer;flex-shrink:0" title="Re-assign to another attender">↪</button>`:'';
+    const chatBtn=`<button onclick="event.stopPropagation();openJobChat('${t.id}')" style="position:relative;width:28px;border:none;border-radius:var(--r);background:var(--c1);border:1px solid var(--bdr);color:var(--t2);font-size:12px;cursor:pointer;flex-shrink:0" title="Remarks / Chat">💬${unread?`<span style="position:absolute;top:-5px;right:-5px;background:var(--er);color:#fff;border-radius:8px;font-size:8px;font-weight:700;padding:1px 4px;line-height:1.3">${unread}</span>`:''}</button>`;
+    const btnMap={'assigned':{text:'✓ ACCEPT',cls:'green',fn:`doAccept('${t.id}',true)`},'accepted':null,'on-the-way':{text:'📍 REACHED',cls:'orange',fn:`doReached('${t.id}',true)`},'reached-outlet':{text:'▶ START',cls:'green',fn:`doStart('${t.id}',true)`},'job-started':{text:'🔧 PROGRESS',cls:'purple',fn:`doProgress('${t.id}',true)`},'in-progress':{text:'✅ MARK FIXED',cls:'green',fn:`doMarkFixed('${t.id}')`},'vendor-pending':{text:'✓ VENDOR DONE',cls:'green',fn:`vendorComplete('${t.id}',true)`},'ready-closure':{text:'🔐 ENTER OTP',cls:'orange',fn:`viewT('${t.id}')`}};
+    if(t.status==='accepted')actionHtml=`<div style="display:flex;gap:4px;margin-top:6px"><button class="btn-big blue" style="padding:6px 4px;font-size:10px;flex:1" onclick="event.stopPropagation();doVisitChoice('${t.id}',true,true)">🚗 Visit</button><button class="btn-big purple" style="padding:6px 4px;font-size:10px;flex:1" onclick="event.stopPropagation();doVisitChoice('${t.id}',false,true)">💻 Remote</button>${reassignBtn}${chatBtn}</div>`;
+    else{const btn=btnMap[t.status];actionHtml=btn?`<div style="display:flex;gap:4px;margin-top:6px"><button class="btn-big ${btn.cls}" style="flex:1;padding:6px 4px;font-size:10px" onclick="event.stopPropagation();${btn.fn}">${btn.text}</button>${reassignBtn}${chatBtn}</div>`:`<div style="display:flex;gap:4px;margin-top:6px">${reassignBtn}${chatBtn}</div>`;}
+  }
+  return`<div class="tcard"${styleAttr} onclick="viewT('${t.id}')">${ckHtml}<div style="display:flex;justify-content:space-between"><span class="tid">${t.id}</span><span class="badge ${SBC[t.status]}">${SL[t.status]}</span></div><div style="font-size:12px;font-weight:600;margin:3px 0">${t.issue}${isReop?' <span class="badge reopen">🔄</span>':''}${t.vendor?' <span class="badge vendor">🤝</span>':''}</div>${confirmNeeded?'<div style="background:var(--ok);color:#000;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;margin:4px 0;text-align:center">✅ CONFIRM RESOLUTION</div>':otpReady?'<div style="background:linear-gradient(135deg,var(--ac),var(--inf));color:#fff;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;margin:4px 0;text-align:center">🔐 OTP READY</div>':''}<div style="display:flex;justify-content:space-between;align-items:center;font-size:8px;color:var(--t3);gap:4px;flex-wrap:wrap"><span>🏪 ${t.out}${a?' · 🔧 '+a.name:''}</span><span class="sla ${sc}" style="font-size:8px;padding:1px 3px">⏱${t.sla||'—'}</span></div>${tot>0?`<div style="margin-top:4px;font-size:9px;color:var(--ac2);font-weight:600">💰 ₹${tot.toLocaleString('en-IN')}</div>`:''}${actionHtml}</div>`}
 
 function rList(){const el=document.getElementById('tCards');if(!el)return;let f=TKS;
-  const fs=document.getElementById('fSt')?.value,fc=document.getElementById('fCt')?.value?.toLowerCase(),fo=document.getElementById('fOt')?.value,fp=document.getElementById('fPr')?.value;
-  if(fs==='pending')f=f.filter(t=>['raised','assigned','accepted'].includes(t.status));else if(fs==='open')f=f.filter(t=>!['closed'].includes(t.status));else if(fs==='closed')f=f.filter(t=>t.status==='closed');else if(fs==='reopen')f=f.filter(t=>t.reopened);else if(fs==='breach')f=f.filter(t=>t.sla?.startsWith('-'));
+  const fs=document.getElementById('fSt')?.value,fc=document.getElementById('fCt')?.value?.toLowerCase(),fo=document.getElementById('fOt')?.value,fp=document.getElementById('fPr')?.value,fa=document.getElementById('fAtt')?.value;
+  const fSearch=(document.getElementById('fSearch')?.value||'').trim().toLowerCase();
+  // Attender filter — populated from the full roster so managers can filter by anyone, active or not
+  const attSel=document.getElementById('fAtt');
+  if(attSel){
+    const curAtt=attSel.value;
+    attSel.innerHTML='<option value="">All Attenders</option><option value="unassigned">🚫 Unassigned</option>'+ATTS.slice().sort((x,y)=>(x.name||'').localeCompare(y.name||'')).map(a=>`<option value="${a.id}">${a.name}${a.active?'':' (inactive)'}</option>`).join('');
+    if([...attSel.options].some(o=>o.value===curAtt))attSel.value=curAtt;
+  }
+  if(fs==='pending')f=f.filter(t=>['raised','assigned','accepted'].includes(t.status));else if(fs==='open')f=f.filter(t=>!['closed'].includes(t.status));else if(fs==='closed')f=f.filter(t=>t.status==='closed');else if(fs==='reopen')f=f.filter(t=>t.reopened);else if(fs==='breach')f=f.filter(t=>t.sla?.startsWith('-'));else if(fs==='ready-closure')f=f.filter(t=>t.status==='ready-closure');else if(fs==='unassigned')f=f.filter(t=>!t.att);
   if(fp)f=f.filter(t=>t.pri===fp);
   if(fc)f=f.filter(t=>t.cat.toLowerCase().includes(fc));
+  if(fa)f=f.filter(t=>fa==='unassigned'?!t.att:t.att===fa);
   // Multi-outlet filter
   if(selectedOutlets.length>0)f=f.filter(t=>selectedOutlets.includes(t.out));
   else if(role==='requester'&&userOutlet)f=f.filter(t=>t.out===userOutlet);
   if(role==='attender'){if(!punchedIn){el.innerHTML='<div style="text-align:center;color:var(--t3);padding:20px;font-size:11px">🔒 Punch In to see tickets.<br><button class="btn btn-s btn-p" onclick="go(\'punch\')" style="margin-top:10px">📍 Go to Punch</button></div>';return}const my=attId||'ATT-012';f=f.filter(t=>t.att===my)}
+  if(fSearch){
+    f=f.filter(t=>{
+      const reqN=(USERS[t.by]?.name||'').toLowerCase();
+      const attN=(t.att&&gA(t.att)?.name||'').toLowerCase();
+      return (t.id||'').toLowerCase().includes(fSearch)||(t.issue||'').toLowerCase().includes(fSearch)||(t.desc||'').toLowerCase().includes(fSearch)||(t.out||'').toLowerCase().includes(fSearch)||(t.cat||'').toLowerCase().includes(fSearch)||reqN.includes(fSearch)||attN.includes(fSearch);
+    });
+  }
+  // prune ticket selections that no longer exist at all (deleted/renamed) — does NOT prune on filter change, so a selection survives adjusting filters
+  const allIds=new Set(TKS.map(t=>t.id));
+  [...selectedJobIds].forEach(id=>{if(!allIds.has(id))selectedJobIds.delete(id)});
+  updateBulkBar();
+
+  // Sort — f may still be the raw TKS reference if no filter above touched it, so slice()
+  // before sorting rather than risk mutating the master ticket array in place.
+  const sortCmp=ticketSortComparator(document.getElementById('fSort')?.value);
+  if(sortCmp)f=f.slice().sort(sortCmp);
 
   el.innerHTML=f.length?f.map(t=>renderTcard(t)).join(''):'<div style="text-align:center;color:var(--t3);padding:20px;font-size:11px">No tickets match</div>'}
-function resetF(){['fSt','fPr','fCt','fOt'].forEach(x=>{const e=document.getElementById(x);if(e)e.value=''});selectedOutlets=role==='requester'&&userOutlet?[userOutlet]:[];updateOutletBtn();rList()}
+function resetF(){['fSt','fPr','fCt','fOt','fAtt'].forEach(x=>{const e=document.getElementById(x);if(e)e.value=''});const fse=document.getElementById('fSearch');if(fse)fse.value='';selectedOutlets=role==='requester'&&userOutlet?[userOutlet]:[];updateOutletBtn();rList()}
 function escalate(id){const t=TKS.find(x=>x.id===id);if(t){t.hist.push({s:t.status,t:ts(),n:'⚠ ESCALATED by '+userName});R();nf('Escalated','R&M notified','warn')}}
 
 // ATTENDER DASHBOARD
@@ -1334,6 +1407,10 @@ const done=TKS.filter(t=>t.att===my&&t.status==='closed').length;
   const mineIds=new Set(mine.map(t=>t.id));
   [...selectedJobIds].forEach(id=>{if(!mineIds.has(id))selectedJobIds.delete(id)});
   updateBulkBar();
+
+  // Sort — mine always comes from .filter(), so it's already a fresh array, safe to sort in place
+  const aSortCmp=ticketSortComparator(document.getElementById('aFSort')?.value);
+  if(aSortCmp)mine.sort(aSortCmp);
 
   const ast=document.getElementById('aSt');if(ast)ast.innerHTML=[{v:mine.length,l:'Active',c:'p'},{v:done,l:'Done',c:'g'},{v:gA(my)?.rating||0,l:'Rating',c:'b'}].map(x=>`<div class="st ${x.c}"><div class="sv">${x.v}</div><div class="sl">${x.l}</div></div>`).join('');
   if(!mine.length){el.innerHTML='<div style="text-align:center;color:var(--t3);padding:30px;font-size:12px">✅ No active jobs</div>';return}
@@ -1469,127 +1546,457 @@ function rVendors(){const el=document.getElementById('venList');if(!el)return;co
   el.innerHTML=vens.map(t=>{const v=t.vendor;const stM={'requested':'<span class="pay-st mgr">📋 Pending Assignment</span>','assigned':'<span class="pay-st appr">🤝 Vendor Working</span>','completed':'<span class="pay-st done">✓ Done</span>'};
     return`<div class="lp"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="flex:1"><div style="font-weight:700;font-size:12px">${v.type} <span class="tid">${t.id}</span></div><div style="font-size:9px;color:var(--t2)">${t.issue} · ${t.out}</div><div style="font-size:9px;color:var(--t3);font-style:italic;margin-top:3px">📝 ${v.desc}</div>${v.vendorName?`<div style="font-size:10px;color:var(--ac2);margin-top:3px">🤝 ${v.vendorName} ${v.vendorPhone?'· '+v.vendorPhone:''}</div>`:''}</div><div style="text-align:right"><div>${stM[v.status]}</div><div style="font-family:var(--m);font-size:10px;margin-top:3px">Est ₹${v.estAmt||0}</div></div></div><div style="display:flex;gap:4px;padding-top:6px;border-top:1px solid var(--bdr)">${isMg&&v.status==='requested'?`<button class="btn btn-s btn-p" onclick="openAssignVendor('${t.id}')">🤝 Assign Vendor</button>`:''}<button class="btn btn-s btn-o" onclick="viewT('${t.id}')">↗ Ticket</button></div></div>`}).join('')}
 
-function rRpt(){const el=document.getElementById('rptB');if(!el)return;
-
-  // ── SECTION 1: TICKET SUMMARY ──
-  const total=TKS.length;
-  const open=TKS.filter(t=>t.status!=='closed').length;
-  const closed=TKS.filter(t=>t.status==='closed').length;
-  const breached=TKS.filter(t=>t.sla&&t.sla.startsWith('-')).length;
-  const critical=TKS.filter(t=>t.pri==='critical'&&t.status!=='closed').length;
-
-  // Tickets by outlet
-  const byOutlet={};TKS.forEach(t=>{if(!byOutlet[t.out])byOutlet[t.out]={total:0,open:0,closed:0};byOutlet[t.out].total++;if(t.status==='closed')byOutlet[t.out].closed++;else byOutlet[t.out].open++});
-  const outRows=Object.entries(byOutlet).sort((a,b)=>b[1].total-a[1].total).slice(0,8);
-  const outMax=Math.max(...outRows.map(x=>x[1].total),1);
-
-  // Tickets by category
-  const byCat={};TKS.forEach(t=>{const c=(t.cat||'other').toLowerCase();byCat[c]=(byCat[c]||0)+1});
-  const catRows=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
-  const catMax=Math.max(...catRows.map(x=>x[1]),1);
-
-  // ── SECTION 2: FINANCIAL SUMMARY ──
-  const allCosts=TKS.flatMap(t=>t.costs||[]);
-  const totalSpend=allCosts.reduce((s,c)=>s+c.amt,0);
-  const pendingApproval=allCosts.filter(c=>c.payStatus==='mgr-pending').reduce((s,c)=>s+c.amt,0);
-  const approved=allCosts.filter(c=>c.payStatus==='approved').reduce((s,c)=>s+c.amt,0);
-  const paid=allCosts.filter(c=>c.payStatus==='done').reduce((s,c)=>s+c.amt,0);
-
-  // Spend by outlet
-  const spendByOutlet={};TKS.forEach(t=>(t.costs||[]).forEach(c=>{spendByOutlet[t.out]=(spendByOutlet[t.out]||0)+c.amt}));
-  const spendRows=Object.entries(spendByOutlet).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  const spendMax=Math.max(...spendRows.map(x=>x[1]),1);
-
-  // ── SECTION 3: ATTENDER PERFORMANCE ──
-  const attRows=ATTS.filter(a=>a.active).map(a=>{
-    const mine=TKS.filter(t=>t.att===a.id);
-    const myOpen=mine.filter(t=>t.status!=='closed').length;
-    const myDone=mine.filter(t=>t.status==='closed').length;
-    return{...a,myOpen,myDone};
-  }).sort((a,b)=>b.rating-a.rating);
-
-  el.innerHTML=`
-  <!-- SECTION 1: TICKET SUMMARY -->
-  <div class="card" style="margin-bottom:10px">
-    <div class="card-h"><h3>🎫 Ticket Summary</h3><span style="font-size:9px;color:var(--t3)">${total} total</span></div>
-    <div class="sts" style="grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">
-      <div class="st p"><div class="sv" style="font-size:16px">${total}</div><div class="sl">Total</div></div>
-      <div class="st o"><div class="sv" style="font-size:16px">${open}</div><div class="sl">Open</div></div>
-      <div class="st g"><div class="sv" style="font-size:16px">${closed}</div><div class="sl">Closed</div></div>
-      <div class="st rd"><div class="sv" style="font-size:16px">${breached}</div><div class="sl">Breached</div></div>
+let reportFilters={outlets:[],categories:[],priorities:[],attenders:[],statuses:[],dateMode:'all',dateStart:'',dateEnd:'',search:''};
+function getWeekRange(offsetWeeks,refDate){
+  const now=refDate||new Date();
+  const day=now.getDay();
+  const diffToMonday=day===0?6:day-1;
+  const monday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-diffToMonday+offsetWeeks*7,0,0,0,0);
+  const sunday=new Date(monday.getFullYear(),monday.getMonth(),monday.getDate()+6,23,59,59,999);
+  return{start:monday,end:sunday};
+}
+function getMonthRange(offsetMonths,refDate){
+  const now=refDate||new Date();
+  const start=new Date(now.getFullYear(),now.getMonth()+offsetMonths,1,0,0,0,0);
+  const end=new Date(now.getFullYear(),now.getMonth()+offsetMonths+1,0,23,59,59,999);
+  return{start,end};
+}
+function getReportDateRange(){
+  const mode=reportFilters.dateMode;
+  if(mode==='thisWeek')return getWeekRange(0);
+  if(mode==='lastWeek')return getWeekRange(-1);
+  if(mode==='thisMonth')return getMonthRange(0);
+  if(mode==='lastMonth')return getMonthRange(-1);
+  if(mode==='custom'&&reportFilters.dateStart&&reportFilters.dateEnd){
+    const start=new Date(reportFilters.dateStart+'T00:00:00');
+    const end=new Date(reportFilters.dateEnd+'T23:59:59');
+    if(!isNaN(start.getTime())&&!isNaN(end.getTime()))return{start,end};
+  }
+  return null;
+}
+function parseOldTsFormat(str,assumedYear){
+  // ts() produces "08:19 pm · 10 Aug" — no year, not machine-parseable via new Date().
+  // Reconstructs a real date from that specific known pattern.
+  if(!str)return null;
+  const m=String(str).trim().match(/^(\d{1,2}):(\d{2})\s*(am|pm)\s*·\s*(\d{1,2})\s+([A-Za-z]+)$/i);
+  if(!m)return null;
+  const[,hh,mm,ampm,dd,monStr]=m;
+  const months={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+  const monIdx=months[monStr.toLowerCase().slice(0,3)];
+  if(monIdx===undefined)return null;
+  let hour=parseInt(hh,10);
+  if(hour<1||hour>12)return null;
+  if(ampm.toLowerCase()==='pm'&&hour!==12)hour+=12;
+  if(ampm.toLowerCase()==='am'&&hour===12)hour=0;
+  const year=assumedYear||new Date().getFullYear();
+  const d=new Date(year,monIdx,parseInt(dd,10),hour,parseInt(mm,10));
+  return isNaN(d.getTime())?null:d;
+}
+function parseAnyTimestamp(str){
+  if(!str)return null;
+  const direct=new Date(str);
+  if(!isNaN(direct.getTime()))return direct;
+  return parseOldTsFormat(str);
+}
+function getTicketCreatedDate(t){
+  const raisedEntry=(t.hist||[]).find(h=>h.s==='raised')||(t.hist||[])[0];
+  if(!raisedEntry)return null;
+  return parseAnyTimestamp(raisedEntry.iso||raisedEntry.t);
+}
+function isClosedWithinSLA(t){
+  if(!t.slaDeadline)return null;
+  const dl=new Date(t.slaDeadline);
+  if(isNaN(dl.getTime()))return null;
+  const closedEntry=(t.hist||[]).find(h=>h.s==='closed');
+  if(!closedEntry||!(closedEntry.iso||closedEntry.t))return null;
+  const ct=parseAnyTimestamp(closedEntry.iso||closedEntry.t);
+  if(!ct)return null;
+  return ct<=dl;
+}
+function avgClosureVsSLA(closedTickets){
+  const diffsMin=[];
+  closedTickets.forEach(t=>{
+    if(!t.slaDeadline)return;
+    const dl=new Date(t.slaDeadline);
+    if(isNaN(dl.getTime()))return;
+    const closedEntry=(t.hist||[]).find(h=>h.s==='closed')||(t.hist||[])[(t.hist||[]).length-1];
+    if(!closedEntry||!(closedEntry.iso||closedEntry.t))return;
+    const ct=parseAnyTimestamp(closedEntry.iso||closedEntry.t);
+    if(!ct)return;
+    diffsMin.push((dl-ct)/60000);
+  });
+  if(!diffsMin.length)return null;
+  return diffsMin.reduce((a,b)=>a+b,0)/diffsMin.length;
+}
+function computeReportMetrics(tickets){
+  const total=tickets.length;
+  const closed=tickets.filter(t=>t.status==='closed');
+  const pending=tickets.filter(t=>t.status!=='closed');
+  let closedWithinSLA=0,closedOutOfSLA=0,closedUnknown=0;
+  closed.forEach(t=>{
+    const r=isClosedWithinSLA(t);
+    if(r===true)closedWithinSLA++;
+    else if(r===false)closedOutOfSLA++;
+    else closedUnknown++;
+  });
+  let pendingWithinSLA=0,pendingOutOfSLA=0;
+  pending.forEach(t=>{
+    if(String(t.sla||'').startsWith('-'))pendingOutOfSLA++;
+    else pendingWithinSLA++;
+  });
+  const closurePct=total?Math.round((closed.length/total)*100):0;
+  const slaBase=closedWithinSLA+closedOutOfSLA;
+  const slaPct=slaBase?Math.round((closedWithinSLA/slaBase)*100):0;
+  const avgMin=avgClosureVsSLA(closed);
+  return {total,closedTotal:closed.length,closedWithinSLA,closedOutOfSLA,closedUnknown,
+    closurePct,slaPct,pendingTotal:pending.length,pendingWithinSLA,pendingOutOfSLA,avgMin};
+}
+function ticketSearchHaystack(t){
+  if(t.__haystack)return t.__haystack;
+  const attender=t.att?gA(t.att):null;
+  const catLabelV=(CATS[(t.cat||'').toLowerCase()]&&CATS[(t.cat||'').toLowerCase()].label)?CATS[(t.cat||'').toLowerCase()].label:(t.cat||'');
+  const created=getTicketCreatedDate(t);
+  const dateText=created?created.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'';
+  const requesterName=USERS[t.by]?.name||'';
+  t.__haystack=[t.id,t.out,catLabelV,t.pri,attender?attender.name:'',t.by,requesterName,dateText,t.sub,t.desc]
+    .filter(Boolean).join(' · ').toLowerCase();
+  return t.__haystack;
+}
+function applyReportFilters(all){
+  const dateRange=getReportDateRange();
+  const q=(reportFilters.search||'').trim().toLowerCase();
+  return all.filter(t=>{
+    if(reportFilters.outlets.length&&!reportFilters.outlets.includes(t.out))return false;
+    if(reportFilters.categories.length&&!reportFilters.categories.includes((t.cat||'').toLowerCase()))return false;
+    if(reportFilters.priorities.length&&!reportFilters.priorities.includes(t.pri))return false;
+    if(reportFilters.attenders.length&&!reportFilters.attenders.some(v=>v==='unassigned'?!t.att:t.att===v))return false;
+    if(reportFilters.statuses.length&&!reportFilters.statuses.some(v=>v==='unassigned'?!t.att:t.status===v))return false;
+    if(dateRange){
+      const created=getTicketCreatedDate(t);
+      if(!created||created<dateRange.start||created>dateRange.end)return false;
+    }
+    if(q&&!ticketSearchHaystack(t).includes(q))return false;
+    return true;
+  });
+}
+function fmtAvgMin(min){
+  if(min===null||min===undefined||isNaN(min))return '—';
+  const early=min>=0;
+  const abs=Math.round(Math.abs(min));
+  const h=Math.floor(abs/60),mm=abs%60;
+  const dur=(h?h+'h ':'')+mm+'m';
+  return early?dur+' early':dur+' late';
+}
+function renderOverallTable(m){
+  return `<div class="card" style="background:var(--c1);border:1px solid var(--bdr);border-radius:14px;padding:0;margin-bottom:14px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="background:var(--c2)">
+        <th style="text-align:left;padding:9px 10px;font-weight:800;color:var(--t)">Overall</th>
+        <th style="text-align:center;padding:9px 6px;font-weight:800;color:var(--t)">Total</th>
+        <th style="text-align:center;padding:9px 6px;font-weight:800;color:var(--ok)">SLA</th>
+        <th style="text-align:center;padding:9px 6px;font-weight:800;color:var(--er)">Out of SLA</th>
+      </tr></thead>
+      <tbody>
+        <tr style="border-top:1px solid var(--bdr)"><td style="padding:9px 10px;font-weight:700;color:var(--t)">Created</td><td style="text-align:center;padding:9px 6px;font-weight:800;color:var(--t)">${m.total}</td><td style="text-align:center;padding:9px 6px;color:var(--t3)">—</td><td style="text-align:center;padding:9px 6px;color:var(--t3)">—</td></tr>
+        <tr style="border-top:1px solid var(--bdr)"><td style="padding:9px 10px;font-weight:700;color:var(--t)">Closed</td><td style="text-align:center;padding:9px 6px;font-weight:800;color:var(--t)">${m.closedTotal}</td><td style="text-align:center;padding:9px 6px;color:var(--ok);font-weight:700">${m.closedWithinSLA}</td><td style="text-align:center;padding:9px 6px;color:var(--er);font-weight:700">${m.closedOutOfSLA}</td></tr>
+        <tr style="border-top:1px solid var(--bdr)"><td style="padding:9px 10px;font-weight:700;color:var(--t)">Pending</td><td style="text-align:center;padding:9px 6px;font-weight:800;color:var(--t)">${m.pendingTotal}</td><td style="text-align:center;padding:9px 6px;color:var(--ok);font-weight:700">${m.pendingWithinSLA}</td><td style="text-align:center;padding:9px 6px;color:var(--er);font-weight:700">${m.pendingOutOfSLA}</td></tr>
+      </tbody>
+    </table>
+    <div style="display:flex;gap:16px;padding:9px 10px;background:var(--c2);font-size:11.5px;color:var(--t2);flex-wrap:wrap">
+      <span>Closure %: <b style="color:var(--t)">${m.closurePct}%</b></span>
+      <span>SLA %: <b style="color:var(--t)">${m.slaPct}%</b></span>
+      <span>Avg SLA Closure: <b style="color:${m.avgMin>=0?'var(--ok)':'var(--er)'}">${fmtAvgMin(m.avgMin)}</b></span>
+      ${m.closedUnknown?`<span style="color:var(--t3)">(${m.closedUnknown} undated)</span>`:''}
     </div>
-    ${critical?`<div style="background:var(--erb);border-radius:var(--rs);padding:6px 10px;font-size:10px;color:var(--er);margin-bottom:10px">⚠ ${critical} critical ticket(s) still open</div>`:''}
-    <div style="font-size:10px;font-weight:700;margin-bottom:6px;color:var(--t2)">BY OUTLET</div>
-    ${outRows.map(([o,v])=>`<div style="margin-bottom:5px">
-      <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:2px">
-        <span>${o}</span>
-        <span style="font-family:var(--m);color:var(--t2)">${v.open} open · ${v.closed} closed</span>
-      </div>
-      <div class="pbar"><div class="fill" style="width:${v.total/outMax*100}%;background:var(--ac)"></div></div>
-    </div>`).join('')}
-    <div style="font-size:10px;font-weight:700;margin:10px 0 6px;color:var(--t2)">BY CATEGORY</div>
-    ${catRows.map(([c,v])=>`<div style="margin-bottom:5px">
-      <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:2px">
-        <span>${CATS[c]?CATS[c].label:c}</span>
-        <span style="font-family:var(--m)">${v}</span>
-      </div>
-      <div class="pbar"><div class="fill" style="width:${v/catMax*100}%;background:var(--inf)"></div></div>
-    </div>`).join('')}
-  </div>
-
-  <!-- SECTION 2: FINANCIAL SUMMARY -->
-  <div class="card" style="margin-bottom:10px">
-    <div class="card-h"><h3>💰 Financial Summary</h3></div>
-    <div class="sts" style="grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:12px">
-      <div class="st p"><div class="sv" style="font-size:14px">₹${totalSpend.toLocaleString('en-IN')}</div><div class="sl">Total Spend</div></div>
-      <div class="st g"><div class="sv" style="font-size:14px">₹${paid.toLocaleString('en-IN')}</div><div class="sl">Paid</div></div>
-      <div class="st o"><div class="sv" style="font-size:14px">₹${approved.toLocaleString('en-IN')}</div><div class="sl">To Pay</div></div>
-      <div class="st rd"><div class="sv" style="font-size:14px">₹${pendingApproval.toLocaleString('en-IN')}</div><div class="sl">Pending Approval</div></div>
-    </div>
-    ${spendRows.length?`<div style="font-size:10px;font-weight:700;margin-bottom:6px;color:var(--t2)">SPEND BY OUTLET</div>
-    ${spendRows.map(([o,v])=>`<div style="margin-bottom:5px">
-      <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:2px">
-        <span>${o}</span><span style="font-family:var(--m);color:var(--ac2)">₹${v.toLocaleString('en-IN')}</span>
-      </div>
-      <div class="pbar"><div class="fill" style="width:${v/spendMax*100}%;background:var(--wr)"></div></div>
-    </div>`).join('')}`:'<div style="text-align:center;color:var(--t3);font-size:10px;padding:8px">No purchase data yet</div>'}
-  </div>
-
-  <!-- SECTION 3: ATTENDER PERFORMANCE -->
-  <div class="card">
-    <div class="card-h"><h3>🔧 Attender Performance</h3></div>
-    ${attRows.map(a=>`<div class="lp" style="margin-bottom:6px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div style="display:flex;align-items:center;gap:6px">
-          <div class="av" style="width:28px;height:28px;font-size:10px;flex-shrink:0">${a.ini}</div>
-          <div>
-            <div style="font-weight:600;font-size:11px">${a.name}</div>
-            <div style="font-size:8px;color:var(--t3)">${a.skills.join(', ')}</div>
-          </div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:11px;font-weight:700;color:var(--wr)">⭐ ${a.rating}</div>
-          <div style="font-size:8px;color:var(--t3)">${a.jobs} lifetime jobs</div>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:6px">
-        <div style="flex:1;background:var(--c2);border-radius:var(--rs);padding:5px 8px;text-align:center">
-          <div style="font-size:13px;font-weight:700;color:var(--ac2)">${a.myOpen}</div>
-          <div style="font-size:8px;color:var(--t3)">Active</div>
-        </div>
-        <div style="flex:1;background:var(--c2);border-radius:var(--rs);padding:5px 8px;text-align:center">
-          <div style="font-size:13px;font-weight:700;color:var(--ok)">${a.myDone}</div>
-          <div style="font-size:8px;color:var(--t3)">Closed</div>
-        </div>
-        <div style="flex:1;background:var(--c2);border-radius:var(--rs);padding:5px 8px;text-align:center">
-          <div style="font-size:13px;font-weight:700;color:var(--er)">${a.load}</div>
-          <div style="font-size:8px;color:var(--t3)">Load</div>
-        </div>
-      </div>
-      <div style="margin-top:5px"><div class="pbar"><div class="fill" style="width:${a.rating/5*100}%;background:var(--ok)"></div></div></div>
-    </div>`).join('')}
   </div>`;
 }
+function sumMetrics(list,allTicketsForAvg){
+  const s={total:0,closedTotal:0,closedWithinSLA:0,closedOutOfSLA:0,closedUnknown:0,
+    pendingTotal:0,pendingWithinSLA:0,pendingOutOfSLA:0};
+  list.forEach(m=>{
+    s.total+=m.total;s.closedTotal+=m.closedTotal;s.closedWithinSLA+=m.closedWithinSLA;
+    s.closedOutOfSLA+=m.closedOutOfSLA;s.closedUnknown+=m.closedUnknown;
+    s.pendingTotal+=m.pendingTotal;s.pendingWithinSLA+=m.pendingWithinSLA;s.pendingOutOfSLA+=m.pendingOutOfSLA;
+  });
+  s.closurePct=s.total?Math.round((s.closedTotal/s.total)*100):0;
+  const slaBase=s.closedWithinSLA+s.closedOutOfSLA;
+  s.slaPct=slaBase?Math.round((s.closedWithinSLA/slaBase)*100):0;
+  s.avgMin=allTicketsForAvg?avgClosureVsSLA(allTicketsForAvg.filter(t=>t.status==='closed')):null;
+  return s;
+}
+function renderMetricRow(label,m,opts){
+  opts=opts||{};
+  return `<tr style="border-top:1px solid var(--bdr)${opts.totalRow?';background:var(--c2)':''}">
+    <td style="padding:8px 10px;font-weight:${opts.totalRow?800:700};color:var(--t);white-space:nowrap">${opts.toggleId?`<button type="button" onclick="event.stopPropagation();toggleReportSub('${opts.toggleId}')" style="background:none;border:1px solid var(--bdr);border-radius:4px;width:16px;height:16px;line-height:1;font-size:11px;cursor:pointer;color:var(--t2);margin-right:5px;padding:0">+</button>`:''}${label}</td>
+    <td style="text-align:center;padding:8px 4px;color:var(--t);font-weight:${opts.totalRow?800:400}">${m.total}</td>
+    <td style="text-align:center;padding:8px 4px;color:var(--t)">${m.closedTotal}<span style="color:var(--t3)"> (</span><span style="color:var(--ok)">${m.closedWithinSLA}</span><span style="color:var(--t3)">/</span><span style="color:var(--er)">${m.closedOutOfSLA}</span><span style="color:var(--t3)">)</span></td>
+    <td style="text-align:center;padding:8px 4px;color:var(--t)">${m.closurePct}%</td>
+    <td style="text-align:center;padding:8px 4px;color:var(--t)">${m.slaPct}%</td>
+    <td style="text-align:center;padding:8px 4px;color:var(--t)">${m.pendingTotal}<span style="color:var(--t3)"> (</span><span style="color:var(--ok)">${m.pendingWithinSLA}</span><span style="color:var(--t3)">/</span><span style="color:var(--er)">${m.pendingOutOfSLA}</span><span style="color:var(--t3)">)</span></td>
+    <td style="text-align:center;padding:8px 4px;color:${m.avgMin>=0?'var(--ok)':m.avgMin<0?'var(--er)':'var(--t)'};white-space:nowrap">${fmtAvgMin(m.avgMin)}</td>
+  </tr>`;
+}
+function renderBreakdownTable(title,rows,totalMetrics){
+  const body=rows.map(r=>{
+    let rowHtml=renderMetricRow(r.label,r.m,{toggleId:r.subId});
+    if(r.subRows&&r.subRows.length){
+      rowHtml+=`<tr id="${r.subId}" style="display:none"><td colspan="6" style="padding:0 0 0 20px;background:var(--bg)">
+        <table style="width:100%;border-collapse:collapse;font-size:10.5px">
+          <tbody>${r.subRows.map(sr=>renderMetricRow(sr.label,sr.m)).join('')}</tbody>
+        </table>
+      </td></tr>`;
+    }
+    return rowHtml;
+  }).join('');
+  const totalRow=totalMetrics?renderMetricRow('Total',totalMetrics,{totalRow:true}):'';
+  return `<div style="font-weight:800;font-size:13px;color:var(--t);margin:14px 0 6px">${title}</div>
+  <div class="card" style="background:var(--c1);border:1px solid var(--bdr);border-radius:14px;padding:0;margin-bottom:10px;overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:560px">
+      <thead><tr style="background:var(--c2)">
+        <th style="text-align:left;padding:8px 10px;font-weight:800;color:var(--t)"></th>
+        <th style="text-align:center;padding:8px 4px;font-weight:800;color:var(--t)">Created</th>
+        <th style="text-align:center;padding:8px 4px;font-weight:800;color:var(--t)">Closed (SLA/Out)</th>
+        <th style="text-align:center;padding:8px 4px;font-weight:800;color:var(--t)">Closure%</th>
+        <th style="text-align:center;padding:8px 4px;font-weight:800;color:var(--t)">SLA%</th>
+        <th style="text-align:center;padding:8px 4px;font-weight:800;color:var(--t)">Pending (SLA/Out)</th>
+        <th style="text-align:center;padding:8px 4px;font-weight:800;color:var(--t);white-space:nowrap">Avg SLA</th>
+      </tr></thead>
+      <tbody>${body}${totalRow}</tbody>
+    </table>
+  </div>`;
+}
+function toggleReportSub(id){
+  const row=document.getElementById(id);
+  if(!row)return;
+  row.style.display=row.style.display==='none'?'table-row':'none';
+}
+function rRpt(){const el=document.getElementById('rptB');if(!el)return;
+  buildReportOtPanel();buildReportCatPanel();buildReportPriPanel();buildReportAttPanel();buildReportStPanel();updateReportFilterButtons();
+  const all=TKS;
+  const filtered=applyReportFilters(all);
+  const catLabel=cid=>(CATS[cid]&&CATS[cid].label)?CATS[cid].label:cid;
+  const priLabel={critical:'🔴 Critical',high:'🟠 High',medium:'🟡 Medium',low:'🟢 Low'};
+
+  let html='';
+  html+=renderOverallTable(computeReportMetrics(filtered));
+
+  // By Category
+  const byCat={};
+  filtered.forEach(t=>{const k=(t.cat||'').toLowerCase()||'uncategorized';(byCat[k]=byCat[k]||[]).push(t);});
+  const allCatIds=[...new Set([...Object.keys(CATS),...Object.keys(byCat)])];
+  const catMetricsList=allCatIds.map(cid=>computeReportMetrics(byCat[cid]||[]));
+  const catRows=allCatIds.map((cid,i)=>{
+    const catTickets=byCat[cid]||[];
+    const bySubWithinCat={};
+    catTickets.forEach(t=>{const k=t.sub||'Unspecified';(bySubWithinCat[k]=bySubWithinCat[k]||[]).push(t);});
+    const subRows=Object.keys(bySubWithinCat).sort((a,b)=>a.localeCompare(b))
+      .map(sub=>({label:sub,m:computeReportMetrics(bySubWithinCat[sub])}));
+    return{label:catLabel(cid),m:catMetricsList[i],subId:'catSub_'+cid.replace(/[^A-Za-z0-9]/g,'_'),subRows};
+  }).sort((a,b)=>a.label.localeCompare(b.label));
+  html+=renderBreakdownTable('By Category',catRows,sumMetrics(catMetricsList,filtered));
+
+  // By Priority
+  const byPri={};
+  filtered.forEach(t=>{const k=t.pri||'unset';(byPri[k]=byPri[k]||[]).push(t);});
+  const allPriIds=[...new Set([...['critical','high','medium','low'],...Object.keys(byPri)])];
+  const priMetricsList=allPriIds.map(pid=>computeReportMetrics(byPri[pid]||[]));
+  const priRows=allPriIds.map((pid,i)=>{
+    const priTickets=byPri[pid]||[];
+    const byCatWithinPri={};
+    priTickets.forEach(t=>{const k=(t.cat||'').toLowerCase()||'uncategorized';(byCatWithinPri[k]=byCatWithinPri[k]||[]).push(t);});
+    const subRows=Object.keys(byCatWithinPri).sort((a,b)=>catLabel(a).localeCompare(catLabel(b)))
+      .map(cid=>({label:catLabel(cid),m:computeReportMetrics(byCatWithinPri[cid])}));
+    return {label:priLabel[pid]||pid,m:priMetricsList[i],subId:'priSub_'+pid,subRows};
+  });
+  html+=renderBreakdownTable('By Priority',priRows,sumMetrics(priMetricsList,filtered));
+
+  // By Attender — added after By Priority, per request. Union of the full active+inactive
+  // roster and any attender id actually present in the data, same union-safety pattern as
+  // Category/Priority above, plus an "Unassigned" bucket for raised-but-not-yet-assigned tickets.
+  const byAtt={};
+  filtered.forEach(t=>{const k=t.att||'unassigned';(byAtt[k]=byAtt[k]||[]).push(t);});
+  const allAttIds=[...new Set([...ATTS.map(a=>a.id),...Object.keys(byAtt)])];
+  const attMetricsList=allAttIds.map(aid=>computeReportMetrics(byAtt[aid]||[]));
+  const attRows=allAttIds.map((aid,i)=>{
+    const attTickets=byAtt[aid]||[];
+    const byCatWithinAtt={};
+    attTickets.forEach(t=>{const k=(t.cat||'').toLowerCase()||'uncategorized';(byCatWithinAtt[k]=byCatWithinAtt[k]||[]).push(t);});
+    const subRows=Object.keys(byCatWithinAtt).sort((a,b)=>catLabel(a).localeCompare(catLabel(b)))
+      .map(cid=>({label:catLabel(cid),m:computeReportMetrics(byCatWithinAtt[cid])}));
+    const attObj=aid==='unassigned'?null:gA(aid);
+    const label=aid==='unassigned'?'Unassigned':(attObj?attObj.name+(attObj.active?'':' (inactive)'):aid);
+    return {label,m:attMetricsList[i],subId:'attSub_'+String(aid).replace(/[^A-Za-z0-9]/g,'_'),subRows};
+  }).sort((a,b)=>b.m.total-a.m.total||a.label.localeCompare(b.label));
+  html+=renderBreakdownTable('By Attender',attRows,sumMetrics(attMetricsList,filtered));
+
+  // By Status — lifecycle-stage view (raised/assigned/accepted/.../closed), in the same
+  // fixed order tickets actually progress through (SF), each drilling into its category mix.
+  const byStatus={};
+  filtered.forEach(t=>{const k=t.status||'raised';(byStatus[k]=byStatus[k]||[]).push(t);});
+  const stMetricsList=SF.map(sid=>computeReportMetrics(byStatus[sid]||[]));
+  const stRows=SF.map((sid,i)=>{
+    const stTickets=byStatus[sid]||[];
+    const byCatWithinSt={};
+    stTickets.forEach(t=>{const k=(t.cat||'').toLowerCase()||'uncategorized';(byCatWithinSt[k]=byCatWithinSt[k]||[]).push(t);});
+    const subRows=Object.keys(byCatWithinSt).sort((a,b)=>catLabel(a).localeCompare(catLabel(b)))
+      .map(cid=>({label:catLabel(cid),m:computeReportMetrics(byCatWithinSt[cid])}));
+    return {label:SL[sid]||sid,m:stMetricsList[i],subId:'stSub_'+sid.replace(/[^A-Za-z0-9]/g,'_'),subRows};
+  });
+  html+=renderBreakdownTable('By Status',stRows,sumMetrics(stMetricsList,filtered));
+
+  el.innerHTML=html;
+}
+function toggleReportPanel(kind){
+  ['reportOtPanel','reportCatPanel','reportPriPanel','reportAttPanel','reportStPanel'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&id!=='report'+kind+'Panel')el.style.display='none';
+  });
+  const panel=document.getElementById('report'+kind+'Panel');
+  if(!panel)return;
+  panel.style.display=panel.style.display==='block'?'none':'block';
+}
+function buildReportOtPanel(){
+  const list=document.getElementById('reportOtList');
+  if(!list)return;
+  list.innerHTML=OL.map(o=>{
+    const checked=reportFilters.outlets.includes(o)?'checked':'';
+    return `<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--bdr)">
+      <input type="checkbox" value="${o}" ${checked} onchange="onReportFilterCheck('outlets',this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
+      <span>${o}</span></label>`;
+  }).join('');
+  const q=document.getElementById('reportOtSearch')?.value;
+  if(q)filterPanelList(q,'reportOtList');
+}
+function buildReportCatPanel(){
+  const list=document.getElementById('reportCatList');
+  if(!list)return;
+  list.innerHTML=Object.keys(CATS).sort().map(cid=>{
+    const checked=reportFilters.categories.includes(cid)?'checked':'';
+    return `<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--bdr)">
+      <input type="checkbox" value="${cid}" ${checked} onchange="onReportFilterCheck('categories',this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
+      <span>${CATS[cid].label||cid}</span></label>`;
+  }).join('');
+  const q=document.getElementById('reportCatSearch')?.value;
+  if(q)filterPanelList(q,'reportCatList');
+}
+function buildReportPriPanel(){
+  const list=document.getElementById('reportPriList');
+  if(!list)return;
+  const opts=[['critical','Critical (P0)'],['high','High (P1)'],['medium','Medium (P2)'],['low','Low (P3)']];
+  list.innerHTML=opts.map(([v,label])=>{
+    const checked=reportFilters.priorities.includes(v)?'checked':'';
+    return `<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--bdr)">
+      <input type="checkbox" value="${v}" ${checked} onchange="onReportFilterCheck('priorities',this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
+      <span>${label}</span></label>`;
+  }).join('');
+}
+function buildReportAttPanel(){
+  const list=document.getElementById('reportAttList');
+  if(!list)return;
+  const unassignedChecked=reportFilters.attenders.includes('unassigned')?'checked':'';
+  const unassignedRow=`<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--bdr);font-weight:700">
+      <input type="checkbox" value="unassigned" ${unassignedChecked} onchange="onReportFilterCheck('attenders',this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
+      <span>🚫 Unassigned</span></label>`;
+  list.innerHTML=unassignedRow+ATTS.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(a=>{
+    const checked=reportFilters.attenders.includes(a.id)?'checked':'';
+    return `<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--bdr)">
+      <input type="checkbox" value="${a.id}" ${checked} onchange="onReportFilterCheck('attenders',this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
+      <span>${a.name}${a.active?'':' (inactive)'}</span></label>`;
+  }).join('');
+  const q=document.getElementById('reportAttSearch')?.value;
+  if(q)filterPanelList(q,'reportAttList');
+}
+function buildReportStPanel(){
+  const list=document.getElementById('reportStList');
+  if(!list)return;
+  const unassignedChecked=reportFilters.statuses.includes('unassigned')?'checked':'';
+  const unassignedRow=`<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--bdr);font-weight:700">
+      <input type="checkbox" value="unassigned" ${unassignedChecked} onchange="onReportFilterCheck('statuses',this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
+      <span>🚫 Unassigned</span></label>`;
+  list.innerHTML=unassignedRow+SF.map(s=>{
+    const checked=reportFilters.statuses.includes(s)?'checked':'';
+    return `<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--bdr)">
+      <input type="checkbox" value="${s}" ${checked} onchange="onReportFilterCheck('statuses',this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
+      <span>${SL[s]||s}</span></label>`;
+  }).join('');
+}
+function onReportFilterCheck(kind,el){
+  if(el.checked){if(!reportFilters[kind].includes(el.value))reportFilters[kind].push(el.value);}
+  else reportFilters[kind]=reportFilters[kind].filter(v=>v!==el.value);
+  updateReportFilterButtons();
+  rRpt();
+}
+function updateReportFilterButtons(){
+  const setBtn=(id,arr,allLabel)=>{
+    const btn=document.getElementById(id);
+    if(!btn)return;
+    if(!arr.length)btn.textContent=allLabel;
+    else if(arr.length===1){
+      const raw=arr[0];
+      const nice=raw==='unassigned'?'Unassigned':(id==='reportAttBtn'?(gA(raw)?.name||raw):(id==='reportCatBtn'?(CATS[raw]?.label||raw):(id==='reportStBtn'?(SL[raw]||raw):raw)));
+      btn.textContent=nice.length>14?nice.slice(0,14)+'…':nice;
+    }
+    else btn.textContent=arr.length+' selected';
+  };
+  setBtn('reportOtBtn',reportFilters.outlets,'All Outlets ▾');
+  setBtn('reportCatBtn',reportFilters.categories,'All Categories ▾');
+  setBtn('reportPriBtn',reportFilters.priorities,'All Priorities ▾');
+  setBtn('reportAttBtn',reportFilters.attenders,'All Attenders ▾');
+  setBtn('reportStBtn',reportFilters.statuses,'All Statuses ▾');
+}
+function onReportSearchInput(){
+  const el=document.getElementById('reportSearch');if(!el)return;
+  reportFilters.search=el.value;
+  rRpt();
+}
+function setReportDateMode(mode){
+  reportFilters.dateMode=mode;
+  document.querySelectorAll('.rpt-date-pill').forEach(btn=>{
+    const active=btn.dataset.mode===mode;
+    btn.style.background=active?'var(--ac)':'var(--c2)';
+    btn.style.color=active?'#fff':'var(--t2)';
+  });
+  const customRow=document.getElementById('reportCustomDateRow');
+  if(customRow)customRow.style.display=mode==='custom'?'flex':'none';
+  if(mode!=='custom')rRpt();
+}
+function onReportCustomDateChange(){
+  reportFilters.dateStart=document.getElementById('reportDateStart').value;
+  reportFilters.dateEnd=document.getElementById('reportDateEnd').value;
+  if(reportFilters.dateStart&&reportFilters.dateEnd)rRpt();
+}
+function resetReportFilters(){
+  reportFilters={outlets:[],categories:[],priorities:[],attenders:[],statuses:[],dateMode:'all',dateStart:'',dateEnd:'',search:''};
+  const searchEl=document.getElementById('reportSearch');if(searchEl)searchEl.value='';
+  const startEl=document.getElementById('reportDateStart');if(startEl)startEl.value='';
+  const endEl=document.getElementById('reportDateEnd');if(endEl)endEl.value='';
+  const customRow=document.getElementById('reportCustomDateRow');if(customRow)customRow.style.display='none';
+  ['reportOtSearch','reportCatSearch','reportAttSearch'].forEach(id=>{const e=document.getElementById(id);if(e){e.value='';filterPanelList('',id.replace('Search','List'))}});
+  setReportDateMode('all');
+  updateReportFilterButtons();
+  rRpt();
+}
+// Type-to-filter inside a report filter panel's checkbox list — doesn't touch reportFilters
+// or trigger a re-render, purely a client-side show/hide so long rosters (outlets, attenders)
+// don't require scrolling to find one entry.
+function filterPanelList(q,listId){
+  const list=document.getElementById(listId);if(!list)return;
+  const qq=(q||'').trim().toLowerCase();
+  list.querySelectorAll('label').forEach(lbl=>{
+    lbl.style.display=lbl.textContent.toLowerCase().includes(qq)?'flex':'none';
+  });
+}
+// Close report filter panels when clicking outside them — previously only the same
+// toggle button could close a panel once open, which felt stuck to users.
+document.addEventListener('click',function(e){
+  [['reportOtPanel','reportOtBtn'],['reportCatPanel','reportCatBtn'],['reportPriPanel','reportPriBtn'],['reportAttPanel','reportAttBtn'],['reportStPanel','reportStBtn']].forEach(([pid,bid])=>{
+    const panel=document.getElementById(pid);
+    const btn=document.getElementById(bid);
+    if(panel&&btn&&panel.style.display!=='none'&&!panel.contains(e.target)&&!btn.contains(e.target)){
+      panel.style.display='none';
+    }
+  });
+});
 // MANAGER ACTIONS PAGE
 function rMgrActions(){if(role!=='manager')return;
   // Re-assign list
