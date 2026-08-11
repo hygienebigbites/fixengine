@@ -1798,23 +1798,31 @@ let FB_QUESTIONS=[
   {q:'Any suggestion to improve?',type:'text',opts:[]}
 ];
 let fbShown=false,fbLastTicket='';
+let voiceAliasesLoaded=false;
 async function loadVoiceAliasesFromSheet(){
   // Sheet-managed aliases LAYER ON TOP of the existing hardcoded VOICE_ALIASES —
   // they add to or override individual entries, but never replace the whole set.
   // That keeps the ~700 already-tested aliases intact even if this sheet is empty,
   // missing, or has a bad row in it.
-  const rows=await apiRead('Voice_Aliases');
-  if(!rows||!rows.length)return false;
-  let added=0;
-  rows.forEach(r=>{
-    const heard=String(r.Heard_As||'').trim().toLowerCase();
-    const mapsTo=String(r.Maps_To||'').trim().toLowerCase();
-    const off=(r.Is_Active===false||String(r.Is_Active).toUpperCase()==='FALSE');
-    if(!heard||!mapsTo||off)return;
-    VOICE_ALIASES[heard]=mapsTo;
-    added++;
-  });
-  return true;
+  try{
+    const rows=await apiRead('Voice_Aliases');
+    if(!rows||!rows.length)return false;
+    let added=0;
+    rows.forEach(r=>{
+      const heard=String(r.Heard_As||'').trim().toLowerCase();
+      const mapsTo=String(r.Maps_To||'').trim().toLowerCase();
+      const off=(r.Is_Active===false||String(r.Is_Active).toUpperCase()==='FALSE');
+      if(!heard||!mapsTo||off)return;
+      VOICE_ALIASES[heard]=mapsTo;
+      added++;
+    });
+    return true;
+  }finally{
+    // Set regardless of success/failure — a stalled or failed sheet read should
+    // still let Find stop waiting and search with whatever aliases are available,
+    // rather than hanging on a request that may never resolve.
+    voiceAliasesLoaded=true;
+  }
 }
 async function loadFeedbackQuestionsFromSheet(){
   const rows=await apiRead('Feedback_Questions');
@@ -2773,10 +2781,25 @@ function shortInputPanel(){
     +'<div style="font-size:11px;color:var(--t3);margin-top:3px">What\'s the item, and what happened? e.g. "bain marie not heating"</div>'
     +'</div>';
 }
-function runFind(){
+async function runFind(){
   const q=document.getElementById('subSearch').value.trim();
   const res=document.getElementById('subSearchResults');
   if(!q)return;
+  // Voice_Aliases loads quietly in the background for speed — if someone types
+  // fast and hits Find before that finishes, searching now would silently miss any
+  // sheet-added aliases. Show a brief loading state in the button rather than either
+  // blocking silently or returning a result that's quietly incomplete.
+  if(!voiceAliasesLoaded&&window.voiceAliasesLoadPromise){
+    const sendBtn=document.getElementById('srchSendBtn');
+    const findBtn=document.getElementById('findBtn');
+    const sendBtnHtml=sendBtn?sendBtn.innerHTML:'';
+    const findBtnHtml=findBtn?findBtn.innerHTML:'';
+    if(sendBtn){sendBtn.innerHTML='⋯';sendBtn.disabled=true;}
+    if(findBtn){findBtn.innerHTML='Loading categories…';findBtn.disabled=true;}
+    try{await window.voiceAliasesLoadPromise;}catch(e){}
+    if(sendBtn){sendBtn.innerHTML=sendBtnHtml;sendBtn.disabled=false;}
+    if(findBtn){findBtn.innerHTML=findBtnHtml;findBtn.disabled=false;}
+  }
   if(tooShort(q)){logSearchOutcome(q,q,'TOO SHORT','typed',getNoMatchReason(q));res.style.display='block';res.innerHTML=shortInputPanel();clearCatHighlight();return;}
   const matches=fuzzySearchSubs(q);
 
@@ -4830,7 +4853,7 @@ let usersLoaded=true;
     loadPriorityRulesFromSheet(),
     loadSubMetaFromSheet(),
     loadFeedbackQuestionsFromSheet(),
-    loadVoiceAliasesFromSheet(),
+    window.voiceAliasesLoadPromise=loadVoiceAliasesFromSheet(),
     window.attendersLoadPromise,
     loadTicketsFromSheet()
   ]).then(async ()=>{
@@ -4895,7 +4918,7 @@ let usersLoaded=true;
 <div id="quickHelpPage" style="display:none;position:fixed;inset:0;bottom:60px;background:var(--bg);z-index:150;overflow-y:auto;padding:20px">
   <button type="button" onclick="closeQuickHelp()" style="background:none;border:none;color:var(--t3);font-size:12px;text-decoration:underline;cursor:pointer;margin-bottom:12px">← Back</button>
   <h2 style="margin-bottom:2px">❓ Quick Help</h2>
-  <div style="font-size:11px;color:var(--t3);margin-bottom:16px">Last updated: 7 Aug 2026 · v163R</div>
+  <div style="font-size:11px;color:var(--t3);margin-bottom:16px">Last updated: 7 Aug 2026 · v164R</div>
   <div style="display:flex;flex-direction:column;gap:12px">
     <div class="card" style="background:var(--c1);border:1px solid var(--bdr);border-radius:14px;padding:14px">
       <div style="font-weight:800;font-size:13.5px;color:var(--t)">🎫 1. Raise a Ticket</div>
