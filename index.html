@@ -36,7 +36,7 @@ input,select,textarea,button{font-family:var(--f);font-size:16px}
 .st .sv{font-size:20px;font-weight:700;font-family:var(--m);margin-bottom:1px}.st .sl{font-size:9px;color:var(--t2)}
 .tid{font-family:var(--m);font-size:10px;color:var(--ac2);font-weight:700}
 .badge{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:12px;font-size:8px;font-weight:600}.badge::before{content:'';width:4px;height:4px;border-radius:50%}
-.badge.raised{background:rgba(124,106,240,.15);color:var(--ac2)}.badge.raised::before{background:var(--ac)}.badge.assigned{background:var(--infb);color:var(--inf)}.badge.assigned::before{background:var(--inf)}.badge.accepted{background:rgba(66,201,190,.18);color:#5DE8DF}.badge.accepted::before{background:#5DE8DF}.badge.otw{background:var(--orb);color:var(--or)}.badge.otw::before{background:var(--or)}.badge.reached{background:var(--orb);color:var(--or)}.badge.reached::before{background:var(--or)}.badge.started{background:var(--wrb);color:var(--wr)}.badge.started::before{background:var(--wr)}.badge.progress{background:var(--wrb);color:var(--wr)}.badge.progress::before{background:var(--wr)}.badge.ready{background:rgba(232,126,173,.15);color:var(--pk)}.badge.ready::before{background:var(--pk)}.badge.closed{background:rgba(90,100,120,.18);color:var(--t2)}.badge.closed::before{background:var(--t2)}.badge.reopen{background:var(--erb);color:var(--er)}.badge.reopen::before{background:var(--er)}.badge.vendor{background:rgba(232,126,173,.15);color:var(--pk)}.badge.vendor::before{background:var(--pk)}
+.badge.raised{background:rgba(124,106,240,.15);color:var(--ac2)}.badge.raised::before{background:var(--ac)}.badge.assigned{background:var(--infb);color:var(--inf)}.badge.assigned::before{background:var(--inf)}.badge.accepted{background:rgba(66,201,190,.18);color:#5DE8DF}.badge.accepted::before{background:#5DE8DF}.badge.otw{background:var(--orb);color:var(--or)}.badge.otw::before{background:var(--or)}.badge.reached{background:var(--orb);color:var(--or)}.badge.reached::before{background:var(--or)}.badge.started{background:var(--wrb);color:var(--wr)}.badge.started::before{background:var(--wr)}.badge.progress{background:var(--wrb);color:var(--wr)}.badge.progress::before{background:var(--wr)}.badge.ready{background:rgba(232,126,173,.15);color:var(--pk)}.badge.ready::before{background:var(--pk)}.badge.closed{background:rgba(90,100,120,.18);color:var(--t2)}.badge.closed::before{background:var(--t2)}.badge.reopen{background:var(--erb);color:var(--er)}.badge.hold{background:rgba(245,197,66,.22);color:#D4A017}.badge.rejected{background:rgba(255,94,94,.20);color:var(--er)}.badge.reopen::before{background:var(--er)}.badge.vendor{background:rgba(232,126,173,.15);color:var(--pk)}.badge.vendor::before{background:var(--pk)}
 .pri{font-size:9px;font-weight:600}.pri.c{color:var(--er)}.pri.h{color:var(--or)}.pri.m{color:var(--wr)}.pri.l{color:var(--ok)}
 .sla{display:inline-flex;align-items:center;gap:3px;padding:2px 5px;border-radius:var(--rs);font-family:var(--m);font-size:9px;font-weight:700}.sla.safe{background:var(--okb);color:var(--ok)}.sla.warn{background:var(--wrb);color:var(--wr)}.sla.breach{background:var(--erb);color:var(--er)}
 .mt-tag{display:inline-flex;align-items:center;gap:2px;padding:2px 6px;background:var(--c2);border-radius:12px;font-size:8px;color:var(--t2)}
@@ -124,7 +124,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 
 <div class="page on" id="pg-dashboard"><div class="sts fin" id="dSt"></div><div class="card fin"><div class="card-h"><h3>Recent Tickets</h3><button class="btn btn-s btn-o" onclick="go('tickets')">View All</button></div><div id="dCards"></div></div></div>
 
-<div class="page" id="pg-tickets"><div class="filters fin"><select class="fc" style="width:auto" id="fSt"><option value="">All Status</option><option value="pending">⏳ Pending</option><option value="open">🟢 Open</option><option value="closed">⚫ Closed</option><option value="reopen">🔄 Re-opened</option><option value="breach">⚠ Breached</option><option value="ready-closure">🔐 Ready to Close</option><option value="unassigned">🚫 Unassigned</option></select><select class="fc" style="width:auto" id="fPr"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="fCt"><option value="">All Categories</option></select><div style="position:relative;display:inline-block">
+<div class="page" id="pg-tickets"><div class="filters fin"><select class="fc" style="width:auto" id="fSt"><option value="">All Status</option><option value="pending">⏳ Pending</option><option value="open">🟢 Open</option><option value="closed">⚫ Closed</option><option value="reopen">🔄 Re-opened</option><option value="breach">⚠ Breached</option><option value="ready-closure">🔐 Ready to Close</option><option value="hold">⏸ On Hold</option><option value="rejected">✕ Rejected</option><option value="unassigned">🚫 Unassigned</option></select><select class="fc" style="width:auto" id="fPr"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="fCt"><option value="">All Categories</option></select><div style="position:relative;display:inline-block">
   <button type="button" id="fOtBtn" onclick="toggleOutletPanel()" style="background:var(--c2);border:1px solid var(--bdr);border-radius:var(--rs);padding:5px 10px;color:var(--t);font-size:10px;cursor:pointer;white-space:nowrap">🏪 All Outlets ▾</button>
   <div id="fOtPanel" class="fpanel-scroll" style="display:none;position:absolute;top:100%;left:0;z-index:200;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);min-width:200px;max-height:260px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4);margin-top:3px">
     <div style="padding:6px 10px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center">
@@ -137,7 +137,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 
 <div class="page" id="pg-detail"></div>
 <div class="page" id="pg-att-dash"><div class="sts fin" id="aSt"></div>
-<div class="filters fin"><select class="fc" style="width:auto" id="aFPr" onchange="rAtt()"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="aFSt" onchange="rAtt()"><option value="">All Status</option><option value="assigned">Assigned</option><option value="accepted">Accepted</option><option value="in-progress">In Progress</option><option value="ready-closure">Ready to Close</option></select><select class="fc" style="width:auto" id="aFOt" onchange="rAtt()"><option value="">All Outlets</option></select><select class="fc" style="width:auto" id="aFCt" onchange="rAtt()"><option value="">All Categories</option></select><select class="fc" style="width:auto" id="aFSort" onchange="rAtt()"><option value="">↕ Sort</option><option value="created_desc">📅 Newest First</option><option value="created_asc">📅 Oldest First</option><option value="priority_desc">🔺 Priority: High → Low</option><option value="priority_asc">🔻 Priority: Low → High</option><option value="sla_desc">⏱ SLA: Most Time Left</option><option value="sla_asc">⏱ SLA: Most Urgent First</option></select></div>
+<div class="filters fin"><select class="fc" style="width:auto" id="aFPr" onchange="rAtt()"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="aFSt" onchange="rAtt()"><option value="">All Status</option><option value="assigned">Assigned</option><option value="accepted">Accepted</option><option value="in-progress">In Progress</option><option value="ready-closure">Ready to Close</option><option value="on-hold">On Hold</option></select><select class="fc" style="width:auto" id="aFOt" onchange="rAtt()"><option value="">All Outlets</option></select><select class="fc" style="width:auto" id="aFCt" onchange="rAtt()"><option value="">All Categories</option></select><select class="fc" style="width:auto" id="aFSort" onchange="rAtt()"><option value="">↕ Sort</option><option value="created_desc">📅 Newest First</option><option value="created_asc">📅 Oldest First</option><option value="priority_desc">🔺 Priority: High → Low</option><option value="priority_asc">🔻 Priority: Low → High</option><option value="sla_desc">⏱ SLA: Most Time Left</option><option value="sla_asc">⏱ SLA: Most Urgent First</option></select></div>
 <div class="filters fin" style="flex-wrap:nowrap"><input class="fc" id="aFSearch" placeholder="🔍 Search ticket id, issue, outlet, requester..." style="flex:1" onkeydown="if(event.key==='Enter')rAtt()"><button class="btn btn-s btn-p" onclick="rAtt()">Search</button><button class="btn btn-s btn-o" onclick="document.getElementById('aFSearch').value='';rAtt()">↻</button></div>
 <div id="attBulkBar" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--c2);border:1px solid var(--ac);border-radius:var(--rs);padding:8px 10px;margin-bottom:10px"><span id="attBulkCnt" style="font-size:11px;font-weight:600;color:var(--ac2)">0 selected</span><div style="display:flex;gap:6px"><button class="btn btn-s btn-o" onclick="clearJobSelection()">✕ Clear</button><button class="btn btn-s btn-p" onclick="openBulkTransfer()">🔄 Transfer</button></div></div>
 <div id="attJobs" class="fin"></div></div>
@@ -214,7 +214,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 </div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('venAssignM')">Cancel</button><button class="btn btn-ok" onclick="assignVendor()">Assign</button></div></div></div>
 <div class="modal-bg" id="callM"><div class="modal"><div class="modal-hd"><h3>📞 Call</h3><button class="modal-x" onclick="closeM('callM')">✕</button></div><div class="modal-bd" id="callMBody"></div></div></div>
 <div class="modal-bg" id="confirmM"><div class="modal"><div class="modal-hd"><h3>✅ Confirm Resolution</h3><button class="modal-x" onclick="closeM('confirmM')">✕</button></div><div class="modal-bd">
-  <div style="text-align:center;padding:10px"><div style="font-size:36px;margin-bottom:8px">🔧</div><p style="font-size:13px;font-weight:600">Is your issue fully resolved?</p><p style="font-size:10px;color:var(--t2);margin-top:6px">Confirming will let you share the OTP to close the ticket</p></div>
+  <div style="text-align:center;padding:10px"><div style="font-size:36px;margin-bottom:8px">🔧</div><p style="font-size:13px;font-weight:600">Is the issue fully resolved?</p><p style="font-size:10px;color:var(--t2);margin-top:6px">Confirming will let you share the OTP to close the ticket</p></div>
   <div style="display:flex;gap:8px;margin-top:14px"><button class="btn-big green" onclick="confirmResolved()">✅ Yes, Resolved</button><button class="btn-big red" onclick="confirmNotResolved()">❌ Not Resolved</button></div>
 </div></div></div>
 
@@ -249,7 +249,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <div class="fg"><label>Reason *</label><select class="fc" id="btR"><option value="">Select</option><option>Going on leave / Weekly off</option><option>Workload too high</option><option>Specialist required</option><option>Shift ending</option><option>Other</option></select></div>
   <div class="fg"><label>Notes</label><textarea class="fc" id="btN" rows="2"></textarea></div>
 </div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('bulkTransferM')">Cancel</button><button class="btn btn-p" onclick="doBulkTransfer()">Transfer</button></div></div></div>
-<div class="modal-bg" id="jobChatM"><div class="modal"><div class="modal-hd"><h3 id="jcTitle">💬 Chat</h3><button class="modal-x" onclick="closeM('jobChatM')">✕</button></div><div class="modal-bd" style="padding:10px"><div class="cht" style="height:340px"><div class="cht-m" id="jcMsgs"></div><div class="cht-in"><input placeholder="Type..." id="jcI" onkeydown="if(event.key==='Enter')sendJobChatMsg()"><button class="snd" onclick="sendJobChatMsg()">➤</button></div></div></div></div></div>
+<div class="modal-bg" id="moreActionsM"><div class="modal"><div class="modal-hd"><h3>⋮ More Actions — <span id="maTid"></span></h3><button class="modal-x" onclick="closeM('moreActionsM')">✕</button></div><div class="modal-bd" id="maBody"></div></div></div><div class="modal-bg" id="holdM"><div class="modal"><div class="modal-hd"><h3>⏸ Put On Hold</h3><button class="modal-x" onclick="closeM('holdM')">✕</button></div><div class="modal-bd"><div class="fg"><label>Reason *</label><select class="fc" id="hoR"><option value="">Select</option><option>Waiting for parts/material</option><option>Outlet not accessible</option><option>Awaiting requester response</option><option>Awaiting vendor</option><option>Budget/approval pending</option><option>Other</option></select></div><div class="fg"><label>Notes</label><textarea class="fc" id="hoN" rows="2"></textarea></div></div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('holdM')">Cancel</button><button class="btn btn-p" onclick="doHold()">Put On Hold</button></div></div></div><div class="modal-bg" id="rejectM"><div class="modal"><div class="modal-hd"><h3>✕ Reject Ticket</h3><button class="modal-x" onclick="closeM('rejectM')">✕</button></div><div class="modal-bd"><div class="fg"><label>Reason *</label><select class="fc" id="rjR"><option value="">Select</option><option>Duplicate ticket</option><option>Not an R&M issue</option><option>Invalid/incorrect details</option><option>Requester cancelled</option><option>Other</option></select></div><div class="fg"><label>Notes</label><textarea class="fc" id="rjN" rows="2"></textarea></div></div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('rejectM')">Cancel</button><button class="btn btn-er" onclick="doReject()">Reject Ticket</button></div></div></div><div class="modal-bg" id="jobChatM"><div class="modal"><div class="modal-hd"><h3 id="jcTitle">💬 Chat</h3><button class="modal-x" onclick="closeM('jobChatM')">✕</button></div><div class="modal-bd" style="padding:10px"><div class="cht" style="height:340px"><div class="cht-m" id="jcMsgs"></div><div class="cht-in"><input placeholder="Type..." id="jcI" onkeydown="if(event.key==='Enter')sendJobChatMsg()"><button class="snd" onclick="sendJobChatMsg()">➤</button></div></div></div></div></div>
 <div class="modal-bg" id="payOrderM"><div class="modal"><div class="modal-hd"><h3>💳 Pay Order</h3><button class="modal-x" onclick="closeM('payOrderM')">✕</button></div><div class="modal-bd" id="payOrderBody">
   <div class="fg"><label>📷 Payment Screenshot</label><div class="po" onclick="document.getElementById('poProof').click()"><div class="po-i">📷</div><div class="po-l" id="poProofL">Tap to upload proof</div><input type="file" accept="image/*" capture="environment" style="display:none" id="poProof" onchange="document.getElementById('poProofL').textContent='✅ Proof uploaded';document.getElementById('poProofL').style.color='var(--ok)'"></div></div>
   <div class="fg"><label>📝 Remarks</label><textarea class="fc" id="poRemarks" rows="2" placeholder="UTR no., payment mode, etc."></textarea></div>
@@ -288,8 +288,13 @@ let ATTS=[
 ];
 
 const SF=['raised','assigned','accepted','on-the-way','reached-outlet','job-started','in-progress','vendor-pending','ready-closure','requester-confirm','closed'];
-const SL={'raised':'Raised','assigned':'Assigned','accepted':'Accepted','on-the-way':'On the Way','reached-outlet':'Reached Outlet','job-started':'Job Started','in-progress':'In Progress','vendor-pending':'Vendor Working','awaiting-resolution':'Awaiting Resolution Reply','ready-closure':'Ready to Close','requester-confirm':'Awaiting Confirmation','closed':'Closed'};
-const SBC={'raised':'raised','assigned':'assigned','accepted':'accepted','on-the-way':'otw','reached-outlet':'reached','job-started':'started','in-progress':'progress','vendor-pending':'vendor','awaiting-resolution':'ready','ready-closure':'ready','requester-confirm':'ready','closed':'closed'};
+// SF_ALL — SF plus the two exception states (on-hold/rejected) that sit outside the normal
+// linear flow. Used by Reports/filters, which need every possible status; kept separate from
+// SF itself so the ticket-detail progress-dot bar (which does SF.indexOf(t.status)) doesn't
+// misread a held/rejected ticket as '10/12 steps complete'.
+const SF_ALL=[...SF,'on-hold','rejected'];
+const SL={'raised':'Raised','assigned':'Assigned','accepted':'Accepted','on-the-way':'On the Way','reached-outlet':'Reached Outlet','job-started':'Job Started','in-progress':'In Progress','vendor-pending':'Vendor Working','awaiting-resolution':'Awaiting Resolution Reply','ready-closure':'Ready to Close','requester-confirm':'Awaiting Confirmation','closed':'Closed','on-hold':'On Hold','rejected':'Rejected'};
+const SBC={'raised':'raised','assigned':'assigned','accepted':'accepted','on-the-way':'otw','reached-outlet':'reached','job-started':'started','in-progress':'progress','vendor-pending':'vendor','awaiting-resolution':'ready','ready-closure':'ready','requester-confirm':'ready','closed':'closed','on-hold':'hold','rejected':'rejected'};
 
 // ===== PHASE 3: Google Sheets API connection =====
 const API_URL='https://script.google.com/macros/s/AKfycbyEzjgUsWL0Q_p2Pe4-pOqprxxiT3JjhXbIWWXCjCUOESGwzT8a-Ehp4SVU7C57vmu-/exec';// Reads a tab from the sheet, returns array of row-objects. Returns null on failure.
@@ -860,6 +865,21 @@ function autoA(t){
   return c[0];
 }
 function gA(id){return ATTS.find(a=>a.id===id)}
+// Shared "smart" status-group matcher used by both the Tickets tab (fSt) and the Reports
+// Status filter, so the two controls always mean exactly the same thing. 'pending'/'open'
+// etc. are groupings over the real status field, not literal status values themselves.
+function ticketMatchesSmartStatus(t,v){
+  if(v==='pending')return ['raised','assigned','accepted'].includes(t.status);
+  if(v==='open')return !['closed','rejected'].includes(t.status);
+  if(v==='closed')return t.status==='closed';
+  if(v==='reopen')return !!t.reopened;
+  if(v==='breach')return (t.sla||'').startsWith('-');
+  if(v==='ready-closure')return t.status==='ready-closure';
+  if(v==='hold')return t.status==='on-hold';
+  if(v==='rejected')return t.status==='rejected';
+  if(v==='unassigned')return !t.att;
+  return t.status===v;
+}
 // Parses an SLA string like "-01:23" (breached, over by 1h23m) or "06:15" (6h15m remaining)
 // into signed minutes so it can be sorted numerically. Returns null for "—"/closed tickets
 // or anything unparseable, so callers can sink those to the bottom instead of guessing.
@@ -986,14 +1006,15 @@ function doCloseWithOTP(id){const t=TKS.find(x=>x.id===id);if(!t)return;if(t.iss
   t.confirmStatus='resolved';setSt(id,'closed','✅ OTP verified — ticket closed');viewT(id);nf('✅ Closed','Ticket closed successfully','ok')}
 // Requester confirms resolution after attender enters OTP
 function confirmResolved(){const t=TKS.find(x=>x.id===curTkt);if(!t)return;t.confirmStatus='resolved';closeM('confirmM');
-  // PHASE 6: Yes → generate OTP, auto-post to chat, move to ready-closure
-  if(!t.otp)t.otp=Math.floor(100000+Math.random()*900000);
-  t.otpRevealed=true;
-  if(!t.chat)t.chat=[];t.chat.push({by:userName,role,msg:'🔐 OTP: '+t.otp,time:ts(),isOtp:true});
-  writeChat(curTkt,'🔐 OTP: '+t.otp,true);
-  apiUpdate('Tickets','Ticket_ID',curTkt,{OTP:t.otp,OTP_Revealed:'TRUE',Confirm_Status:'resolved'});
-  setSt(curTkt,'ready-closure','✅ Requester confirmed. OTP auto-generated & posted to chat.');
-  setTimeout(()=>viewT(curTkt),300);nf('OTP shared','Check the chat — give it to the attender','ok')}
+  // Confirming resolution IS the authorization to close — no separate OTP re-entry step
+  // needed afterward, so the ticket closes immediately instead of parking in ready-closure
+  // waiting for the attender to type in a code. (ready-closure + OTP entry are left intact
+  // elsewhere as a fallback for any older ticket that's already sitting in that state.)
+  if(!t.chat)t.chat=[];const closeMsg='✅ Confirmed resolved — ticket closed.';t.chat.push({by:userName,role,msg:closeMsg,time:ts()});
+  writeChat(curTkt,closeMsg,false);
+  apiUpdate('Tickets','Ticket_ID',curTkt,{Confirm_Status:'resolved'});
+  setSt(curTkt,'closed','✅ Confirmed resolved — closed'+(role!=='requester'?' by '+userName:'')+'.');
+  setTimeout(()=>viewT(curTkt),300);nf('✅ Ticket Closed','No further action needed','ok')}
 
 function confirmNotResolved(){const t=TKS.find(x=>x.id===curTkt);if(!t)return;t.confirmStatus='not-resolved';closeM('confirmM');
   // PHASE 6: No → no OTP, ticket returns to In Progress
@@ -1198,6 +1219,66 @@ function doBulkTransfer(){
   closeM('bulkTransferM');['btA','btR','btN'].forEach(x=>{const e=document.getElementById(x);if(e)e.value=''});
   clearJobSelection();R();nf('✅ Transferred',count+' ticket(s) → '+newA.name,'ok');
 }
+// ===== HOLD / REJECT (Manager) =====
+let holdTkt='',rejectTkt='';
+function openMoreActions(id){
+  const t=TKS.find(x=>x.id===id);if(!t)return;
+  document.getElementById('maTid').textContent=id;
+  const body=document.getElementById('maBody');
+  let h='';
+  if(t.status==='on-hold'){
+    h+=`<div style="font-size:11px;color:var(--t2);margin-bottom:10px">On hold since: ${(t.hist[t.hist.length-1]||{}).n||''}</div><button class="btn-big green btn-full" style="margin-bottom:8px" onclick="closeM('moreActionsM');resumeHold('${id}')">▶ Resume Ticket</button>`;
+  } else if(!['closed','rejected'].includes(t.status)){
+    h+=`<button class="btn-big orange btn-full" style="margin-bottom:8px" onclick="closeM('moreActionsM');openHoldModal('${id}')">⏸ Put On Hold</button>`;
+  }
+  if(!['closed','rejected'].includes(t.status)){
+    h+=`<button class="btn-big red btn-full" onclick="closeM('moreActionsM');openRejectModal('${id}')">✕ Reject Ticket</button>`;
+  }
+  if(!h)h='<div style="text-align:center;color:var(--t3);font-size:11px;padding:10px">No actions available for this ticket.</div>';
+  body.innerHTML=h;
+  openM('moreActionsM');
+}
+function openHoldModal(id){holdTkt=id;document.getElementById('hoR').value='';document.getElementById('hoN').value='';openM('holdM')}
+function doHold(){
+  const r=document.getElementById('hoR').value,n=document.getElementById('hoN').value;
+  if(!r){nf('Required','Pick a reason','warn');return}
+  const t=TKS.find(x=>x.id===holdTkt);if(!t)return;
+  // Remembers where the ticket was in its flow so Resume can put it back there — a manager
+  // may put a ticket on hold at any stage (waiting on parts mid-repair, budget approval
+  // before starting, etc.), not just from a fixed point.
+  t.preHoldStatus=t.status;
+  t.status='on-hold';
+  const noteTxt='⏸ On Hold ('+r+')'+(n?': '+n:'')+' by '+userName;
+  t.hist.push({s:t.status,t:ts(),n:noteTxt});
+  apiUpdate('Tickets','Ticket_ID',t.id,{Status:t.status,Updated_At:ts()});
+  writeHistory(t.id,t.status,noteTxt,userName);
+  closeM('holdM');R();nf('⏸ On Hold',t.id,'warn');
+}
+function resumeHold(id){
+  const t=TKS.find(x=>x.id===id);if(!t)return;
+  const restored=t.preHoldStatus||'in-progress';
+  t.status=restored;t.preHoldStatus=null;
+  const noteTxt='▶ Resumed from hold → '+(SL[restored]||restored)+' by '+userName;
+  t.hist.push({s:t.status,t:ts(),n:noteTxt});
+  apiUpdate('Tickets','Ticket_ID',t.id,{Status:t.status,Updated_At:ts()});
+  writeHistory(t.id,t.status,noteTxt,userName);
+  R();nf('▶ Resumed',t.id,'ok');
+}
+function openRejectModal(id){rejectTkt=id;document.getElementById('rjR').value='';document.getElementById('rjN').value='';openM('rejectM')}
+function doReject(){
+  const r=document.getElementById('rjR').value,n=document.getElementById('rjN').value;
+  if(!r){nf('Required','Pick a reason','warn');return}
+  const t=TKS.find(x=>x.id===rejectTkt);if(!t)return;
+  // Terminal state — frees up the attender's load same as a real close, since the ticket
+  // is done from their perspective (dismissed, not just paused like Hold).
+  const oldA=t.att?gA(t.att):null;if(oldA)oldA.load=Math.max(0,oldA.load-1);
+  t.status='rejected';
+  const noteTxt='✕ Rejected ('+r+')'+(n?': '+n:'')+' by '+userName;
+  t.hist.push({s:t.status,t:ts(),n:noteTxt});
+  apiUpdate('Tickets','Ticket_ID',t.id,{Status:t.status,Updated_At:ts()});
+  writeHistory(t.id,t.status,noteTxt,userName);
+  closeM('rejectM');R();nf('✕ Rejected',t.id,'warn');
+}
 // ===== GOOGLE DRIVE IMAGE UPLOAD =====
 const GDRIVE_FOLDER_ID='1Mgh8dJgxYO3jmEhNGtmmpOvkGM-iUqi6';
 
@@ -1318,9 +1399,10 @@ function renderTcard(t){const a=t.att?gA(t.att):null;const sc=t.sla?.startsWith(
     const unread=getUnread(t);
     const reassignBtn=t.status!=='closed'?`<button onclick="event.stopPropagation();quickTransfer('${t.id}')" style="width:28px;border:none;border-radius:var(--r);background:var(--c1);border:1px solid var(--bdr);color:var(--t2);font-size:12px;cursor:pointer;flex-shrink:0" title="Re-assign to another attender">↪</button>`:'';
     const chatBtn=`<button onclick="event.stopPropagation();openJobChat('${t.id}')" style="position:relative;width:28px;border:none;border-radius:var(--r);background:var(--c1);border:1px solid var(--bdr);color:var(--t2);font-size:12px;cursor:pointer;flex-shrink:0" title="Remarks / Chat">💬${unread?`<span style="position:absolute;top:-5px;right:-5px;background:var(--er);color:#fff;border-radius:8px;font-size:8px;font-weight:700;padding:1px 4px;line-height:1.3">${unread}</span>`:''}</button>`;
+    const moreBtn=!['closed','rejected'].includes(t.status)?`<button onclick="event.stopPropagation();openMoreActions('${t.id}')" style="width:28px;border:none;border-radius:var(--r);background:var(--c1);border:1px solid var(--bdr);color:var(--t2);font-size:14px;cursor:pointer;flex-shrink:0" title="More actions (Hold / Reject)">⋮</button>`:'';
     const btnMap={'assigned':{text:'✓ ACCEPT',cls:'green',fn:`doAccept('${t.id}',true)`},'accepted':null,'on-the-way':{text:'📍 REACHED',cls:'orange',fn:`doReached('${t.id}',true)`},'reached-outlet':{text:'▶ START',cls:'green',fn:`doStart('${t.id}',true)`},'job-started':{text:'🔧 PROGRESS',cls:'purple',fn:`doProgress('${t.id}',true)`},'in-progress':{text:'✅ MARK FIXED',cls:'green',fn:`doMarkFixed('${t.id}')`},'vendor-pending':{text:'✓ VENDOR DONE',cls:'green',fn:`vendorComplete('${t.id}',true)`},'ready-closure':{text:'🔐 ENTER OTP',cls:'orange',fn:`viewT('${t.id}')`}};
-    if(t.status==='accepted')actionHtml=`<div style="display:flex;gap:4px;margin-top:6px"><button class="btn-big blue" style="padding:6px 4px;font-size:10px;flex:1" onclick="event.stopPropagation();doVisitChoice('${t.id}',true,true)">🚗 Visit</button><button class="btn-big purple" style="padding:6px 4px;font-size:10px;flex:1" onclick="event.stopPropagation();doVisitChoice('${t.id}',false,true)">💻 Remote</button>${reassignBtn}${chatBtn}</div>`;
-    else{const btn=btnMap[t.status];actionHtml=btn?`<div style="display:flex;gap:4px;margin-top:6px"><button class="btn-big ${btn.cls}" style="flex:1;padding:6px 4px;font-size:10px" onclick="event.stopPropagation();${btn.fn}">${btn.text}</button>${reassignBtn}${chatBtn}</div>`:`<div style="display:flex;gap:4px;margin-top:6px">${reassignBtn}${chatBtn}</div>`;}
+    if(t.status==='accepted')actionHtml=`<div style="display:flex;gap:4px;margin-top:6px"><button class="btn-big blue" style="padding:6px 4px;font-size:10px;flex:1" onclick="event.stopPropagation();doVisitChoice('${t.id}',true,true)">🚗 Visit</button><button class="btn-big purple" style="padding:6px 4px;font-size:10px;flex:1" onclick="event.stopPropagation();doVisitChoice('${t.id}',false,true)">💻 Remote</button>${reassignBtn}${chatBtn}${moreBtn}</div>`;
+    else{const btn=btnMap[t.status];actionHtml=btn?`<div style="display:flex;gap:4px;margin-top:6px"><button class="btn-big ${btn.cls}" style="flex:1;padding:6px 4px;font-size:10px" onclick="event.stopPropagation();${btn.fn}">${btn.text}</button>${reassignBtn}${chatBtn}${moreBtn}</div>`:`<div style="display:flex;gap:4px;margin-top:6px">${reassignBtn}${chatBtn}${moreBtn}</div>`;}
   }
   return`<div class="tcard"${styleAttr} onclick="viewT('${t.id}')">${ckHtml}<div style="display:flex;justify-content:space-between"><span class="tid">${t.id}</span><span class="badge ${SBC[t.status]}">${SL[t.status]}</span></div><div style="font-size:12px;font-weight:600;margin:3px 0">${t.issue}${isReop?' <span class="badge reopen">🔄</span>':''}${t.vendor?' <span class="badge vendor">🤝</span>':''}</div>${confirmNeeded?'<div style="background:var(--ok);color:#000;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;margin:4px 0;text-align:center">✅ CONFIRM RESOLUTION</div>':otpReady?'<div style="background:linear-gradient(135deg,var(--ac),var(--inf));color:#fff;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;margin:4px 0;text-align:center">🔐 OTP READY</div>':''}<div style="display:flex;justify-content:space-between;align-items:center;font-size:8px;color:var(--t3);gap:4px;flex-wrap:wrap"><span>🏪 ${t.out}${a?' · 🔧 '+a.name:''}</span><span class="sla ${sc}" style="font-size:8px;padding:1px 3px">⏱${t.sla||'—'}</span></div>${tot>0?`<div style="margin-top:4px;font-size:9px;color:var(--ac2);font-weight:600">💰 ₹${tot.toLocaleString('en-IN')}</div>`:''}${actionHtml}</div>`}
 
@@ -1334,7 +1416,7 @@ function rList(){const el=document.getElementById('tCards');if(!el)return;let f=
     attSel.innerHTML='<option value="">All Attenders</option><option value="unassigned">🚫 Unassigned</option>'+ATTS.slice().sort((x,y)=>(x.name||'').localeCompare(y.name||'')).map(a=>`<option value="${a.id}">${a.name}${a.active?'':' (inactive)'}</option>`).join('');
     if([...attSel.options].some(o=>o.value===curAtt))attSel.value=curAtt;
   }
-  if(fs==='pending')f=f.filter(t=>['raised','assigned','accepted'].includes(t.status));else if(fs==='open')f=f.filter(t=>!['closed'].includes(t.status));else if(fs==='closed')f=f.filter(t=>t.status==='closed');else if(fs==='reopen')f=f.filter(t=>t.reopened);else if(fs==='breach')f=f.filter(t=>t.sla?.startsWith('-'));else if(fs==='ready-closure')f=f.filter(t=>t.status==='ready-closure');else if(fs==='unassigned')f=f.filter(t=>!t.att);
+  if(fs)f=f.filter(t=>ticketMatchesSmartStatus(t,fs));
   if(fp)f=f.filter(t=>t.pri===fp);
   if(fc)f=f.filter(t=>t.cat.toLowerCase().includes(fc));
   if(fa)f=f.filter(t=>fa==='unassigned'?!t.att:t.att===fa);
@@ -1372,7 +1454,7 @@ function rAtt(){const el=document.getElementById('attJobs');if(!el||role!=='atte
   const aFOt=document.getElementById('aFOt')?.value;
   const aFCt=document.getElementById('aFCt')?.value;
   const aFSearch=(document.getElementById('aFSearch')?.value||'').trim().toLowerCase();
-  let mine=TKS.filter(t=>t.att===my&&t.status!=='closed');
+  let mine=TKS.filter(t=>t.att===my&&!['closed','rejected'].includes(t.status));
   // Outlets/Categories filters — options are built from this attender's own active tickets, so every option always has real jobs behind it
   const otSel=document.getElementById('aFOt');
   if(otSel){
@@ -1630,8 +1712,11 @@ function avgClosureVsSLA(closedTickets){
 }
 function computeReportMetrics(tickets){
   const total=tickets.length;
-  const closed=tickets.filter(t=>t.status==='closed');
-  const pending=tickets.filter(t=>t.status!=='closed');
+  // Rejected tickets are resolved-but-dismissed, not "still needs work" — counted in the
+  // Closed column (their SLA-compliance naturally shows as undetermined, since they were
+  // never actually fixed) rather than inflating the Pending count.
+  const closed=tickets.filter(t=>['closed','rejected'].includes(t.status));
+  const pending=tickets.filter(t=>!['closed','rejected'].includes(t.status));
   let closedWithinSLA=0,closedOutOfSLA=0,closedUnknown=0;
   closed.forEach(t=>{
     const r=isClosedWithinSLA(t);
@@ -1670,7 +1755,7 @@ function applyReportFilters(all){
     if(reportFilters.categories.length&&!reportFilters.categories.includes((t.cat||'').toLowerCase()))return false;
     if(reportFilters.priorities.length&&!reportFilters.priorities.includes(t.pri))return false;
     if(reportFilters.attenders.length&&!reportFilters.attenders.some(v=>v==='unassigned'?!t.att:t.att===v))return false;
-    if(reportFilters.statuses.length&&!reportFilters.statuses.some(v=>v==='unassigned'?!t.att:t.status===v))return false;
+    if(reportFilters.statuses.length&&!reportFilters.statuses.some(v=>ticketMatchesSmartStatus(t,v)))return false;
     if(dateRange){
       const created=getTicketCreatedDate(t);
       if(!created||created<dateRange.start||created>dateRange.end)return false;
@@ -1829,12 +1914,12 @@ function rRpt(){const el=document.getElementById('rptB');if(!el)return;
   }).sort((a,b)=>b.m.total-a.m.total||a.label.localeCompare(b.label));
   html+=renderBreakdownTable('By Attender',attRows,sumMetrics(attMetricsList,filtered));
 
-  // By Status — lifecycle-stage view (raised/assigned/accepted/.../closed), in the same
-  // fixed order tickets actually progress through (SF), each drilling into its category mix.
+  // By Status — lifecycle-stage view (raised/assigned/accepted/.../closed), plus the two
+  // exception states (on hold / rejected), in SF_ALL order — each drilling into its category mix.
   const byStatus={};
   filtered.forEach(t=>{const k=t.status||'raised';(byStatus[k]=byStatus[k]||[]).push(t);});
-  const stMetricsList=SF.map(sid=>computeReportMetrics(byStatus[sid]||[]));
-  const stRows=SF.map((sid,i)=>{
+  const stMetricsList=SF_ALL.map(sid=>computeReportMetrics(byStatus[sid]||[]));
+  const stRows=SF_ALL.map((sid,i)=>{
     const stTickets=byStatus[sid]||[];
     const byCatWithinSt={};
     stTickets.forEach(t=>{const k=(t.cat||'').toLowerCase()||'uncategorized';(byCatWithinSt[k]=byCatWithinSt[k]||[]).push(t);});
@@ -1906,18 +1991,17 @@ function buildReportAttPanel(){
   const q=document.getElementById('reportAttSearch')?.value;
   if(q)filterPanelList(q,'reportAttList');
 }
+// Same "smart" grouped vocabulary as the Tickets tab's Status filter (fSt) — kept in sync
+// deliberately, so Reports and the Tickets tab never disagree about what "Status" means.
+const REPORT_STATUS_OPTIONS=[['pending','⏳ Pending'],['open','🟢 Open'],['closed','⚫ Closed'],['reopen','🔄 Re-opened'],['breach','⚠ Breached'],['ready-closure','🔐 Ready to Close'],['hold','⏸ On Hold'],['rejected','✕ Rejected'],['unassigned','🚫 Unassigned']];
 function buildReportStPanel(){
   const list=document.getElementById('reportStList');
   if(!list)return;
-  const unassignedChecked=reportFilters.statuses.includes('unassigned')?'checked':'';
-  const unassignedRow=`<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--bdr);font-weight:700">
-      <input type="checkbox" value="unassigned" ${unassignedChecked} onchange="onReportFilterCheck('statuses',this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
-      <span>🚫 Unassigned</span></label>`;
-  list.innerHTML=unassignedRow+SF.map(s=>{
-    const checked=reportFilters.statuses.includes(s)?'checked':'';
+  list.innerHTML=REPORT_STATUS_OPTIONS.map(([v,label])=>{
+    const checked=reportFilters.statuses.includes(v)?'checked':'';
     return `<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--bdr)">
-      <input type="checkbox" value="${s}" ${checked} onchange="onReportFilterCheck('statuses',this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
-      <span>${SL[s]||s}</span></label>`;
+      <input type="checkbox" value="${v}" ${checked} onchange="onReportFilterCheck('statuses',this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
+      <span>${label}</span></label>`;
   }).join('');
 }
 function onReportFilterCheck(kind,el){
@@ -1933,7 +2017,7 @@ function updateReportFilterButtons(){
     if(!arr.length)btn.textContent=allLabel;
     else if(arr.length===1){
       const raw=arr[0];
-      const nice=raw==='unassigned'?'Unassigned':(id==='reportAttBtn'?(gA(raw)?.name||raw):(id==='reportCatBtn'?(CATS[raw]?.label||raw):(id==='reportStBtn'?(SL[raw]||raw):raw)));
+      const stMatch=REPORT_STATUS_OPTIONS.find(([v])=>v===raw);const nice=id==='reportStBtn'?(stMatch?stMatch[1]:raw):(raw==='unassigned'?'Unassigned':(id==='reportAttBtn'?(gA(raw)?.name||raw):(id==='reportCatBtn'?(CATS[raw]?.label||raw):raw)));
       btn.textContent=nice.length>14?nice.slice(0,14)+'…':nice;
     }
     else btn.textContent=arr.length+' selected';
@@ -2000,9 +2084,9 @@ document.addEventListener('click',function(e){
 // MANAGER ACTIONS PAGE
 function rMgrActions(){if(role!=='manager')return;
   // Re-assign list
-  const ra=document.getElementById('mgReassignL');if(ra){const open=TKS.filter(t=>!['closed'].includes(t.status));ra.innerHTML=open.map(t=>{const a=gA(t.att);return`<div class="lp"><div style="display:flex;justify-content:space-between"><div style="flex:1"><div style="font-weight:600;font-size:11px">${t.id} · ${t.issue}</div><div style="font-size:9px;color:var(--t2)">🏪 ${t.out} · Currently: ${a?a.name:'Unassigned'}</div></div><button class="btn btn-s btn-p" onclick="openReassign('${t.id}')">↪ Re-assign</button></div></div>`}).join('')||'<div style="text-align:center;color:var(--t3);padding:14px;font-size:10px">No open tickets</div>'}
+  const ra=document.getElementById('mgReassignL');if(ra){const open=TKS.filter(t=>!['closed','rejected'].includes(t.status));ra.innerHTML=open.map(t=>{const a=gA(t.att);return`<div class="lp"><div style="display:flex;justify-content:space-between"><div style="flex:1"><div style="font-weight:600;font-size:11px">${t.id} · ${t.issue}</div><div style="font-size:9px;color:var(--t2)">🏪 ${t.out} · Currently: ${a?a.name:'Unassigned'}</div></div><button class="btn btn-s btn-p" onclick="openReassign('${t.id}')">↪ Re-assign</button></div></div>`}).join('')||'<div style="text-align:center;color:var(--t3);padding:14px;font-size:10px">No open tickets</div>'}
   // High priority
-  const hp=document.getElementById('mgHighL');if(hp){const high=TKS.filter(t=>['critical','high'].includes(t.pri)&&t.status!=='closed');hp.innerHTML=high.map(t=>{const a=gA(t.att);const sc=t.sla?.startsWith('-')?'breach':'warn';return`<div class="lp"><div style="display:flex;justify-content:space-between"><div style="flex:1"><div style="font-weight:600;font-size:11px"><span class="pri ${PRICOLORS[t.pri]||'m'}">●</span> ${t.id} · ${t.issue}</div><div style="font-size:9px;color:var(--t2)">🏪 ${t.out} · ${a?a.name:'-'} · ${SL[t.status]}</div></div><span class="sla ${sc}">⏱${t.sla}</span></div></div>`}).join('')||'<div style="text-align:center;color:var(--t3);padding:14px;font-size:10px">No high priority</div>'}
+  const hp=document.getElementById('mgHighL');if(hp){const high=TKS.filter(t=>['critical','high'].includes(t.pri)&&!['closed','rejected'].includes(t.status));hp.innerHTML=high.map(t=>{const a=gA(t.att);const sc=t.sla?.startsWith('-')?'breach':'warn';return`<div class="lp"><div style="display:flex;justify-content:space-between"><div style="flex:1"><div style="font-weight:600;font-size:11px"><span class="pri ${PRICOLORS[t.pri]||'m'}">●</span> ${t.id} · ${t.issue}</div><div style="font-size:9px;color:var(--t2)">🏪 ${t.out} · ${a?a.name:'-'} · ${SL[t.status]}</div></div><span class="sla ${sc}">⏱${t.sla}</span></div></div>`}).join('')||'<div style="text-align:center;color:var(--t3);padding:14px;font-size:10px">No high priority</div>'}
   // Weekly off
   const wk=document.getElementById('mgWeekL');if(wk)wk.innerHTML=ATTS.map(a=>`<div class="lp"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600;font-size:11px">${a.name}</div><div style="font-size:9px;color:var(--t2)">${a.skills.join(', ')}</div></div><select class="fc" style="width:auto;font-size:11px;padding:4px 8px" onchange="ATTS.find(x=>x.id==='${a.id}').weekOff=this.value;nf('Updated','${a.name} weekly off','ok')"><option ${a.weekOff==='Sunday'?'selected':''}>Sunday</option><option ${a.weekOff==='Monday'?'selected':''}>Monday</option><option ${a.weekOff==='Tuesday'?'selected':''}>Tuesday</option><option ${a.weekOff==='Wednesday'?'selected':''}>Wednesday</option><option ${a.weekOff==='Thursday'?'selected':''}>Thursday</option><option ${a.weekOff==='Friday'?'selected':''}>Friday</option><option ${a.weekOff==='Saturday'?'selected':''}>Saturday</option></select></div></div>`).join('');
   // Feedback
@@ -2148,7 +2232,7 @@ function delOutlet(o){if(confirm('Delete '+o+'?')){OL=OL.filter(x=>x!==o);delete
 function viewT(id){curTkt=id;const t=TKS.find(x=>x.id===id);if(!t)return;const pg=document.getElementById('pg-detail');selectedStars=0;
   const pc={critical:'c',high:'h',medium:'m',low:'l'}[t.pri]||'';const sc=t.sla?.startsWith('-')?'breach':parseFloat(t.sla)<=2?'warn':'safe';
   const a=t.att?gA(t.att):null;const ct=t.hist[0]?.t||'';const lH=t.hist[t.hist.length-1];
-  const isR=role==='requester',isA=role==='attender',isRM=role==='rmhead',isMg=role==='manager',isFn=role==='finance',isP=role==='purchaser';
+  const isR=role==='requester',isA=role==='attender',isRM=role==='rmhead',isMg=role==='manager',isFn=role==='finance',isP=role==='purchaser',isAd=role==='admin';
   const si=SF.indexOf(t.status);const cn=USERS[t.by]?.name||t.by||'';const tot=t.costs.reduce((s,c)=>s+c.amt,0);
   const reqPhone=t.by;const outPhone=OUTPHONES[t.out]||reqPhone;
 
@@ -2161,7 +2245,7 @@ function viewT(id){curTkt=id;const t=TKS.find(x=>x.id===id);if(!t)return;const p
     else{const bm={'assigned':{t:'✓ ACCEPT',c:'green',f:`doAccept('${t.id}')`},'on-the-way':{t:'📍 REACHED OUTLET',c:'orange',f:`doReached('${t.id}')`},'reached-outlet':{t:'▶ START JOB',c:'green',f:`doStart('${t.id}')`},'job-started':{t:'🔧 IN PROGRESS',c:'purple',f:`doProgress('${t.id}')`},'in-progress':{t:'✅ MARK AS FIXED',c:'green',f:`doMarkFixed('${t.id}')`},'vendor-pending':{t:'✓ VENDOR DONE',c:'green',f:`vendorComplete('${t.id}')`}};const b=bm[t.status];if(b)stH+=`<div style="margin-top:8px"><button class="btn-big ${b.c}" onclick="${b.f}">${b.t}</button></div>`}
   }
   // Requester confirms
-  if(isR&&(t.status==='awaiting-resolution'||t.status==='requester-confirm')){stH+=`<div style="margin-top:8px"><div style="font-size:10px;color:var(--t3);text-align:center;margin-bottom:4px">The attender has requested closure.</div><button class="btn-big green" onclick="curTkt='${t.id}';openM('confirmM')">❓ HAS THE ISSUE BEEN RESOLVED?</button></div>`}
+  if((isR||isMg||isRM||isAd)&&(t.status==='awaiting-resolution'||t.status==='requester-confirm')){const confirmNote=isR?'':'Confirming on behalf of the requester.';stH+=`<div style="margin-top:8px"><div style="font-size:10px;color:var(--t3);text-align:center;margin-bottom:4px">The attender has requested closure.${confirmNote?' '+confirmNote:''}</div><button class="btn-big green" onclick="curTkt='${t.id}';openM('confirmM')">❓ HAS THE ISSUE BEEN RESOLVED?</button></div>`}
   // Manager re-assign
   if((isMg||isRM)&&!['closed'].includes(t.status)){stH+=`<div style="margin-top:6px"><button class="btn btn-s btn-o btn-full" onclick="openReassign('${t.id}')">↪ Re-assign Ticket</button></div>`}
   // SLA Extend
@@ -2235,7 +2319,7 @@ let workMetaH='';if(isA&&t.status!=='closed'){const m=getMeta((t.cat||'').toLowe
   // OTP
   let otpH='';if(isR&&t.otpRevealed&&t.status!=='closed'){otpH=`<div class="otp-reveal"><div style="font-size:12px;font-weight:700">🔐 Closure OTP</div><div class="otp-num">${t.otp}</div><p style="font-size:9px;color:var(--t2);margin-bottom:6px">Share with attender</p><div style="display:flex;gap:6px"><button class="btn btn-s btn-p btn-full" onclick="shareOTPInChat('${t.id}')" style="font-size:9px">📤 Chat</button><button class="btn btn-s btn-p btn-full" onclick="shareOTPViaWhatsApp('${t.id}')" style="font-size:9px">📱 WhatsApp</button></div></div>`}
   if(isR&&!t.otpRevealed&&t.status!=='closed'){otpH=`<div class="card" style="text-align:center;padding:14px;color:var(--t3)"><div style="font-size:18px">🔒</div><div style="font-size:9px;margin-top:4px">OTP appears when attender requests closure</div></div>`}
-  let otpEH='';if(isA&&t.status==='ready-closure'){const af=t.issueRes?t.issueRes.every(r=>r.status==='fixed'):true;otpEH=`<div class="card"><div class="card-h"><h3>🔐 Enter OTP</h3></div><input id="otpSingle" type="text" inputmode="numeric" maxlength="6" placeholder="● ● ● ● ● ●" style="width:100%;padding:12px;background:var(--c2);border:2px solid var(--bdr);border-radius:var(--rs);color:var(--t);font-size:22px;font-family:var(--m);font-weight:700;text-align:center;letter-spacing:6px;outline:none;margin-bottom:8px" oninput="this.value=this.value.replace(/\\D/g,'')"><button class="btn-big ${af?'green':'red'}" onclick="doCloseWithOTP('${t.id}')">${af?'✓ VERIFY OTP':'⚠ Issues not all Fixed'}</button></div>`}
+  let otpEH='';if((isA||isMg||isRM||isAd)&&t.status==='ready-closure'){const af=t.issueRes?t.issueRes.every(r=>r.status==='fixed'):true;otpEH=`<div class="card"><div class="card-h"><h3>🔐 Enter OTP</h3></div><input id="otpSingle" type="text" inputmode="numeric" maxlength="6" placeholder="● ● ● ● ● ●" style="width:100%;padding:12px;background:var(--c2);border:2px solid var(--bdr);border-radius:var(--rs);color:var(--t);font-size:22px;font-family:var(--m);font-weight:700;text-align:center;letter-spacing:6px;outline:none;margin-bottom:8px" oninput="this.value=this.value.replace(/\\D/g,'')"><button class="btn-big ${af?'green':'red'}" onclick="doCloseWithOTP('${t.id}')">${af?'✓ VERIFY OTP':'⚠ Issues not all Fixed'}</button></div>`}
 
   // Rating + Reopen (after closed)
   let rateH='';if(isR&&t.status==='closed'){
