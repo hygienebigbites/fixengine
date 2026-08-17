@@ -20,9 +20,16 @@ input,select,textarea,button{font-family:var(--f);font-size:16px}
 .lr-c{background:var(--c1);border:2px solid var(--bdr);border-radius:var(--r);padding:9px 4px;text-align:center;cursor:pointer}.lr-c:active,.lr-c.on{border-color:var(--ac);background:rgba(124,106,240,.08)}.lr-c .i{font-size:17px}.lr-c .n{font-size:9px;font-weight:600;margin-top:2px}
 .app{display:flex;height:100dvh}
 .sidebar{width:230px;background:var(--c1);border-right:1px solid var(--bdr);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:200;transition:transform .25s}
-.main{flex:1;margin-left:230px;display:flex;flex-direction:column;height:100dvh}
+.main{flex:1;min-width:0;margin-left:230px;display:flex;flex-direction:column;height:100dvh}
 .topbar{height:50px;background:var(--c1);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;z-index:50}
-.topbar h2{font-size:14px;font-weight:600}.cnt-area{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
+.topbar h2{font-size:14px;font-weight:600}.cnt-area{flex:1;min-width:0;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
+/* .main/.cnt-area are flex children — without min-width:0 a wide child (e.g. the Reports
+   breakdown tables) forces them wider than the viewport instead of scrolling internally,
+   which is what made the Report unable to scroll horizontally. */
+.rpt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.fc.active-filter,select.active-filter,.filters button.active-filter{border-color:var(--ac)!important;background:rgba(124,106,240,.16)!important;color:var(--ac2)!important;font-weight:700}
+.st.t::before{background:var(--inf)}
+.st-click{cursor:pointer;transition:box-shadow .15s,border-color .15s}.st-click:active{transform:scale(.97)}.st-click.st-active{border-color:var(--ac);box-shadow:0 0 0 2px var(--acg)}
 .sb-logo{padding:12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--bdr)}.sb-logo .li{width:28px;height:28px;background:linear-gradient(135deg,var(--ac),var(--inf));border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:14px}.sb-logo h1{font-size:13px;font-weight:700}.sb-logo span{font-size:8px;color:var(--t2);display:block}
 .sb-nav{flex:1;overflow-y:auto;padding:6px}.sb-sec{font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);padding:8px 10px 3px;font-weight:600}
 .ni{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--rs);cursor:pointer;color:var(--t2);font-size:12px;font-weight:500;border:none;background:none;width:100%;text-align:left}.ni:hover{background:var(--c2);color:var(--t)}.ni.on{background:rgba(124,106,240,.12);color:var(--ac2)}.ni .ic{font-size:14px;width:18px;text-align:center}
@@ -37,7 +44,7 @@ input,select,textarea,button{font-family:var(--f);font-size:16px}
 .tid{font-family:var(--m);font-size:10px;color:var(--ac2);font-weight:700}
 .badge{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:12px;font-size:8px;font-weight:600}.badge::before{content:'';width:4px;height:4px;border-radius:50%}
 .badge.raised{background:rgba(124,106,240,.15);color:var(--ac2)}.badge.raised::before{background:var(--ac)}.badge.assigned{background:var(--infb);color:var(--inf)}.badge.assigned::before{background:var(--inf)}.badge.accepted{background:rgba(66,201,190,.18);color:#5DE8DF}.badge.accepted::before{background:#5DE8DF}.badge.otw{background:var(--orb);color:var(--or)}.badge.otw::before{background:var(--or)}.badge.reached{background:var(--orb);color:var(--or)}.badge.reached::before{background:var(--or)}.badge.started{background:var(--wrb);color:var(--wr)}.badge.started::before{background:var(--wr)}.badge.progress{background:var(--wrb);color:var(--wr)}.badge.progress::before{background:var(--wr)}.badge.ready{background:rgba(232,126,173,.15);color:var(--pk)}.badge.ready::before{background:var(--pk)}.badge.closed{background:rgba(90,100,120,.18);color:var(--t2)}.badge.closed::before{background:var(--t2)}.badge.reopen{background:var(--erb);color:var(--er)}.badge.hold{background:rgba(245,197,66,.22);color:#D4A017}.badge.rejected{background:rgba(255,94,94,.20);color:var(--er)}.badge.reopen::before{background:var(--er)}.badge.vendor{background:rgba(232,126,173,.15);color:var(--pk)}.badge.vendor::before{background:var(--pk)}
-.pri{font-size:9px;font-weight:600}.pri.c{color:var(--er)}.pri.h{color:var(--or)}.pri.m{color:var(--wr)}.pri.l{color:var(--ok)}
+.pri{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}.pri.c{color:var(--er)}.pri.h{color:var(--or)}.pri.m{color:var(--wr)}.pri.l{color:var(--ok)}
 .sla{display:inline-flex;align-items:center;gap:3px;padding:2px 5px;border-radius:var(--rs);font-family:var(--m);font-size:9px;font-weight:700}.sla.safe{background:var(--okb);color:var(--ok)}.sla.warn{background:var(--wrb);color:var(--wr)}.sla.breach{background:var(--erb);color:var(--er)}
 .mt-tag{display:inline-flex;align-items:center;gap:2px;padding:2px 6px;background:var(--c2);border-radius:12px;font-size:8px;color:var(--t2)}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--rs);font-size:12px;font-weight:600;border:none;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}.btn:active{transform:scale(.96)}
@@ -45,6 +52,23 @@ input,select,textarea,button{font-family:var(--f);font-size:16px}
 .btn-s{padding:5px 10px;font-size:10px}.btn-full{width:100%;justify-content:center}
 .btn-big{width:100%;padding:14px;font-size:15px;font-weight:700;border-radius:var(--r);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}.btn-big:active{transform:scale(.97);opacity:.9}
 .btn-big.green{background:var(--ok);color:#000}.btn-big.purple{background:var(--ac);color:#fff}.btn-big.orange{background:var(--or);color:#fff}.btn-big.blue{background:var(--inf);color:#000}.btn-big.red{background:var(--er);color:#fff}
+/* Compact status-action button — used on the redesigned ticket card instead of the old
+   full-width .btn-big so Accept/Reached/Start/In Progress/Fixed stay small and the card
+   stays short. */
+.stat-btn{padding:7px 12px;font-size:10.5px;font-weight:700;border-radius:var(--rs);border:none;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}.stat-btn:active{transform:scale(.96)}
+.stat-btn.green{background:var(--ok);color:#000}.stat-btn.purple{background:var(--ac);color:#fff}.stat-btn.orange{background:var(--or);color:#fff}.stat-btn.blue{background:var(--inf);color:#000}.stat-btn.red{background:var(--er);color:#fff}
+/* Single "Action ▾" dropdown — replaces separate Extend SLA/Transfer/Hold/Reject buttons. */
+.act-menu{display:none;position:absolute;top:100%;left:0;margin-top:4px;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);box-shadow:0 4px 16px rgba(0,0,0,.4);z-index:80;min-width:150px;overflow-y:auto;overflow-x:hidden}
+.act-menu.show{display:block}
+.act-menu button{display:block;width:100%;text-align:left;padding:8px 12px;font-size:11px;background:none;border:none;color:var(--t);cursor:pointer;border-bottom:1px solid var(--bdr)}
+.act-menu button:last-child{border-bottom:none}
+.act-menu button:active{background:var(--c2)}
+/* Small round chip used for the Manager-only "More Info" control next to Sub Category. */
+.chip-btn{padding:2px 9px;border-radius:12px;font-size:8.5px;font-weight:600;background:var(--c2);border:1px solid var(--bdr);color:var(--ac2);cursor:pointer;white-space:nowrap}
+.chip-btn:active{border-color:var(--ac)}
+/* Full-screen Chat modal — only #jobChatM's .modal gets this, every other modal is untouched. */
+.modal-chat-full{width:100%;max-width:100%;height:100dvh;max-height:100dvh;border-radius:0;display:flex;flex-direction:column}
+.modal-chat-full .cht{flex:1;height:auto}
 .fg{margin-bottom:10px}.fg label{display:block;font-size:9px;font-weight:600;color:var(--t2);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
 .fc{width:100%;padding:9px 11px;background:var(--c2);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--t);font-size:14px;outline:none;-webkit-appearance:none}.fc:focus{border-color:var(--ac)}
 select.fc{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 4l3 3 3-3' fill='none' stroke='%238A94AB' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
@@ -72,8 +96,11 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 .tcard{background:var(--c1);border:1px solid var(--bdr);border-radius:var(--r);padding:10px;margin-bottom:8px;cursor:pointer}.tcard:active{border-color:var(--ac)}
 .prog{display:flex;gap:2px;margin-top:6px}.prog .dot{flex:1;height:3px;border-radius:2px;background:var(--bdr)}.prog .dot.dn{background:var(--ok)}.prog .dot.nw{background:var(--ac)}
 .po{display:flex;flex-direction:column;align-items:center;gap:3px;padding:14px 6px;border:2px dashed var(--bdr);border-radius:var(--r);cursor:pointer;background:var(--c2)}.po:active{border-color:var(--ac);background:rgba(124,106,240,.06)}.po .po-i{font-size:24px}.po .po-l{font-size:11px;font-weight:600;color:var(--t)}.po .po-s{font-size:8px;color:var(--t3);text-align:center}
-.job-card{background:linear-gradient(180deg,var(--c2),var(--c1));border:1px solid var(--bdr);border-left:3px solid var(--ac);border-radius:var(--r);overflow:hidden;margin-bottom:8px;box-shadow:0 3px 10px rgba(0,0,0,.3);cursor:pointer}.job-card .jc-head{padding:8px 10px 7px}.job-card .jc-action{padding:0 10px 8px}
-.job-card .jc-bar{display:flex;border-top:1px solid var(--bdr);flex-wrap:wrap}.job-card .jc-bar-btn{flex:1;min-width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:6px 2px;font-size:8px;font-weight:500;color:var(--t2);background:none;border:none;cursor:pointer;border-right:1px solid var(--bdr);text-decoration:none;line-height:1.2}.job-card .jc-bar-btn .jbi{font-size:14px}.job-card .jc-bar-btn:last-child{border-right:none}.job-card .jc-bar-btn:active{background:var(--c2);color:var(--t)}
+.job-card{background:linear-gradient(180deg,var(--c2),var(--c1));border:1px solid var(--bdr);border-left:3px solid var(--ac);border-radius:var(--r);margin-bottom:8px;box-shadow:0 3px 10px rgba(0,0,0,.3);cursor:pointer}.job-card .jc-head{padding:8px 10px 7px}.job-card .jc-action{padding:0 10px 8px;position:relative}
+/* jc-bar (not job-card) owns the bottom-corner clipping — job-card itself is overflow:visible
+   so the Action ▾ dropdown in .jc-action can open past the card's own bottom edge without
+   being cut off. */
+.job-card .jc-bar{display:flex;border-top:1px solid var(--bdr);flex-wrap:wrap;overflow:hidden;border-radius:0 0 var(--r) var(--r)}.job-card .jc-bar-btn{flex:1;min-width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:5px 2px;font-size:7.5px;font-weight:500;color:var(--t2);background:none;border:none;cursor:pointer;border-right:1px solid var(--bdr);text-decoration:none;line-height:1.15}.job-card .jc-bar-btn .jbi{font-size:13px}.job-card .jc-bar-btn:last-child{border-right:none}.job-card .jc-bar-btn:active{background:var(--c2);color:var(--t)}
 .fab{position:fixed;bottom:calc(56px + var(--sb));right:12px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--inf));color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 4px 14px var(--acg);z-index:90;display:flex;align-items:center;justify-content:center}
 .mn{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--c1);border-top:1px solid var(--bdr);z-index:100;padding:3px 0 var(--sb)}.mn .mni{display:flex;justify-content:space-around;overflow-x:auto}.mn .mi{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 2px;font-size:8px;color:var(--t3);cursor:pointer;border:none;background:none;flex:1;min-width:55px}.mn .mi.on{color:var(--ac2)}.mn .mi .ic{font-size:16px}
 .sidebar-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150}.sidebar-ov.show{display:block}
@@ -124,20 +151,21 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 
 <div class="page on" id="pg-dashboard"><div class="sts fin" id="dSt"></div><div class="card fin"><div class="card-h"><h3>Recent Tickets</h3><button class="btn btn-s btn-o" onclick="go('tickets')">View All</button></div><div id="dCards"></div></div></div>
 
-<div class="page" id="pg-tickets"><div class="filters fin"><select class="fc" style="width:auto" id="fSt"><option value="">All Status</option><option value="pending">⏳ Pending</option><option value="open">🟢 Open</option><option value="closed">⚫ Closed</option><option value="reopen">🔄 Re-opened</option><option value="breach">⚠ Breached</option><option value="ready-closure">🔐 Ready to Close</option><option value="hold">⏸ On Hold</option><option value="rejected">✕ Rejected</option><option value="unassigned">🚫 Unassigned</option></select><select class="fc" style="width:auto" id="fPr"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="fCt"><option value="">All Categories</option></select><div style="position:relative;display:inline-block">
+<div class="page" id="pg-tickets"><div class="filters fin"><select class="fc" style="width:auto" id="fSt" onchange="rList()"><option value="">All Status</option><option value="pending">⏳ Pending</option><option value="closed">⚫ Closed</option><option value="reopen">🔄 Re-opened</option><option value="breach">⚠ Breached</option><option value="ready-closure">🔐 Ready to Close</option><option value="hold">⏸ On Hold</option><option value="rejected">✕ Rejected</option><option value="unassigned">🚫 Unassigned</option></select><select class="fc" style="width:auto" id="fPr" onchange="rList()"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="fCt" onchange="rList()"><option value="">All Categories</option></select><div style="position:relative;display:inline-block">
   <button type="button" id="fOtBtn" onclick="toggleOutletPanel()" style="background:var(--c2);border:1px solid var(--bdr);border-radius:var(--rs);padding:5px 10px;color:var(--t);font-size:10px;cursor:pointer;white-space:nowrap">🏪 All Outlets ▾</button>
-  <div id="fOtPanel" class="fpanel-scroll" style="display:none;position:absolute;top:100%;left:0;z-index:200;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);min-width:200px;max-height:260px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4);margin-top:3px">
-    <div style="padding:6px 10px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:9px;color:var(--t3);font-weight:600">SELECT OUTLETS</span>
-      <button type="button" onclick="clearOutletFilter()" style="background:none;border:none;color:var(--ac2);font-size:9px;cursor:pointer">Clear</button>
+  <div id="fOtPanel" class="fpanel-scroll" style="display:none;position:absolute;top:100%;left:0;z-index:200;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);min-width:220px;max-height:300px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4);margin-top:3px">
+    <div style="padding:6px 8px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--c1);z-index:1"><input type="text" id="fOtSearch" placeholder="🔍 Search outlet..." oninput="filterPanelList(this.value,'fOtList')" style="width:100%;padding:5px 8px;font-size:10.5px;border:1px solid var(--bdr);border-radius:6px;background:var(--c2);color:var(--t);box-sizing:border-box" onclick="event.stopPropagation()"></div>
+    <div style="padding:6px 10px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;gap:6px">
+      <button type="button" onclick="selectAllOutlets()" style="background:none;border:none;color:var(--ac2);font-size:9px;cursor:pointer;font-weight:600">Select All</button>
+      <button type="button" onclick="clearOutletFilter()" style="background:none;border:none;color:var(--ac2);font-size:9px;cursor:pointer;font-weight:600">Unselect All</button>
     </div>
     <div id="fOtList" style="padding:4px 0"></div>
   </div>
-</div><button class="btn btn-s btn-p" onclick="rList()">Go</button><button class="btn btn-s btn-o" onclick="resetF()">↻</button></div><div class="filters fin" style="flex-wrap:nowrap"><select class="fc" style="width:auto" id="fAtt"><option value="">All Attenders</option></select><select class="fc" style="width:auto" id="fSort" onchange="rList()"><option value="">↕ Sort</option><option value="created_desc">📅 Newest First</option><option value="created_asc">📅 Oldest First</option><option value="priority_desc">🔺 Priority: High → Low</option><option value="priority_asc">🔻 Priority: Low → High</option><option value="sla_desc">⏱ SLA: Most Time Left</option><option value="sla_asc">⏱ SLA: Most Urgent First</option></select><input class="fc" id="fSearch" placeholder="🔍 Search ticket id, issue, outlet, requester, attender..." style="flex:1" onkeydown="if(event.key==='Enter')rList()"><button class="btn btn-s btn-p" onclick="rList()">Search</button><button class="btn btn-s btn-o" onclick="document.getElementById('fSearch').value='';rList()">↻</button></div><div id="tixBulkBar" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--c2);border:1px solid var(--ac);border-radius:var(--rs);padding:8px 10px;margin-bottom:10px"><span id="tixBulkCnt" style="font-size:11px;font-weight:600;color:var(--ac2)">0 selected</span><div style="display:flex;gap:6px"><button class="btn btn-s btn-o" onclick="clearJobSelection()">✕ Clear</button><button class="btn btn-s btn-p" onclick="openBulkTransfer()">🔄 Transfer</button></div></div><div id="tCards" class="fin"></div></div>
+</div><button class="btn btn-s btn-o" onclick="resetF()" title="Reset all filters">↻ Reset</button></div><div class="filters fin" style="flex-wrap:nowrap"><select class="fc" style="width:auto" id="fAtt" onchange="rList()"><option value="">All Attenders</option></select><select class="fc" style="width:auto" id="fSort" onchange="rList()"><option value="">↕ Sort</option><option value="created_desc">📅 Created: Newest → Oldest</option><option value="created_asc">📅 Created: Oldest → Newest</option><option value="priority_desc">🔺 Priority: High → Low</option><option value="priority_asc">🔻 Priority: Low → High</option><option value="sla_desc">⏱ SLA: Most Time Left</option><option value="sla_asc">⏱ SLA: Most Urgent First</option><option value="attender_asc">🔧 Attender: A → Z</option><option value="attender_desc">🔧 Attender: Z → A</option><option value="outlet_asc">🏪 Outlet: A → Z</option><option value="outlet_desc">🏪 Outlet: Z → A</option></select><input class="fc" id="fSearch" placeholder="🔍 Search ticket id, issue, outlet, requester, attender..." style="flex:1" onkeydown="if(event.key==='Enter')rList()"><button class="btn btn-s btn-p" onclick="rList()">Search</button><button class="btn btn-s btn-o" onclick="document.getElementById('fSearch').value='';rList()">↻</button></div><div id="tixBulkBar" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--c2);border:1px solid var(--ac);border-radius:var(--rs);padding:8px 10px;margin-bottom:10px"><span id="tixBulkCnt" style="font-size:11px;font-weight:600;color:var(--ac2)">0 selected</span><div style="display:flex;gap:6px"><button class="btn btn-s btn-o" onclick="clearJobSelection()">✕ Clear</button><button class="btn btn-s btn-p" onclick="openBulkTransfer()">🔄 Transfer</button></div></div><div id="tCards" class="fin"></div></div>
 
 <div class="page" id="pg-detail"></div>
 <div class="page" id="pg-att-dash"><div class="sts fin" id="aSt"></div>
-<div class="filters fin"><select class="fc" style="width:auto" id="aFPr" onchange="rAtt()"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="aFSt" onchange="rAtt()"><option value="">All Status</option><option value="assigned">Assigned</option><option value="accepted">Accepted</option><option value="in-progress">In Progress</option><option value="ready-closure">Ready to Close</option><option value="on-hold">On Hold</option></select><select class="fc" style="width:auto" id="aFOt" onchange="rAtt()"><option value="">All Outlets</option></select><select class="fc" style="width:auto" id="aFCt" onchange="rAtt()"><option value="">All Categories</option></select><select class="fc" style="width:auto" id="aFSort" onchange="rAtt()"><option value="">↕ Sort</option><option value="created_desc">📅 Newest First</option><option value="created_asc">📅 Oldest First</option><option value="priority_desc">🔺 Priority: High → Low</option><option value="priority_asc">🔻 Priority: Low → High</option><option value="sla_desc">⏱ SLA: Most Time Left</option><option value="sla_asc">⏱ SLA: Most Urgent First</option></select></div>
+<div class="filters fin"><select class="fc" style="width:auto" id="aFPr" onchange="rAtt()"><option value="">All Priority</option><option value="critical">🔴 P0 Critical</option><option value="high">🟠 P1 High</option><option value="medium">🟡 P2 Medium</option><option value="low">🟢 P3 Low</option></select><select class="fc" style="width:auto" id="aFSt" onchange="rAtt()"><option value="">All Status</option><option value="assigned">Assigned</option><option value="accepted">Accepted</option><option value="in-progress">In Progress</option><option value="ready-closure">Ready to Close</option><option value="on-hold">On Hold</option></select><div style="position:relative;display:inline-block"><button type="button" id="aFOtBtn" onclick="toggleAttOutletPanel()" style="background:var(--c2);border:1px solid var(--bdr);border-radius:var(--rs);padding:5px 10px;color:var(--t);font-size:10px;cursor:pointer;white-space:nowrap">🏪 All Outlets ▾</button><div id="aFOtPanel" class="fpanel-scroll" style="display:none;position:absolute;top:100%;left:0;z-index:200;background:var(--c1);border:1px solid var(--bdr);border-radius:var(--rs);min-width:220px;max-height:300px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4);margin-top:3px"><div style="padding:6px 8px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--c1);z-index:1"><input type="text" id="aFOtSearch" placeholder="🔍 Search outlet..." oninput="filterPanelList(this.value,'aFOtList')" style="width:100%;padding:5px 8px;font-size:10.5px;border:1px solid var(--bdr);border-radius:6px;background:var(--c2);color:var(--t);box-sizing:border-box" onclick="event.stopPropagation()"></div><div style="padding:6px 10px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;gap:6px"><button type="button" onclick="selectAllAttOutlets()" style="background:none;border:none;color:var(--ac2);font-size:9px;cursor:pointer;font-weight:600">Select All</button><button type="button" onclick="clearAttOutletFilter()" style="background:none;border:none;color:var(--ac2);font-size:9px;cursor:pointer;font-weight:600">Unselect All</button></div><div id="aFOtList" style="padding:4px 0"></div></div></div><select class="fc" style="width:auto" id="aFCt" onchange="rAtt()"><option value="">All Categories</option></select><select class="fc" style="width:auto" id="aFSort" onchange="rAtt()"><option value="">↕ Sort</option><option value="created_desc">📅 Created: Newest → Oldest</option><option value="created_asc">📅 Created: Oldest → Newest</option><option value="priority_desc">🔺 Priority: High → Low</option><option value="priority_asc">🔻 Priority: Low → High</option><option value="sla_desc">⏱ SLA: Most Time Left</option><option value="sla_asc">⏱ SLA: Most Urgent First</option><option value="attender_asc">🔧 Attender: A → Z</option><option value="attender_desc">🔧 Attender: Z → A</option><option value="outlet_asc">🏪 Outlet: A → Z</option><option value="outlet_desc">🏪 Outlet: Z → A</option></select></div>
 <div class="filters fin" style="flex-wrap:nowrap"><input class="fc" id="aFSearch" placeholder="🔍 Search ticket id, issue, outlet, requester..." style="flex:1" onkeydown="if(event.key==='Enter')rAtt()"><button class="btn btn-s btn-p" onclick="rAtt()">Search</button><button class="btn btn-s btn-o" onclick="document.getElementById('aFSearch').value='';rAtt()">↻</button></div>
 <div id="attBulkBar" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--c2);border:1px solid var(--ac);border-radius:var(--rs);padding:8px 10px;margin-bottom:10px"><span id="attBulkCnt" style="font-size:11px;font-weight:600;color:var(--ac2)">0 selected</span><div style="display:flex;gap:6px"><button class="btn btn-s btn-o" onclick="clearJobSelection()">✕ Clear</button><button class="btn btn-s btn-p" onclick="openBulkTransfer()">🔄 Transfer</button></div></div>
 <div id="attJobs" class="fin"></div></div>
@@ -190,7 +218,8 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
 <div class="modal-bg" id="slaM"><div class="modal"><div class="modal-hd"><h3>⏱ Extend SLA</h3><button class="modal-x" onclick="closeM('slaM')">✕</button></div><div class="modal-bd">
   <div class="fg"><label>Reason *</label><select class="fc" id="slaR"><option value="">Select</option><option>Parts not available</option><option>Vendor delay</option><option>Site access blocked</option><option>Additional issue</option><option>Specialist required</option></select></div>
   <div class="fg"><label>Add Hours *</label><input class="fc" id="slaH" type="number" value="4"></div>
-  <div class="fg"><label>Notes</label><textarea class="fc" id="slaN" rows="2"></textarea></div>
+  <div class="fg"><label>Note *</label><textarea class="fc" id="slaN" rows="2" placeholder="e.g. Waiting for replacement thermostat."></textarea></div>
+  <div style="font-size:9px;color:var(--t3);margin-top:-4px">This only logs a request for more time — it does not change the original SLA deadline or Assigned→Fixed performance calculation.</div>
 </div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('slaM')">Cancel</button><button class="btn btn-wr" onclick="doExtendSLA()">Extend</button></div></div></div>
 
 <div class="modal-bg" id="puM"><div class="modal"><div class="modal-hd"><h3>🛍️ Assign Internal Purchaser</h3><button class="modal-x" onclick="closeM('puM')">✕</button></div><div class="modal-bd">
@@ -212,7 +241,7 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <div class="fg"><label>Vendor Phone</label><input class="fc" id="vaP" type="tel"></div>
   <div class="fg"><label>Notes</label><textarea class="fc" id="vaNt" rows="2"></textarea></div>
 </div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('venAssignM')">Cancel</button><button class="btn btn-ok" onclick="assignVendor()">Assign</button></div></div></div>
-<div class="modal-bg" id="callM"><div class="modal"><div class="modal-hd"><h3>📞 Call</h3><button class="modal-x" onclick="closeM('callM')">✕</button></div><div class="modal-bd" id="callMBody"></div></div></div>
+<div class="modal-bg" id="callM"><div class="modal"><div class="modal-hd"><h3>📞 Call / WhatsApp</h3><button class="modal-x" onclick="closeM('callM')">✕</button></div><div class="modal-bd" id="callMBody"></div></div></div>
 <div class="modal-bg" id="confirmM"><div class="modal"><div class="modal-hd"><h3>✅ Confirm Resolution</h3><button class="modal-x" onclick="closeM('confirmM')">✕</button></div><div class="modal-bd">
   <div style="text-align:center;padding:10px"><div style="font-size:36px;margin-bottom:8px">🔧</div><p style="font-size:13px;font-weight:600">Is the issue fully resolved?</p><p style="font-size:10px;color:var(--t2);margin-top:6px">Confirming will let you share the OTP to close the ticket</p></div>
   <div style="display:flex;gap:8px;margin-top:14px"><button class="btn-big green" onclick="confirmResolved()">✅ Yes, Resolved</button><button class="btn-big red" onclick="confirmNotResolved()">❌ Not Resolved</button></div>
@@ -249,7 +278,8 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <div class="fg"><label>Reason *</label><select class="fc" id="btR"><option value="">Select</option><option>Going on leave / Weekly off</option><option>Workload too high</option><option>Specialist required</option><option>Shift ending</option><option>Other</option></select></div>
   <div class="fg"><label>Notes</label><textarea class="fc" id="btN" rows="2"></textarea></div>
 </div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('bulkTransferM')">Cancel</button><button class="btn btn-p" onclick="doBulkTransfer()">Transfer</button></div></div></div>
-<div class="modal-bg" id="moreActionsM"><div class="modal"><div class="modal-hd"><h3>⋮ More Actions — <span id="maTid"></span></h3><button class="modal-x" onclick="closeM('moreActionsM')">✕</button></div><div class="modal-bd" id="maBody"></div></div></div><div class="modal-bg" id="holdM"><div class="modal"><div class="modal-hd"><h3>⏸ Put On Hold</h3><button class="modal-x" onclick="closeM('holdM')">✕</button></div><div class="modal-bd"><div class="fg"><label>Reason *</label><select class="fc" id="hoR"><option value="">Select</option><option>Waiting for parts/material</option><option>Outlet not accessible</option><option>Awaiting requester response</option><option>Awaiting vendor</option><option>Budget/approval pending</option><option>Other</option></select></div><div class="fg"><label>Notes</label><textarea class="fc" id="hoN" rows="2"></textarea></div></div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('holdM')">Cancel</button><button class="btn btn-p" onclick="doHold()">Put On Hold</button></div></div></div><div class="modal-bg" id="rejectM"><div class="modal"><div class="modal-hd"><h3>✕ Reject Ticket</h3><button class="modal-x" onclick="closeM('rejectM')">✕</button></div><div class="modal-bd"><div class="fg"><label>Reason *</label><select class="fc" id="rjR"><option value="">Select</option><option>Duplicate ticket</option><option>Not an R&M issue</option><option>Invalid/incorrect details</option><option>Requester cancelled</option><option>Other</option></select></div><div class="fg"><label>Notes</label><textarea class="fc" id="rjN" rows="2"></textarea></div></div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('rejectM')">Cancel</button><button class="btn btn-er" onclick="doReject()">Reject Ticket</button></div></div></div><div class="modal-bg" id="jobChatM"><div class="modal"><div class="modal-hd"><h3 id="jcTitle">💬 Chat</h3><button class="modal-x" onclick="closeM('jobChatM')">✕</button></div><div class="modal-bd" style="padding:10px"><div class="cht" style="height:340px"><div class="cht-m" id="jcMsgs"></div><div class="cht-in"><input placeholder="Type..." id="jcI" onkeydown="if(event.key==='Enter')sendJobChatMsg()"><button class="snd" onclick="sendJobChatMsg()">➤</button></div></div></div></div></div>
+<div class="modal-bg" id="moreActionsM"><div class="modal"><div class="modal-hd"><h3>⋮ More Actions — <span id="maTid"></span></h3><button class="modal-x" onclick="closeM('moreActionsM')">✕</button></div><div class="modal-bd" id="maBody"></div></div></div><div class="modal-bg" id="holdM"><div class="modal"><div class="modal-hd"><h3>⏸ Put On Hold</h3><button class="modal-x" onclick="closeM('holdM')">✕</button></div><div class="modal-bd"><div class="fg"><label>Reason *</label><select class="fc" id="hoR"><option value="">Select</option><option>Waiting for parts/material</option><option>Outlet not accessible</option><option>Awaiting requester response</option><option>Awaiting vendor</option><option>Budget/approval pending</option><option>Other</option></select></div><div class="fg"><label>Note *</label><textarea class="fc" id="hoN" rows="2" placeholder="e.g. Waiting for spare part."></textarea></div></div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('holdM')">Cancel</button><button class="btn btn-p" onclick="doHold()">Put On Hold</button></div></div></div><div class="modal-bg" id="rejectM"><div class="modal"><div class="modal-hd"><h3>✕ Reject Ticket</h3><button class="modal-x" onclick="closeM('rejectM')">✕</button></div><div class="modal-bd"><div class="fg"><label>Reason *</label><select class="fc" id="rjR"><option value="">Select</option><option>Duplicate ticket</option><option>Not an R&M issue</option><option>Invalid/incorrect details</option><option>Requester cancelled</option><option>Other</option></select></div><div class="fg"><label>Note *</label><textarea class="fc" id="rjN" rows="2" placeholder="Detailed reason for rejecting this ticket"></textarea></div></div><div class="modal-ft"><button class="btn btn-o" onclick="closeM('rejectM')">Cancel</button><button class="btn btn-er" onclick="doReject()">Reject Ticket</button></div></div></div><div class="modal-bg" id="jobChatM"><div class="modal modal-chat-full"><div class="modal-hd"><h3 id="jcTitle">💬 Chat</h3><button class="btn btn-s btn-o" onclick="closeM('jobChatM')">✕ Exit Chat</button></div><div class="modal-bd" style="padding:10px;flex:1;display:flex;flex-direction:column;min-height:0"><div class="cht"><div class="cht-m" id="jcMsgs"></div><div class="cht-in"><input placeholder="Type..." id="jcI" onkeydown="if(event.key==='Enter')sendJobChatMsg()"><button class="snd" onclick="sendJobChatMsg()">➤</button></div></div></div></div></div>
+<div class="modal-bg" id="moreInfoM"><div class="modal" style="max-width:380px"><div class="modal-hd"><h3>ℹ Ticket Info</h3><button class="modal-x" onclick="closeM('moreInfoM')">✕</button></div><div class="modal-bd" id="moreInfoBody"></div></div></div>
 <div class="modal-bg" id="payOrderM"><div class="modal"><div class="modal-hd"><h3>💳 Pay Order</h3><button class="modal-x" onclick="closeM('payOrderM')">✕</button></div><div class="modal-bd" id="payOrderBody">
   <div class="fg"><label>📷 Payment Screenshot</label><div class="po" onclick="document.getElementById('poProof').click()"><div class="po-i">📷</div><div class="po-l" id="poProofL">Tap to upload proof</div><input type="file" accept="image/*" capture="environment" style="display:none" id="poProof" onchange="document.getElementById('poProofL').textContent='✅ Proof uploaded';document.getElementById('poProofL').style.color='var(--ok)'"></div></div>
   <div class="fg"><label>📝 Remarks</label><textarea class="fc" id="poRemarks" rows="2" placeholder="UTR no., payment mode, etc."></textarea></div>
@@ -756,6 +786,9 @@ async function loadTicketHistoryFromSheet(){
     if(!t.hist.length){
       t.hist.push({s:t.status,t:t.slaDeadline||'',n:'Loaded from sheet',by:'System'});
     }
+    // Real history is attached now (not just the load-time stub), so recompute the live/
+    // frozen Attender SLA badge using it — see computeSLAForTicket().
+    t.sla=computeSLAForTicket(t);
   });
   return true;
 }
@@ -847,8 +880,24 @@ function doLogin(){
   }
   try{localStorage.setItem('fe_lastLogin',JSON.stringify({role:role,phone:role==='attender'?'':phone,attId:role==='attender'?attId:''}));}catch(e){}
   document.getElementById('loginP').style.display='none';document.getElementById('app').style.display='flex';
-  document.getElementById('uN').textContent=userName;document.getElementById('uR').textContent=role+' · '+(phone||attId);document.getElementById('uAv').textContent=userIni;
+  refreshUserBadge();
   buildNav();R();go(NAV[role][0].id);}
+// Top-right identity badge. For an Attender this shows "Name (Rating)" — e.g. "Ansar (4.3)" —
+// compact, using the existing rating field/calculation, instead of a separate rating card.
+// Called at login and from R() so it stays correct after a rating changes or data reloads.
+function refreshUserBadge(){
+  const uN=document.getElementById('uN'),uR=document.getElementById('uR'),uAv=document.getElementById('uAv');
+  if(!uN||!uR||!uAv)return;
+  if(role==='attender'){
+    const a=gA(attId);
+    uN.textContent=userName+(a?' ('+a.rating+')':'');
+    uR.textContent='Attender';
+  } else {
+    uN.textContent=userName;
+    uR.textContent=role+' · '+(phone||attId);
+  }
+  uAv.textContent=userIni;
+}
 
 function logout(){punchedIn=false;currentPunch=null;selectedJobIds.clear();document.getElementById('app').style.display='none';document.getElementById('loginP').style.display='flex'}
 async function doRefresh(){const btn=document.getElementById('refreshBtn');btn.classList.add('spinning');btn.disabled=true;try{await Promise.all([loadTicketsFromSheet(),loadTicketHistoryFromSheet(),loadAttendersFromSheet(),loadUsersFromSheet(),loadOutletsFromSheet(),loadCategoriesFromSheet(),loadPriorityRulesFromSheet(),loadPurchaseOrdersFromSheet(),loadSubMetaFromSheet()]);await loadTicketChatFromSheet();R();if(curTkt&&document.getElementById('pg-detail').classList.contains('on'))viewT(curTkt);btn.classList.remove('spinning');btn.innerHTML='✓';setTimeout(()=>{btn.innerHTML='🔄';btn.disabled=false},1500)}catch(e){console.error('Refresh failed:',e);btn.classList.remove('spinning');btn.innerHTML='❌';setTimeout(()=>{btn.innerHTML='🔄';btn.disabled=false},2000)}}
@@ -869,8 +918,12 @@ function gA(id){return ATTS.find(a=>a.id===id)}
 // Status filter, so the two controls always mean exactly the same thing. 'pending'/'open'
 // etc. are groupings over the real status field, not literal status values themselves.
 function ticketMatchesSmartStatus(t,v){
-  if(v==='pending')return ['raised','assigned','accepted'].includes(t.status);
-  if(v==='open')return !['closed','rejected'].includes(t.status);
+  // 'pending' is the merged "requires action" bucket — it used to be a narrower raised/
+  // assigned/accepted-only group with a separate, confusing "Open" option sitting right next
+  // to it covering almost the same tickets. Presentation-only merge (no backend status change):
+  // Pending now means anything not yet closed/rejected. 'open' is kept as an alias so any
+  // saved/older filter value still resolves the same way.
+  if(v==='pending'||v==='open')return !['closed','rejected'].includes(t.status);
   if(v==='closed')return t.status==='closed';
   if(v==='reopen')return !!t.reopened;
   if(v==='breach')return (t.sla||'').startsWith('-');
@@ -913,6 +966,20 @@ function ticketSortComparator(sortKey){
       if(bv===null)return-1;
       return(av-bv)*mul;
     };
+  }
+  if(sortKey==='attender_asc'||sortKey==='attender_desc'){
+    const mul=sortKey==='attender_desc'?-1:1;
+    return(a,b)=>{
+      const an=(a.att&&gA(a.att)?.name)||'',bn=(b.att&&gA(b.att)?.name)||'';
+      if(!an&&!bn)return 0;
+      if(!an)return 1; // Unassigned sinks to the bottom regardless of direction
+      if(!bn)return-1;
+      return an.localeCompare(bn)*mul;
+    };
+  }
+  if(sortKey==='outlet_asc'||sortKey==='outlet_desc'){
+    const mul=sortKey==='outlet_desc'?-1:1;
+    return(a,b)=>(a.out||'').localeCompare(b.out||'')*mul;
   }
   return null;
 }
@@ -962,8 +1029,12 @@ function doPunchOut(){const my=TKS.filter(t=>t.att===attId&&t.status!=='closed')
 
 
 function openCallMenu(tid){const t=TKS.find(x=>x.id===tid);if(!t)return;const c=OUTCONTACTS[t.out]||{};const outP=OUTPHONES[t.out]||'';const reqP=t.by||'';
-  const row=(label,num)=>num?`<a href="tel:+91${num}" class="btn btn-o btn-full" style="text-decoration:none;justify-content:space-between;margin-bottom:6px;padding:11px 14px"><span>${label}</span><span style="font-family:var(--m);font-size:11px;color:var(--t2)">📞 ${num}</span></a>`:`<div class="btn btn-o btn-full" style="justify-content:space-between;margin-bottom:6px;padding:11px 14px;opacity:.4"><span>${label}</span><span style="font-size:10px">—</span></div>`;
-  document.getElementById('callMBody').innerHTML=`<div style="font-size:9px;color:var(--t3);margin-bottom:8px">🏪 ${t.out} · ${t.id}</div>`+row('👤 Requester',reqP)+row('🏪 Outlet',outP)+row('🧑‍💼 Shift Manager',c.shift)+row('🗺️ Cluster Manager',c.cluster)+row('🎯 Ops Head',c.ops);
+  // Combined Call/WhatsApp menu (req: one button, then choose Call or WhatsApp per contact) —
+  // reuses the existing phone directory data and the existing generateWhatsAppLink() helper,
+  // just adds a WhatsApp action next to each existing Call action instead of a separate button.
+  const waMsg=encodeURIComponent('Regarding ticket '+t.id+' ('+t.issue+') at '+t.out);
+  const row=(label,num)=>num?`<div class="btn btn-o btn-full" style="justify-content:space-between;margin-bottom:6px;padding:9px 12px"><span>${label}</span><span style="display:flex;align-items:center;gap:10px"><span style="font-family:var(--m);font-size:10px;color:var(--t2)">${num}</span><a href="tel:+91${num}" onclick="event.stopPropagation()" style="text-decoration:none;font-size:16px" title="📞 Call">📞</a><a href="${generateWhatsAppLink(num,decodeURIComponent(waMsg))}" target="_blank" onclick="event.stopPropagation()" style="text-decoration:none;font-size:16px" title="💬 WhatsApp">💬</a></span></div>`:`<div class="btn btn-o btn-full" style="justify-content:space-between;margin-bottom:6px;padding:11px 14px;opacity:.4"><span>${label}</span><span style="font-size:10px">—</span></div>`;
+  document.getElementById('callMBody').innerHTML=`<div style="font-size:9px;color:var(--t3);margin-bottom:8px">🏪 ${t.out} · ${t.id} · Choose 📞 Call or 💬 WhatsApp</div>`+row('👤 Requester',reqP)+row('🏪 Outlet',outP)+row('🧑‍💼 Shift Manager',c.shift)+row('🗺️ Cluster Manager',c.cluster)+row('🎯 Ops Head',c.ops);
   openM('callM')}
 function generateWhatsAppLink(phone,msg){let p=phone.replace(/^\+?/,'');if(!p.startsWith('91'))p='91'+p;return 'https://wa.me/'+p+'?text='+encodeURIComponent(msg)}
 function notifyStatusWhatsApp(id){const t=TKS.find(x=>x.id===id);if(!t||!t.by)return;const msg=`Your issue ${t.id} (${t.issue}) is ${SL[t.status].toLowerCase()}`;window.open(generateWhatsAppLink(t.by,msg),'_blank')}
@@ -974,6 +1045,7 @@ function setSt(id,ns,note){
   t.status=ns;
   t.hist.push({s:ns,t:ts(),n:note||SL[ns]});
   if(ns==='closed'){const a=gA(t.att);if(a)a.load=Math.max(0,a.load-1)}
+  t.sla=computeSLAForTicket(t); // keep the badge/Late-By fresh right away, not just after a reload
   R();
   apiUpdate('Tickets','Ticket_ID',id,{Status:ns,Assigned_To:t.att||'',Updated_At:ts()});
   // Geo-capture — silent, never blocks status update
@@ -998,7 +1070,9 @@ function doReached(id,skipNav){setSt(id,'reached-outlet','📍 Reached outlet');
 function doStart(id,skipNav){setSt(id,'job-started','Job started');if(!skipNav)viewT(id);else R()}
 function doProgress(id,skipNav){setSt(id,'in-progress','In progress');if(!skipNav)viewT(id);else R()}
 function doMarkFixed(id){const t=TKS.find(x=>x.id===id);if(!t)return;if(!t.issueRes){const iss=PROBES[t.sub]||[t.sub+' — Main Issue'];t.issueRes=iss.map(q=>({text:q,status:'fixed'}))}curTkt=id;renderIssueModal(t);openM('issueM')}
-function confirmIssues(){const t=TKS.find(x=>x.id===curTkt);if(!t)return;closeM('issueM');t.otpRevealed=false;setSt(curTkt,'awaiting-resolution','📤 OTP requested — asking requester if resolved');viewT(curTkt);nf('Sent to requester','Requester must confirm resolution','ok')}
+function confirmIssues(){const t=TKS.find(x=>x.id===curTkt);if(!t)return;
+  if(!t.resolutionType){nf('Resolution Type required','Select how this was resolved before confirming','warn');return}
+  closeM('issueM');t.otpRevealed=false;setSt(curTkt,'awaiting-resolution','📤 OTP requested — asking requester if resolved · Resolution: '+t.resolutionType);viewT(curTkt);nf('Sent to requester','Requester must confirm resolution','ok')}
 function doCloseWithOTP(id){const t=TKS.find(x=>x.id===id);if(!t)return;if(t.issueRes&&!t.issueRes.every(r=>r.status==='fixed')){nf('Cannot','All issues must be Fixed','warn');return}
   const inp=document.getElementById('otpSingle');if(!inp)return;const entered=inp.value.trim();if(entered.length!==6){nf('Invalid','6 digits required','warn');return}
   if(parseInt(entered)!==t.otp){nf('Wrong OTP','Ask requester','warn');inp.style.borderColor='var(--er)';return}
@@ -1019,12 +1093,22 @@ function confirmResolved(){const t=TKS.find(x=>x.id===curTkt);if(!t)return;t.con
 function confirmNotResolved(){const t=TKS.find(x=>x.id===curTkt);if(!t)return;t.confirmStatus='not-resolved';closeM('confirmM');
   // PHASE 6: No → no OTP, ticket returns to In Progress
   t.otpRevealed=false;
+  t.resolutionType=null; // force a fresh Resolution Type when re-marking Fixed — the prior one didn't hold
   setSt(curTkt,'in-progress','❌ Requester says NOT resolved — back to In Progress');
   setTimeout(()=>viewT(curTkt),300);nf('Not resolved','Ticket returned to In Progress','warn')}
-function doReopen(){const r=document.getElementById('reR').value;if(!r){nf('Reason required','','warn');return}const t=TKS.find(x=>x.id===curTkt);if(t){t.status='raised';t.otpRevealed=false;t.issueRes=null;t.confirmStatus=null;t.reopened=true;t.hist.push({s:'raised',t:ts(),n:'🔄 Re-opened: '+r});const a=autoA(t);if(a){t.att=a.id;a.load++;t.status='assigned';t.hist.push({s:'assigned',t:ts(),n:'Re-assigned → '+a.name})}}closeM('reopenM');R();viewT(curTkt)}
+function doReopen(){const r=document.getElementById('reR').value;if(!r){nf('Reason required','','warn');return}const t=TKS.find(x=>x.id===curTkt);if(t){t.status='raised';t.otpRevealed=false;t.issueRes=null;t.resolutionType=null;t.confirmStatus=null;t.reopened=true;t.hist.push({s:'raised',t:ts(),n:'🔄 Re-opened: '+r});const a=autoA(t);if(a){t.att=a.id;a.load++;t.status='assigned';t.hist.push({s:'assigned',t:ts(),n:'Re-assigned → '+a.name})}}closeM('reopenM');R();viewT(curTkt)}
 
-function renderIssueModal(t){document.getElementById('issueMBody').innerHTML=`<p style="font-size:10px;color:var(--t2);margin-bottom:8px">Mark resolution status for each ${t.cat}→${t.sub} issue:</p>`+t.issueRes.map((r,i)=>{const bg={fixed:'var(--okb)',partial:'var(--wrb)',notfixed:'var(--erb)'}[r.status];return`<div class="ires" style="background:${bg}"><span style="flex:1">${r.text}</span><select onchange="setIssueRes('${t.id}',${i},this.value)"><option value="fixed" ${r.status==='fixed'?'selected':''}>✅ Fixed</option><option value="partial" ${r.status==='partial'?'selected':''}>⚠️ Partial</option><option value="notfixed" ${r.status==='notfixed'?'selected':''}>❌ Not Fixed</option></select></div>`}).join('')}
+// How the issue was actually resolved — captured once, at the existing "Mark as Fixed" step,
+// as a structured field (t.resolutionType) so Reports can break tickets down by it later
+// without this pass needing to touch the Report UI. Doesn't affect SLA calc or status values.
+const RESOLUTION_TYPES=['Repaired','Replaced – New','Replaced – Existing/Refurbished','Outside Vendor','Other'];
+function renderIssueModal(t){
+  const issuesHtml=t.issueRes.map((r,i)=>{const bg={fixed:'var(--okb)',partial:'var(--wrb)',notfixed:'var(--erb)'}[r.status];return`<div class="ires" style="background:${bg}"><span style="flex:1">${r.text}</span><select onchange="setIssueRes('${t.id}',${i},this.value)"><option value="fixed" ${r.status==='fixed'?'selected':''}>✅ Fixed</option><option value="partial" ${r.status==='partial'?'selected':''}>⚠️ Partial</option><option value="notfixed" ${r.status==='notfixed'?'selected':''}>❌ Not Fixed</option></select></div>`}).join('');
+  const rtOptions=RESOLUTION_TYPES.map(rt=>`<option value="${rt}" ${t.resolutionType===rt?'selected':''}>${rt}</option>`).join('');
+  document.getElementById('issueMBody').innerHTML=`<p style="font-size:10px;color:var(--t2);margin-bottom:8px">Mark resolution status for each ${t.cat}→${t.sub} issue:</p>${issuesHtml}<div class="fg" style="margin-top:10px"><label>Resolution Type *</label><select class="fc" id="resType" onchange="setResolutionType('${t.id}',this.value)"><option value="">Select</option>${rtOptions}</select></div>`;
+}
 function setIssueRes(id,i,v){const t=TKS.find(x=>x.id===id);if(t&&t.issueRes){t.issueRes[i].status=v;renderIssueModal(t)}}
+function setResolutionType(id,v){const t=TKS.find(x=>x.id===id);if(t)t.resolutionType=v}
 
 let lpRowSeq=0;
 const LP_UNITS=['pcs','kg','g','ltr','ml','mtr','ft','dozen','pkt','box','set','roll','bag','bottle','can'];
@@ -1127,11 +1211,20 @@ function toggleD(b){const d=b.nextElementSibling;document.querySelectorAll('.dot
 document.addEventListener('click',e=>{if(!e.target.closest('.dot-menu'))document.querySelectorAll('.dot-drop.show').forEach(x=>x.classList.remove('show'))});
 
 function openSLAExtend(id){curTkt=id;openM('slaM')}
-function doExtendSLA(){const r=document.getElementById('slaR').value,h=parseInt(document.getElementById('slaH').value)||0,n=document.getElementById('slaN').value;if(!r||!h){nf('Required','','warn');return}const t=TKS.find(x=>x.id===curTkt);if(!t)return;
+function doExtendSLA(){const r=document.getElementById('slaR').value,h=parseInt(document.getElementById('slaH').value)||0,n=document.getElementById('slaN').value.trim();
+  if(!r||!h||!n){nf('Required','Reason, hours and a note are all required','warn');return}
+  const t=TKS.find(x=>x.id===curTkt);if(!t)return;
   if(!t.slaExt)t.slaExt=[];t.slaExt.push({reason:r,hours:h,notes:n,by:userName,when:ts()});
-  t.sla=String(h).padStart(2,'0')+':00';t.hist.push({s:t.status,t:ts(),n:'⏱ SLA +'+h+'h ('+r+')'});
+  // Extend SLA is only an operational request/record — it must NOT reset, restart or
+  // artificially improve the original SLA. t.slaDeadline (and therefore t.sla, computed from
+  // it via computeSLAForTicket) is deliberately left untouched: the Attender SLA stays exactly
+  // Assigned → Fixed, still showing the true delay even after an extension is requested.
+  const noteTxt='⏱ Extend SLA requested: +'+h+'h ('+r+') — '+n;
+  t.hist.push({s:t.status,t:ts(),n:noteTxt});
+  if(!t.chat)t.chat=[];t.chat.push({by:userName,role,msg:noteTxt,time:ts()});
+  writeChat(curTkt,noteTxt,false);
   closeM('slaM');['slaR','slaN'].forEach(x=>document.getElementById(x).value='');document.getElementById('slaH').value='4';
-  R();viewT(curTkt);nf('Extended','+'+h+'h','ok')}
+  R();viewT(curTkt);nf('Extended','Logged +'+h+'h request — original SLA unchanged','ok')}
 
 function openAssignPurchaser(id){curTkt=id;openM('puM')}
 function assignPurchaser(){const item=document.getElementById('puI').value,qty=parseInt(document.getElementById('puQ').value)||1,amt=parseInt(document.getElementById('puA').value)||0,urg=document.getElementById('puU').value,spec=document.getElementById('puS').value;
@@ -1174,6 +1267,8 @@ function doReassign(){const newAtt=document.getElementById('raA').value,r=docume
   // PHASE 6 parity: write-through so the new attender sees this on their own device
   apiUpdate('Tickets','Ticket_ID',t.id,{Assigned_To:t.att||'',Status:t.status,Updated_At:ts()});
   writeHistory(t.id,t.status,noteTxt,userName);
+  if(!t.chat)t.chat=[];t.chat.push({by:userName,role,msg:noteTxt,time:ts()});
+  writeChat(t.id,noteTxt,false);
   closeM('reassignM');['raA','raR','raN'].forEach(x=>document.getElementById(x).value='');R();viewT(curTkt);nf('Re-assigned','→ '+newA.name,'ok')}
 // BULK TRANSFER (Attender — self-service handoff of own jobs to a colleague)
 function toggleJobSelect(id,checked){
@@ -1214,6 +1309,8 @@ function doBulkTransfer(){
     // write-through so the receiving attender sees it on their own device/session
     apiUpdate('Tickets','Ticket_ID',t.id,{Assigned_To:t.att||'',Status:t.status,Updated_At:ts()});
     writeHistory(t.id,t.status,noteTxt,userName);
+    if(!t.chat)t.chat=[];t.chat.push({by:userName,role,msg:noteTxt,time:ts()});
+    writeChat(t.id,noteTxt,false);
     count++;
   });
   closeM('bulkTransferM');['btA','btR','btN'].forEach(x=>{const e=document.getElementById(x);if(e)e.value=''});
@@ -1240,18 +1337,20 @@ function openMoreActions(id){
 }
 function openHoldModal(id){holdTkt=id;document.getElementById('hoR').value='';document.getElementById('hoN').value='';openM('holdM')}
 function doHold(){
-  const r=document.getElementById('hoR').value,n=document.getElementById('hoN').value;
-  if(!r){nf('Required','Pick a reason','warn');return}
+  const r=document.getElementById('hoR').value,n=document.getElementById('hoN').value.trim();
+  if(!r||!n){nf('Required','Pick a reason and add a note','warn');return}
   const t=TKS.find(x=>x.id===holdTkt);if(!t)return;
   // Remembers where the ticket was in its flow so Resume can put it back there — a manager
   // may put a ticket on hold at any stage (waiting on parts mid-repair, budget approval
   // before starting, etc.), not just from a fixed point.
   t.preHoldStatus=t.status;
   t.status='on-hold';
-  const noteTxt='⏸ On Hold ('+r+')'+(n?': '+n:'')+' by '+userName;
+  const noteTxt='⏸ On Hold ('+r+'): '+n+' — by '+userName;
   t.hist.push({s:t.status,t:ts(),n:noteTxt});
   apiUpdate('Tickets','Ticket_ID',t.id,{Status:t.status,Updated_At:ts()});
   writeHistory(t.id,t.status,noteTxt,userName);
+  if(!t.chat)t.chat=[];t.chat.push({by:userName,role,msg:noteTxt,time:ts()});
+  writeChat(t.id,noteTxt,false);
   closeM('holdM');R();nf('⏸ On Hold',t.id,'warn');
 }
 function resumeHold(id){
@@ -1266,17 +1365,19 @@ function resumeHold(id){
 }
 function openRejectModal(id){rejectTkt=id;document.getElementById('rjR').value='';document.getElementById('rjN').value='';openM('rejectM')}
 function doReject(){
-  const r=document.getElementById('rjR').value,n=document.getElementById('rjN').value;
-  if(!r){nf('Required','Pick a reason','warn');return}
+  const r=document.getElementById('rjR').value,n=document.getElementById('rjN').value.trim();
+  if(!r||!n){nf('Required','Pick a reason and add a note','warn');return}
   const t=TKS.find(x=>x.id===rejectTkt);if(!t)return;
   // Terminal state — frees up the attender's load same as a real close, since the ticket
   // is done from their perspective (dismissed, not just paused like Hold).
   const oldA=t.att?gA(t.att):null;if(oldA)oldA.load=Math.max(0,oldA.load-1);
   t.status='rejected';
-  const noteTxt='✕ Rejected ('+r+')'+(n?': '+n:'')+' by '+userName;
+  const noteTxt='✕ Rejected ('+r+'): '+n+' — by '+userName;
   t.hist.push({s:t.status,t:ts(),n:noteTxt});
   apiUpdate('Tickets','Ticket_ID',t.id,{Status:t.status,Updated_At:ts()});
   writeHistory(t.id,t.status,noteTxt,userName);
+  if(!t.chat)t.chat=[];t.chat.push({by:userName,role,msg:noteTxt,time:ts()});
+  writeChat(t.id,noteTxt,false);
   closeM('rejectM');R();nf('✕ Rejected',t.id,'warn');
 }
 // ===== GOOGLE DRIVE IMAGE UPLOAD =====
@@ -1383,39 +1484,185 @@ function voiceInput(targetId,btnEl){
 }
 
 // REFRESH
-function R(){rDash();rList();rAtt();rAppr();rFin();rPurchaser();rVendors();rRpt();rConfig();rMgrActions();renderPunch();rAttHistory()}
+function R(){refreshUserBadge();rDash();rList();rAtt();rAppr();rFin();rPurchaser();rVendors();rRpt();rConfig();rMgrActions();renderPunch();rAttHistory()}
 
 function rDash(){const op=TKS.filter(t=>t.status!=='closed').length,cl=TKS.filter(t=>t.status==='closed').length,br=TKS.filter(t=>t.sla?.startsWith('-')).length;
   const sm={requester:[{v:TKS.length,l:'Total',c:'p'},{v:op,l:'Open',c:'o'},{v:cl,l:'Closed',c:'g'},{v:br,l:'Breached',c:'rd'}],manager:[{v:TKS.length,l:'Total',c:'p'},{v:op,l:'Open',c:'o'},{v:br,l:'Breached',c:'rd'},{v:cl,l:'Closed',c:'g'}],rmhead:[{v:TKS.length,l:'Total',c:'p'},{v:op,l:'Open',c:'o'},{v:br,l:'Breach',c:'rd'},{v:cl,l:'Closed',c:'g'}],admin:[{v:TKS.length,l:'Tickets',c:'p'},{v:OL.length,l:'Outlets',c:'g'},{v:ATTS.length,l:'Attenders',c:'b'},{v:Object.keys(CATS).length,l:'Categories',c:'o'}],finance:[{v:TKS.reduce((s,t)=>s+t.costs.filter(c=>c.payStatus==='approved').length,0),l:'To Pay',c:'o'},{v:TKS.reduce((s,t)=>s+t.costs.filter(c=>c.payStatus==='done').length,0),l:'Done',c:'g'}]};
   const el=document.getElementById('dSt');if(el)el.innerHTML=(sm[role]||sm.requester).map(x=>`<div class="st ${x.c}"><div class="sv">${x.v}</div><div class="sl">${x.l}</div></div>`).join('');
   const dc=document.getElementById('dCards');if(dc){const r=TKS.slice(0,5);dc.innerHTML=r.length?r.map(t=>renderTcard(t)).join(''):'<div style="text-align:center;color:var(--t3);padding:16px;font-size:10px">No tickets</div>'}}
 
-function renderTcard(t){const a=t.att?gA(t.att):null;const sc=t.sla?.startsWith('-')?'breach':parseFloat(t.sla)<=2?'warn':'safe';const tot=t.costs.reduce((s,c)=>s+c.amt,0);const isReop=t.reopened&&t.status!=='closed';const otpReady=t.otpRevealed&&t.status!=='closed';const confirmNeeded=role==='requester'&&t.status==='requester-confirm';const canMgrAct=['manager','rmhead','admin'].includes(role);
-  let styleParts=[];if(confirmNeeded||otpReady)styleParts.push('border-color:var(--ac)','box-shadow:0 0 0 1px var(--ac)');if(canMgrAct)styleParts.push('position:relative','padding-left:26px');const styleAttr=styleParts.length?` style="${styleParts.join(';')}"`:'';
-  let ckHtml='',actionHtml='';
-  if(canMgrAct){
-    const checked=selectedJobIds.has(t.id);
-    ckHtml=`<label style="position:absolute;top:10px;left:6px;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" class="jobChk" onclick="event.stopPropagation();toggleJobSelect('${t.id}',this.checked)" ${checked?'checked':''} style="width:15px;height:15px;accent-color:var(--ac)"></label>`;
-    const unread=getUnread(t);
-    const reassignBtn=t.status!=='closed'?`<button onclick="event.stopPropagation();quickTransfer('${t.id}')" style="width:28px;border:none;border-radius:var(--r);background:var(--c1);border:1px solid var(--bdr);color:var(--t2);font-size:12px;cursor:pointer;flex-shrink:0" title="Re-assign to another attender">↪</button>`:'';
-    const chatBtn=`<button onclick="event.stopPropagation();openJobChat('${t.id}')" style="position:relative;width:28px;border:none;border-radius:var(--r);background:var(--c1);border:1px solid var(--bdr);color:var(--t2);font-size:12px;cursor:pointer;flex-shrink:0" title="Remarks / Chat">💬${unread?`<span style="position:absolute;top:-5px;right:-5px;background:var(--er);color:#fff;border-radius:8px;font-size:8px;font-weight:700;padding:1px 4px;line-height:1.3">${unread}</span>`:''}</button>`;
-    const moreBtn=!['closed','rejected'].includes(t.status)?`<button onclick="event.stopPropagation();openMoreActions('${t.id}')" style="width:28px;border:none;border-radius:var(--r);background:var(--c1);border:1px solid var(--bdr);color:var(--t2);font-size:14px;cursor:pointer;flex-shrink:0" title="More actions (Hold / Reject)">⋮</button>`:'';
-    const btnMap={'assigned':{text:'✓ ACCEPT',cls:'green',fn:`doAccept('${t.id}',true)`},'accepted':null,'on-the-way':{text:'📍 REACHED',cls:'orange',fn:`doReached('${t.id}',true)`},'reached-outlet':{text:'▶ START',cls:'green',fn:`doStart('${t.id}',true)`},'job-started':{text:'🔧 PROGRESS',cls:'purple',fn:`doProgress('${t.id}',true)`},'in-progress':{text:'✅ MARK FIXED',cls:'green',fn:`doMarkFixed('${t.id}')`},'vendor-pending':{text:'✓ VENDOR DONE',cls:'green',fn:`vendorComplete('${t.id}',true)`},'ready-closure':{text:'🔐 ENTER OTP',cls:'orange',fn:`viewT('${t.id}')`}};
-    if(t.status==='accepted')actionHtml=`<div style="display:flex;gap:4px;margin-top:6px"><button class="btn-big blue" style="padding:6px 4px;font-size:10px;flex:1" onclick="event.stopPropagation();doVisitChoice('${t.id}',true,true)">🚗 Visit</button><button class="btn-big purple" style="padding:6px 4px;font-size:10px;flex:1" onclick="event.stopPropagation();doVisitChoice('${t.id}',false,true)">💻 Remote</button>${reassignBtn}${chatBtn}${moreBtn}</div>`;
-    else{const btn=btnMap[t.status];actionHtml=btn?`<div style="display:flex;gap:4px;margin-top:6px"><button class="btn-big ${btn.cls}" style="flex:1;padding:6px 4px;font-size:10px" onclick="event.stopPropagation();${btn.fn}">${btn.text}</button>${reassignBtn}${chatBtn}${moreBtn}</div>`:`<div style="display:flex;gap:4px;margin-top:6px">${reassignBtn}${chatBtn}${moreBtn}</div>`;}
+// ===== SHARED COMPACT TICKET CARD (Attender "My Jobs" + Manager/RM Head/Admin/Purchaser
+// "Tickets"/Dashboard/History) =====
+// UX pass #2 — the previous version already fixed duplicate SLA/Category and reused this one
+// renderer for both portals; this pass targets the remaining problems found on review:
+//  - Sub Category and Description were two separate rows even though they answer the same
+//    question ("what's the problem") — merged into one 2-line "problem statement" block with
+//    the sub-category bolded as a lead-in. This reads as a single scannable unit AND nets a
+//    shorter card, because it replaces a full extra row instead of adding one.
+//  - Description was styled smaller/dimmer than surrounding metadata despite being the most
+//    important line for the Attender — bumped to the most prominent text on the card.
+//  - "Late By" was plain colored text with no visual weight — now reuses the same `.sla`
+//    breach/warn badge treatment already used elsewhere in the app, so it reads as a proper
+//    status indicator instead of competing on font-weight alone. Still the only place SLA
+//    lateness appears on the card (no duplicate SLA display).
+//  - Chat was a plain icon with only a tiny unread badge, easy to miss — it now fills with
+//    the accent color whenever there's an unread message, same 30px footprint.
+//  - The bottom action bar (Purchase/Call-WhatsApp/Internal Purchase/Vendor Request) was
+//    trimmed a few px without dropping labels — icon-only would save more space but hurts
+//    discoverability on touch devices with no hover, which isn't worth it for a 4-item bar.
+// UX pass #3 (this one) — three more issues found on review, all fixed without adding rows:
+//  - Requester phone appeared twice when the number had no matching User Master entry (the
+//    fallback showed the phone as the "name", then appended the same phone again). Now the
+//    phone only ever prints once.
+//  - The Sub-Category/Description block and the Attender/Priority/Late-By line were in the
+//    wrong scan order for "understand this ticket in 2-3 seconds" — the problem itself should
+//    be seen before supporting metadata, so the problem block now comes right after the
+//    ID/Outlet/Requester line, with the metadata line underneath.
+//  - The Purchase total used to be its own conditional row below the description — folded
+//    into the metadata line instead (only renders inline when there's actually a cost), which
+//    removes a full row on any ticket that has purchases without adding one anywhere else.
+//  - The Action ▾ dropdown could get clipped behind the bottom nav when opened on a card near
+//    the bottom of the screen — toggleActionMenu() now measures available space and flips the
+//    menu to open upward when there isn't room below.
+// Row 1: checkbox | Ticket ID | Outlet ID | Requester Name/Number (+ status badge, right)
+// Row 2: Sub Category (bold) — Description, one 2-line-clamped block — the primary "what's
+//        wrong" read, right under the ID line (full text still on the Ticket Detail page)
+// Row 3: Attender Name | Priority | Late By badge | Purchase total (+ [More Info] chip for
+//        Manager-level roles)
+// Row 4: compact status-action button + single "Action ▾" menu (Extend SLA/Transfer/Hold/
+//        Reject, auto-flips above the button when the card is near the bottom of the screen)
+//        + Chat icon
+// Row 5: Purchase | Call/WhatsApp | Internal Purchase | Vendor Request (unchanged functions)
+function buildActionMenuItems(t){
+  if(['closed','rejected'].includes(t.status))return '';
+  let h='';
+  h+=`<button onclick="event.stopPropagation();closeActionMenus();openSLAExtend('${t.id}')">⏱ Extend SLA</button>`;
+  h+=`<button onclick="event.stopPropagation();closeActionMenus();quickTransfer('${t.id}')">↪ Transfer</button>`;
+  if(t.status!=='on-hold')h+=`<button onclick="event.stopPropagation();closeActionMenus();openHoldModal('${t.id}')">⏸ Hold</button>`;
+  h+=`<button onclick="event.stopPropagation();closeActionMenus();openRejectModal('${t.id}')" style="color:var(--er)">✕ Reject</button>`;
+  return h;
+}
+function toggleActionMenu(id){
+  const target=document.getElementById('actMenu_'+id);
+  const wasOpen=target&&target.classList.contains('show');
+  closeActionMenus();
+  if(!target||wasOpen)return;
+  target.classList.add('show');
+  positionActionMenu(target);
+}
+// Flip the Action ▾ dropdown to open upward when there isn't enough room below it — fixes it
+// getting clipped behind the mobile bottom nav (or the viewport edge on desktop) when the
+// button is near the bottom of the screen. Measured fresh on every open since the same card
+// can end up anywhere on screen as the list scrolls/filters.
+function positionActionMenu(menu){
+  const btn=menu.previousElementSibling;
+  if(!btn)return;
+  menu.style.top='';menu.style.bottom='';menu.style.marginTop='';menu.style.marginBottom='';menu.style.maxHeight='';
+  const btnRect=btn.getBoundingClientRect();
+  const menuH=menu.offsetHeight;
+  const mobileNav=document.getElementById('mobN');
+  const navH=(mobileNav&&getComputedStyle(mobileNav).display!=='none')?mobileNav.offsetHeight:0;
+  const viewportH=window.innerHeight;
+  const spaceBelow=viewportH-navH-btnRect.bottom;
+  const spaceAbove=btnRect.top;
+  if(spaceBelow<menuH&&spaceAbove>spaceBelow){
+    menu.style.top='auto';menu.style.bottom='100%';menu.style.marginBottom='4px';
+    if(menuH>spaceAbove-8)menu.style.maxHeight=Math.max(80,spaceAbove-8)+'px';
+  }else{
+    menu.style.top='100%';menu.style.bottom='auto';menu.style.marginTop='4px';
+    if(menuH>spaceBelow-8)menu.style.maxHeight=Math.max(80,spaceBelow-8)+'px';
   }
-  return`<div class="tcard"${styleAttr} onclick="viewT('${t.id}')">${ckHtml}<div style="display:flex;justify-content:space-between"><span class="tid">${t.id}</span><span class="badge ${SBC[t.status]}">${SL[t.status]}</span></div><div style="font-size:12px;font-weight:600;margin:3px 0">${t.issue}${isReop?' <span class="badge reopen">🔄</span>':''}${t.vendor?' <span class="badge vendor">🤝</span>':''}</div>${confirmNeeded?'<div style="background:var(--ok);color:#000;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;margin:4px 0;text-align:center">✅ CONFIRM RESOLUTION</div>':otpReady?'<div style="background:linear-gradient(135deg,var(--ac),var(--inf));color:#fff;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;margin:4px 0;text-align:center">🔐 OTP READY</div>':''}<div style="display:flex;justify-content:space-between;align-items:center;font-size:8px;color:var(--t3);gap:4px;flex-wrap:wrap"><span>🏪 ${t.out}${a?' · 🔧 '+a.name:''}</span><span class="sla ${sc}" style="font-size:8px;padding:1px 3px">⏱${t.sla||'—'}</span></div>${tot>0?`<div style="margin-top:4px;font-size:9px;color:var(--ac2);font-weight:600">💰 ₹${tot.toLocaleString('en-IN')}</div>`:''}${actionHtml}</div>`}
+}
+function closeActionMenus(){document.querySelectorAll('.act-menu.show').forEach(m=>m.classList.remove('show'))}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.act-menu')&&!e.target.closest('.act-menu-btn'))closeActionMenus();
+});
+function openMoreInfo(id){
+  const t=TKS.find(x=>x.id===id);if(!t)return;
+  const el=document.getElementById('moreInfoBody');
+  if(el)el.innerHTML=`<div style="font-size:12px;font-weight:700;margin-bottom:6px">${t.sub||t.issue||'—'}</div><div style="font-size:11px;color:var(--t2);line-height:1.5">${t.desc?t.desc:'No additional description provided.'}</div><div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--bdr);font-size:9px;color:var(--t3)">${t.id} · 🏪 ${t.out} · 📂 ${catLabelFor(t.cat)}</div>`;
+  openM('moreInfoM');
+}
+function catLabelFor(cid){const k=(cid||'').toLowerCase();return (CATS[k]&&CATS[k].label)?CATS[k].label:(cid||'—')}
+function buildTicketCard(t,mine){
+  const a=t.att?gA(t.att):null;
+  const pc={critical:'c',high:'h',medium:'m',low:'l'}[t.pri]||'m';
+  const lateBy=formatLateBy(t.sla);
+  // Requester display — t.by IS the phone number (it's used as the USERS lookup key), so when
+  // the number resolves to a real name we show "Name / Phone". When it doesn't resolve (no
+  // matching User Master entry), the old code fell back to showing the phone number as the
+  // "name" AND then appending the same phone number again — the literal duplicate-mobile bug
+  // reported. Now we only ever show the phone once in that case.
+  const reqNameResolved=USERS[t.by]?.name||'';
+  const reqPhone=t.by||'';
+  const reqDisplay=reqNameResolved?(reqPhone&&reqPhone!==reqNameResolved?`${reqNameResolved} / ${reqPhone}`:reqNameResolved):(reqPhone||'—');
+  const attName=mine?(gA(attId)?.name||userName):(a?a.name:'🚫 Unassigned');
+  const canAct=mine||['manager','rmhead','admin'].includes(role);
+  const canSelect=mine||['manager','rmhead','admin'].includes(role);
+  const isMgrLevel=['manager','rmhead','admin'].includes(role);
+  const checked=selectedJobIds.has(t.id);
+  const checkboxHtml=canSelect?`<input type="checkbox" class="jobChk" onclick="event.stopPropagation();toggleJobSelect('${t.id}',this.checked)" ${checked?'checked':''} style="width:15px;height:15px;accent-color:var(--ac);flex-shrink:0">`:'';
+  const moreInfoChip=isMgrLevel?`<button class="chip-btn" onclick="event.stopPropagation();openMoreInfo('${t.id}')">ℹ More Info</button>`:'';
+  const unread=getUnread(t);
+  // Unread messages fill the button with the accent color so it's noticeable at a glance,
+  // not just a small count badge easy to miss while scanning a list of cards.
+  const chatBtn=`<button onclick="event.stopPropagation();openJobChat('${t.id}')" style="position:relative;width:30px;height:30px;border-radius:var(--r);cursor:pointer;flex-shrink:0;font-size:13px;${unread?'background:var(--ac);border:1px solid var(--ac);color:#fff':'background:var(--c1);border:1px solid var(--bdr);color:var(--t2)'}" title="Chat${unread?' — '+unread+' unread':''}">💬${unread?`<span style="position:absolute;top:-5px;right:-5px;background:var(--er);color:#fff;border-radius:8px;font-size:8px;font-weight:700;padding:1px 4px;line-height:1.3">${unread}</span>`:''}</button>`;
+  const btnMap={'assigned':{text:'✓ ACCEPT',cls:'green',fn:`doAccept('${t.id}',true)`},'on-the-way':{text:'📍 REACHED',cls:'orange',fn:`doReached('${t.id}',true)`},'reached-outlet':{text:'▶ START',cls:'green',fn:`doStart('${t.id}',true)`},'job-started':{text:'🔧 PROGRESS',cls:'purple',fn:`doProgress('${t.id}',true)`},'in-progress':{text:'✅ FIXED',cls:'green',fn:`doMarkFixed('${t.id}')`},'vendor-pending':{text:'✓ VENDOR',cls:'green',fn:`vendorComplete('${t.id}',true)`},'ready-closure':{text:'🔐 OTP',cls:'orange',fn:`viewT('${t.id}')`}};
+  let statusHtml='';
+  if(canAct){
+    if(t.status==='accepted')statusHtml=`<button class="stat-btn blue" onclick="event.stopPropagation();doVisitChoice('${t.id}',true,true)">🚗 Visit</button><button class="stat-btn purple" onclick="event.stopPropagation();doVisitChoice('${t.id}',false,true)">💻 Remote</button>`;
+    else if(t.status==='on-hold')statusHtml=`<button class="stat-btn green" onclick="event.stopPropagation();resumeHold('${t.id}')">▶ RESUME</button>`;
+    else{const b=btnMap[t.status];if(b)statusHtml=`<button class="stat-btn ${b.cls}" onclick="event.stopPropagation();${b.fn}">${b.text}</button>`;}
+  }
+  const menuItems=canAct?buildActionMenuItems(t):'';
+  // data-menu-btn ties the dropdown back to its trigger so toggleActionMenu() can measure the
+  // trigger's on-screen position and decide whether to flip the menu open above instead of
+  // below — see toggleActionMenu() for the clipping fix.
+  const actionMenuHtml=menuItems?`<div style="position:relative;display:inline-block"><button class="btn btn-s btn-o act-menu-btn" data-menu-btn="${t.id}" onclick="event.stopPropagation();toggleActionMenu('${t.id}')">Action ▾</button><div class="act-menu fpanel-scroll" id="actMenu_${t.id}">${menuItems}</div></div>`:'';
+  const purchCnt=t.costs.length,tot=t.costs.reduce((s,c)=>s+c.amt,0);
+  const descTxt=(t.desc||'').trim();
+  const subLabel=t.sub||t.issue||'—';
+  // One merged "problem statement" block — bold Sub Category leading straight into the
+  // Description, clamped to 2 lines together. Reads as a single scannable unit and is
+  // shorter overall than the old separate Sub-Category-row + Description-row. Promoted to
+  // sit right under the ID/Outlet/Requester line — of everything on the card, "what's the
+  // problem" is what an Attender needs to see first, ahead of who/priority/SLA metadata.
+  const problemBlock=`<div style="font-size:11.5px;line-height:1.35;margin-top:4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical"><span style="font-weight:700;color:var(--t)">${subLabel}</span>${descTxt?`<span style="color:var(--t2)"> — ${descTxt}</span>`:''}</div>`;
+  // Attender • Priority • Late By • cost — one metadata line. Purchase total used to be its
+  // own row underneath; folding it in here (only when there actually is a cost) removes a
+  // whole row on any ticket that has purchases, using the row's existing horizontal slack
+  // instead of adding new vertical space for it.
+  const metaLine=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">
+      <span style="font-size:10px;color:var(--t2)">🔧 ${attName}</span><span class="pri ${pc}">● ${t.pri}</span>${lateBy?`<span class="sla breach">${lateBy}</span>`:''}${tot>0?`<span style="font-size:9.5px;color:var(--ac2);font-weight:600">💰 ₹${tot.toLocaleString('en-IN')}</span>`:''}${moreInfoChip}
+    </div>`;
+  return`<div class="job-card" onclick="viewT('${t.id}')"><div class="jc-head">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:4px;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-wrap:wrap" onclick="event.stopPropagation()">${checkboxHtml}<span class="tid" style="font-size:11px">${t.id}</span><span style="font-size:9px;color:var(--t3)">|</span><span style="font-size:10px;color:var(--t2)">🏪 ${t.out}</span><span style="font-size:9px;color:var(--t3)">|</span><span style="font-size:10px;color:var(--t2)">👤 ${reqDisplay}</span></label>
+      <span class="badge ${SBC[t.status]}" style="font-size:7px;flex-shrink:0">${SL[t.status]}${t.reopened&&t.status!=='closed'?' 🔄':''}${t.vendor?' 🤝':''}</span>
+    </div>
+    ${problemBlock}
+    ${metaLine}
+  </div>
+  <div class="jc-action" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${statusHtml}${actionMenuHtml}${chatBtn}</div>
+  <div class="jc-bar"><button class="jc-bar-btn" onclick="event.stopPropagation();showPurch('${t.id}')" style="${purchCnt?'color:var(--ac2);font-weight:700':''}"><span class="jbi">🛒${purchCnt?'<span style="background:var(--ac);color:#fff;padding:0 4px;border-radius:8px;font-size:8px;margin-left:2px">'+purchCnt+'</span>':''}</span><span>Purchases</span></button><button class="jc-bar-btn" onclick="event.stopPropagation();openCallMenu('${t.id}')"><span class="jbi">📞</span><span>Call/WhatsApp</span></button><button class="jc-bar-btn" onclick="event.stopPropagation();openAssignPurchaser('${t.id}')"><span class="jbi">🛍️</span><span>Internal Purchase</span></button><button class="jc-bar-btn" onclick="event.stopPropagation();openVendorReq('${t.id}')"><span class="jbi">🤝</span><span>Vendor Request</span></button></div></div>`;
+}
+function renderTcard(t){return buildTicketCard(t,false)}
 
 function rList(){const el=document.getElementById('tCards');if(!el)return;let f=TKS;
   const fs=document.getElementById('fSt')?.value,fc=document.getElementById('fCt')?.value?.toLowerCase(),fo=document.getElementById('fOt')?.value,fp=document.getElementById('fPr')?.value,fa=document.getElementById('fAtt')?.value;
   const fSearch=(document.getElementById('fSearch')?.value||'').trim().toLowerCase();
-  // Attender filter — populated from the full roster so managers can filter by anyone, active or not
+  // Attender filter — Manager and above only. A normal Attender only ever sees their own
+  // tickets on this page anyway (filtered further below), so the filter is just noise for them.
   const attSel=document.getElementById('fAtt');
   if(attSel){
+    attSel.style.display=['manager','rmhead','admin'].includes(role)?'':'none';
     const curAtt=attSel.value;
     attSel.innerHTML='<option value="">All Attenders</option><option value="unassigned">🚫 Unassigned</option>'+ATTS.slice().sort((x,y)=>(x.name||'').localeCompare(y.name||'')).map(a=>`<option value="${a.id}">${a.name}${a.active?'':' (inactive)'}</option>`).join('');
     if([...attSel.options].some(o=>o.value===curAtt))attSel.value=curAtt;
   }
+  // Visual feedback: highlight any filter/sort control that currently has a value selected.
+  ['fSt','fPr','fCt','fAtt','fSort'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.toggle('active-filter',!!e.value)});
+  const otBtn=document.getElementById('fOtBtn');if(otBtn)otBtn.classList.toggle('active-filter',selectedOutlets.length>0);
   if(fs)f=f.filter(t=>ticketMatchesSmartStatus(t,fs));
   if(fp)f=f.filter(t=>t.pri===fp);
   if(fc)f=f.filter(t=>t.cat.toLowerCase().includes(fc));
@@ -1446,23 +1693,29 @@ function resetF(){['fSt','fPr','fCt','fOt','fAtt'].forEach(x=>{const e=document.
 function escalate(id){const t=TKS.find(x=>x.id===id);if(t){t.hist.push({s:t.status,t:ts(),n:'⚠ ESCALATED by '+userName});R();nf('Escalated','R&M notified','warn')}}
 
 // ATTENDER DASHBOARD
+// Which of the 5 "My Jobs" title cards is currently applied as an extra status facet on top
+// of the normal filters ('', 'pending', or 'ready' — 'closed' just navigates to History and
+// 'avgsla' is informational/non-clickable, so neither is ever stored here).
+let attCardFilter='';
+// "Ready to Close" = job done by the Attender, now waiting on the requester/OTP step. Both
+// statuses are grouped together because the live flow (confirmIssues → awaiting-resolution)
+// and the legacy flow (→ ready-closure) both mean the same thing from the Attender's side.
+function isReadyToCloseStatus(t){return t.status==='ready-closure'||t.status==='awaiting-resolution'||t.status==='requester-confirm'}
+function attCardClick(kind){
+  if(kind==='closed'){go('att-history');return} // reuses the existing History page/nav — no new page
+  attCardFilter=(attCardFilter===kind)?'':(kind==='created'?'':kind);
+  rAtt();
+}
 function rAtt(){const el=document.getElementById('attJobs');if(!el||role!=='attender')return;
   if(!punchedIn){const ast0=document.getElementById('aSt');if(ast0)ast0.innerHTML='';el.innerHTML='<div style="text-align:center;color:var(--t3);padding:30px;font-size:12px">🔒 Punch In to see your jobs.<br><button class="btn btn-s btn-p" onclick="go(\'punch\')" style="margin-top:10px">📍 Go to Punch</button></div>';return}
   const my=attId||'ATT-012';
   const aFPr=document.getElementById('aFPr')?.value;
   const aFSt=document.getElementById('aFSt')?.value;
-  const aFOt=document.getElementById('aFOt')?.value;
   const aFCt=document.getElementById('aFCt')?.value;
   const aFSearch=(document.getElementById('aFSearch')?.value||'').trim().toLowerCase();
   let mine=TKS.filter(t=>t.att===my&&!['closed','rejected'].includes(t.status));
-  // Outlets/Categories filters — options are built from this attender's own active tickets, so every option always has real jobs behind it
-  const otSel=document.getElementById('aFOt');
-  if(otSel){
-    const outlets=[...new Set(mine.map(t=>t.out).filter(Boolean))].sort();
-    const curOt=otSel.value;
-    otSel.innerHTML='<option value="">All Outlets</option>'+outlets.map(o=>`<option value="${o}">${o}</option>`).join('');
-    if(outlets.includes(curOt))otSel.value=curOt;
-  }
+  // Category options — built from this attender's own active tickets (Outlet now uses the
+  // full outlet list via the multi-select search+select-all panel, so it's not narrowed here).
   const ctSel=document.getElementById('aFCt');
   if(ctSel){
     const cats=[...new Set(mine.map(t=>t.cat).filter(Boolean))].sort();
@@ -1472,7 +1725,7 @@ function rAtt(){const el=document.getElementById('attJobs');if(!el||role!=='atte
   }
   if(aFPr)mine=mine.filter(t=>t.pri===aFPr);
   if(aFSt)mine=mine.filter(t=>t.status===aFSt);
-  if(aFOt)mine=mine.filter(t=>t.out===aFOt);
+  if(selectedOutletsAtt.length>0)mine=mine.filter(t=>selectedOutletsAtt.includes(t.out));
   if(aFCt)mine=mine.filter(t=>t.cat===aFCt);
   if(aFSearch)mine=mine.filter(t=>{
     const reqN=(USERS[t.by]?.name||'').toLowerCase();
@@ -1483,7 +1736,23 @@ function rAtt(){const el=document.getElementById('attJobs');if(!el||role!=='atte
            (t.cat||'').toLowerCase().includes(aFSearch)||
            reqN.includes(aFSearch);
   });
-const done=TKS.filter(t=>t.att===my&&t.status==='closed').length;
+  // Visual feedback for the normal filters/sort — highlight whichever controls are active
+  ['aFPr','aFSt','aFCt','aFSort'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.toggle('active-filter',!!e.value)});
+  const aFOtBtn=document.getElementById('aFOtBtn');if(aFOtBtn)aFOtBtn.classList.toggle('active-filter',selectedOutletsAtt.length>0);
+
+  const done=TKS.filter(t=>t.att===my&&t.status==='closed').length;
+  // Title-card counts reflect the normal filters above (Outlet/Priority/Category/Search) but
+  // NOT the card facet itself — so a card always shows what you'd get if you clicked it now.
+  const createdCount=mine.length;
+  const pendingCount=mine.filter(t=>!isReadyToCloseStatus(t)).length;
+  const readyCount=mine.filter(isReadyToCloseStatus).length;
+  const fixedTkts=TKS.filter(t=>t.att===my&&['awaiting-resolution','ready-closure','requester-confirm','closed'].includes(t.status));
+  const avgSlaTxt=formatDurationMin(avgResolutionMinutes(fixedTkts));
+
+  // Apply the selected title card as an additional AND filter — combines with, and never
+  // resets, the normal filters above.
+  if(attCardFilter==='pending')mine=mine.filter(t=>!isReadyToCloseStatus(t));
+  else if(attCardFilter==='ready')mine=mine.filter(isReadyToCloseStatus);
 
   // prune stale selections (ticket closed/transferred/no longer visible under current filters)
   const mineIds=new Set(mine.map(t=>t.id));
@@ -1494,22 +1763,24 @@ const done=TKS.filter(t=>t.att===my&&t.status==='closed').length;
   const aSortCmp=ticketSortComparator(document.getElementById('aFSort')?.value);
   if(aSortCmp)mine.sort(aSortCmp);
 
-  const ast=document.getElementById('aSt');if(ast)ast.innerHTML=[{v:mine.length,l:'Active',c:'p'},{v:done,l:'Done',c:'g'},{v:gA(my)?.rating||0,l:'Rating',c:'b'}].map(x=>`<div class="st ${x.c}"><div class="sv">${x.v}</div><div class="sl">${x.l}</div></div>`).join('');
-  if(!mine.length){el.innerHTML='<div style="text-align:center;color:var(--t3);padding:30px;font-size:12px">✅ No active jobs</div>';return}
-  el.innerHTML=mine.map(t=>{const sc=t.sla?.startsWith('-')?'breach':parseFloat(t.sla)<=2?'warn':'safe';const isBr=t.sla?.startsWith('-');const reqPhone=t.by;const outPhone=OUTPHONES[t.out]||reqPhone;const reqName=USERS[t.by]?.name||t.by||'—';
-    // Big action button per status — skipNav=true keeps the attender on My Jobs instead of jumping to the detail page
-    const btnMap={'assigned':{text:'✓ ACCEPT',cls:'green',fn:`doAccept('${t.id}',true)`},'accepted':null,'on-the-way':{text:'📍 REACHED OUTLET',cls:'orange',fn:`doReached('${t.id}',true)`},'reached-outlet':{text:'▶ START JOB',cls:'green',fn:`doStart('${t.id}',true)`},'job-started':{text:'🔧 IN PROGRESS',cls:'purple',fn:`doProgress('${t.id}',true)`},'in-progress':{text:'✅ MARK AS FIXED',cls:'green',fn:`doMarkFixed('${t.id}')`},'vendor-pending':{text:'✓ VENDOR DONE',cls:'green',fn:`vendorComplete('${t.id}',true)`},'ready-closure':{text:'🔐 ENTER OTP',cls:'orange',fn:`viewT('${t.id}')`}};
-    let actionHtml='';
-    const reassignBtn=`<button onclick="event.stopPropagation();quickTransfer('${t.id}')" style="width:34px;border:none;border-radius:var(--r);background:var(--c1);border:1px solid var(--bdr);color:var(--t2);font-size:14px;cursor:pointer;flex-shrink:0" title="Re-assign to another attender">↪</button>`;
-    const unread=getUnread(t);
-    const chatBtn=`<button onclick="event.stopPropagation();openJobChat('${t.id}')" style="position:relative;width:34px;border:none;border-radius:var(--r);background:var(--c1);border:1px solid var(--bdr);color:var(--t2);font-size:14px;cursor:pointer;flex-shrink:0" title="Chat">💬${unread?`<span style="position:absolute;top:-5px;right:-5px;background:var(--er);color:#fff;border-radius:8px;font-size:8px;font-weight:700;padding:1px 4px;line-height:1.3">${unread}</span>`:''}</button>`;
-    if(t.status==='accepted'){actionHtml=`<div style="font-size:9px;color:var(--t3);text-align:center;margin-bottom:5px">Does this job need site visit?</div><div style="display:flex;gap:4px"><button class="btn-big blue" style="padding:7px 4px;font-size:11px" onclick="event.stopPropagation();doVisitChoice('${t.id}',true,true)">🚗 YES</button><button class="btn-big purple" style="padding:7px 4px;font-size:11px" onclick="event.stopPropagation();doVisitChoice('${t.id}',false,true)">💻 NO</button>${reassignBtn}${chatBtn}</div>`}
-    else{const btn=btnMap[t.status];if(btn)actionHtml=`<div style="display:flex;gap:4px"><button class="btn-big ${btn.cls}" onclick="event.stopPropagation();${btn.fn}" style="flex:1;padding:7px 4px;font-size:11px">${btn.text}</button><button onclick="event.stopPropagation();notifyStatusWhatsApp('${t.id}')" style="width:34px;border:none;border-radius:var(--r);background:#25D366;color:#fff;font-size:15px;cursor:pointer;flex-shrink:0" title="WhatsApp requester">🟢</button>${reassignBtn}${chatBtn}</div>`;else actionHtml=`<div style="display:flex;align-items:center;gap:4px"><div style="flex:1;text-align:center;padding:6px;color:var(--t3);font-size:11px">${SL[t.status]}</div>${reassignBtn}${chatBtn}</div>`}
-    const purchCnt=t.costs.length;const tot=t.costs.reduce((s,c)=>s+c.amt,0);
-    const descTxt=(t.desc||'').trim();
-    return`<div class="job-card" onclick="viewT('${t.id}')"><div class="jc-head"><div style="display:flex;justify-content:space-between;align-items:center"><label style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" class="jobChk" onclick="event.stopPropagation();toggleJobSelect('${t.id}',this.checked)" ${selectedJobIds.has(t.id)?'checked':''} style="width:16px;height:16px;accent-color:var(--ac);flex-shrink:0"><span class="tid" style="font-size:12px">${t.id}</span><span style="font-size:10px;color:var(--t2)">🏪 ${t.out}</span><span style="font-size:10px;color:var(--t2)">👤 ${reqName}</span></label><span class="sla ${sc}">⏱ ${t.sla||'—'}</span></div><div style="font-size:15px;font-weight:700;margin:4px 0 2px">${t.issue}</div>${descTxt?`<div style="font-size:11px;color:var(--t2);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${descTxt}</div>`:''}<div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap"><span style="font-size:9px;color:var(--t3)">${t.cat}</span>${tot>0?`<span style="font-size:10px;color:var(--ac2);font-weight:600">💰 ₹${tot.toLocaleString('en-IN')}</span>`:''}${isBr?`<button class="btn btn-s btn-wr" onclick="event.stopPropagation();openSLAExtend('${t.id}')" style="font-size:9px;padding:3px 7px">⏱ Extend SLA</button>`:''}</div></div>
-      <div class="jc-action">${actionHtml}</div>
-      <div class="jc-bar"><button class="jc-bar-btn" onclick="event.stopPropagation();showPurch('${t.id}')" style="${purchCnt?'color:var(--ac2);font-weight:700':''}"><span class="jbi">🛒${purchCnt?'<span style="background:var(--ac);color:#fff;padding:0 4px;border-radius:8px;font-size:8px;margin-left:2px">'+purchCnt+'</span>':''}</span><span>Purchases</span></button><button class="jc-bar-btn" onclick="event.stopPropagation();openCallMenu('${t.id}')"><span class="jbi">📞</span><span>Call</span></button><button class="jc-bar-btn" onclick="event.stopPropagation();openAssignPurchaser('${t.id}')"><span class="jbi">🛍️</span><span>Internal Purchase</span></button><button class="jc-bar-btn" onclick="event.stopPropagation();openVendorReq('${t.id}')"><span class="jbi">🤝</span><span>Vendor Request</span></button></div></div>`}).join('')}
+  const cardDefs=[
+    {k:'created',v:createdCount,l:'CREATED',c:'p'},
+    {k:'closed',v:done,l:'CLOSED',c:'g'},
+    {k:'pending',v:pendingCount,l:'PENDING',c:'o'},
+    {k:'ready',v:readyCount,l:'READY TO CLOSE',c:'rd'},
+    {k:'avgsla',v:avgSlaTxt,l:'AVG SLA',c:'t'}
+  ];
+  const ast=document.getElementById('aSt');
+  if(ast)ast.innerHTML=cardDefs.map(x=>{
+    const clickable=x.k!=='avgsla';
+    const active=clickable&&(x.k==='created'?attCardFilter==='':attCardFilter===x.k);
+    return `<div class="st ${x.c}${clickable?' st-click':''}${active?' st-active':''}"${clickable?` onclick="attCardClick('${x.k}')"`:''}><div class="sv">${x.v}</div><div class="sl">${x.l}</div></div>`;
+  }).join('');
+  if(!mine.length){el.innerHTML='<div style="text-align:center;color:var(--t3);padding:30px;font-size:12px">✅ No jobs match the current filters</div>';return}
+  // Same shared compact card used on the Manager/Tickets side (buildTicketCard) — mine=true
+  // just means "attender name" is always the logged-in attender and the status-action/Action
+  // menu are always shown (they're gated to Manager-level roles on the shared card elsewhere).
+  el.innerHTML=mine.map(t=>buildTicketCard(t,true)).join('')}
 
 
 function rAppr(){const el=document.getElementById('apList');if(!el)return;
@@ -1685,13 +1956,29 @@ function getTicketCreatedDate(t){
   if(!raisedEntry)return null;
   return parseAnyTimestamp(raisedEntry.iso||raisedEntry.t);
 }
+// The Attender's own most recent "Assigned" moment — if a ticket was re-assigned/transferred,
+// SLA-from-assignment should be measured from the LAST assignment, not the very first one.
+function getTicketAssignedDate(t){
+  const entries=(t.hist||[]).filter(h=>h.s==='assigned');
+  if(!entries.length)return null;
+  return parseAnyTimestamp(entries[entries.length-1].iso||entries[entries.length-1].t);
+}
+// "Fixed" = the moment the Attender marked the job done and handed it off for requester
+// confirmation (setSt(...,'awaiting-resolution',...) in confirmIssues()). This — NOT the
+// eventual Closed/requester-confirmation timestamp — is what Attender SLA performance must be
+// measured against, so time spent waiting on the requester never counts against the Attender.
+// Falls back to the 'closed' entry for older/legacy tickets that never passed through that stage.
+function getTicketFixedDate(t){
+  const entries=t.hist||[];
+  const fixedEntry=entries.find(h=>h.s==='awaiting-resolution')||entries.find(h=>h.s==='closed');
+  if(!fixedEntry)return null;
+  return parseAnyTimestamp(fixedEntry.iso||fixedEntry.t);
+}
 function isClosedWithinSLA(t){
   if(!t.slaDeadline)return null;
   const dl=new Date(t.slaDeadline);
   if(isNaN(dl.getTime()))return null;
-  const closedEntry=(t.hist||[]).find(h=>h.s==='closed');
-  if(!closedEntry||!(closedEntry.iso||closedEntry.t))return null;
-  const ct=parseAnyTimestamp(closedEntry.iso||closedEntry.t);
+  const ct=getTicketFixedDate(t);
   if(!ct)return null;
   return ct<=dl;
 }
@@ -1701,14 +1988,63 @@ function avgClosureVsSLA(closedTickets){
     if(!t.slaDeadline)return;
     const dl=new Date(t.slaDeadline);
     if(isNaN(dl.getTime()))return;
-    const closedEntry=(t.hist||[]).find(h=>h.s==='closed')||(t.hist||[])[(t.hist||[]).length-1];
-    if(!closedEntry||!(closedEntry.iso||closedEntry.t))return;
-    const ct=parseAnyTimestamp(closedEntry.iso||closedEntry.t);
+    const ct=getTicketFixedDate(t);
     if(!ct)return;
     diffsMin.push((dl-ct)/60000);
   });
   if(!diffsMin.length)return null;
   return diffsMin.reduce((a,b)=>a+b,0)/diffsMin.length;
+}
+// Attender-facing "time remaining/late" badge. Ticks live against Date.now() while the job is
+// still active; freezes at the Fixed timestamp once the Attender has handed it off (so waiting
+// on the requester to confirm never makes the Attender look later than they actually were).
+// Extend SLA deliberately never touches slaDeadline, so this always reflects the ORIGINAL SLA.
+const SLA_FROZEN_AT_FIXED=['awaiting-resolution','ready-closure','requester-confirm'];
+function computeSLAForTicket(t){
+  if(t.status==='closed'||t.status==='rejected')return '—';
+  if(!t.slaDeadline||t.slaDeadline==='—')return '—';
+  const dl=new Date(t.slaDeadline);
+  if(isNaN(dl.getTime()))return t.slaDeadline;
+  let refMs=Date.now();
+  if(SLA_FROZEN_AT_FIXED.includes(t.status)){
+    const fixed=getTicketFixedDate(t);
+    if(fixed)refMs=fixed.getTime();
+  }
+  const diffMs=dl.getTime()-refMs;
+  const totalMins=Math.round(Math.abs(diffMs)/60000);
+  const h=Math.floor(totalMins/60),m=totalMins%60;
+  return(diffMs<0?'-':'+')+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+}
+// Readable "Late By" string for a breached ticket, e.g. "Late By 2h 15m" / "Late By 1 Day 4h".
+// Returns null when the ticket isn't actually late (nothing to show).
+function formatLateBy(sla){
+  const mins=parseSlaMinutes(sla);
+  if(mins===null||mins>=0)return null;
+  const abs=Math.abs(mins);
+  const days=Math.floor(abs/1440),hrs=Math.floor((abs%1440)/60),mm=abs%60;
+  if(days>0)return `Late By ${days} Day${days>1?'s':''} ${hrs}h`;
+  if(hrs>0)return `Late By ${hrs}h ${mm}m`;
+  return `Late By ${mm}m`;
+}
+// Plain "Xh Ym" duration formatter (no +/- sign) — used for the Avg SLA title card.
+function formatDurationMin(min){
+  if(min===null||min===undefined||isNaN(min))return '—';
+  const abs=Math.round(Math.abs(min));
+  const h=Math.floor(abs/60),m=abs%60;
+  return(h?h+'h ':'')+m+'m';
+}
+// Average Assigned→Fixed resolution time (minutes) across a set of tickets — used for the
+// Avg SLA title card. Only counts tickets that have both an 'assigned' and a 'fixed' timestamp;
+// never touches the underlying t.sla field or any stored SLA calculation.
+function avgResolutionMinutes(tickets){
+  const diffs=[];
+  (tickets||[]).forEach(t=>{
+    const a=getTicketAssignedDate(t),f=getTicketFixedDate(t);
+    if(!a||!f)return;
+    diffs.push((f-a)/60000);
+  });
+  if(!diffs.length)return null;
+  return diffs.reduce((s,v)=>s+v,0)/diffs.length;
 }
 function computeReportMetrics(tickets){
   const total=tickets.length;
@@ -1835,7 +2171,7 @@ function renderBreakdownTable(title,rows,totalMetrics){
   }).join('');
   const totalRow=totalMetrics?renderMetricRow('Total',totalMetrics,{totalRow:true}):'';
   return `<div style="font-weight:800;font-size:13px;color:var(--t);margin:14px 0 6px">${title}</div>
-  <div class="card" style="background:var(--c1);border:1px solid var(--bdr);border-radius:14px;padding:0;margin-bottom:10px;overflow-x:auto">
+  <div class="card rpt-scroll" style="background:var(--c1);border:1px solid var(--bdr);border-radius:14px;padding:0;margin-bottom:10px">
     <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:560px">
       <thead><tr style="background:var(--c2)">
         <th style="text-align:left;padding:8px 10px;font-weight:800;color:var(--t)"></th>
@@ -1914,20 +2250,24 @@ function rRpt(){const el=document.getElementById('rptB');if(!el)return;
   }).sort((a,b)=>b.m.total-a.m.total||a.label.localeCompare(b.label));
   html+=renderBreakdownTable('By Attender',attRows,sumMetrics(attMetricsList,filtered));
 
-  // By Status — lifecycle-stage view (raised/assigned/accepted/.../closed), plus the two
-  // exception states (on hold / rejected), in SF_ALL order — each drilling into its category mix.
-  const byStatus={};
-  filtered.forEach(t=>{const k=t.status||'raised';(byStatus[k]=byStatus[k]||[]).push(t);});
-  const stMetricsList=SF_ALL.map(sid=>computeReportMetrics(byStatus[sid]||[]));
-  const stRows=SF_ALL.map((sid,i)=>{
-    const stTickets=byStatus[sid]||[];
-    const byCatWithinSt={};
-    stTickets.forEach(t=>{const k=(t.cat||'').toLowerCase()||'uncategorized';(byCatWithinSt[k]=byCatWithinSt[k]||[]).push(t);});
-    const subRows=Object.keys(byCatWithinSt).sort((a,b)=>catLabel(a).localeCompare(catLabel(b)))
-      .map(cid=>({label:catLabel(cid),m:computeReportMetrics(byCatWithinSt[cid])}));
-    return {label:SL[sid]||sid,m:stMetricsList[i],subId:'stSub_'+sid.replace(/[^A-Za-z0-9]/g,'_'),subRows};
-  });
-  html+=renderBreakdownTable('By Status',stRows,sumMetrics(stMetricsList,filtered));
+  // By Outlets — same template/pattern as By Category/By Attender above, each drilling into
+  // its category mix. Replaces the old "By Status" breakdown (the Status *filter* above is
+  // unchanged — only this breakdown section was swapped). Sorted by Created count HIGH→LOW,
+  // alphabetical tiebreak, and recalculates automatically whenever filters change since it
+  // reads from `filtered`.
+  const byOutlet={};
+  filtered.forEach(t=>{const k=t.out||'Unspecified';(byOutlet[k]=byOutlet[k]||[]).push(t);});
+  const allOutletIds=[...new Set([...OL,...Object.keys(byOutlet)])];
+  const outletMetricsList=allOutletIds.map(oid=>computeReportMetrics(byOutlet[oid]||[]));
+  const outletRows=allOutletIds.map((oid,i)=>{
+    const outletTickets=byOutlet[oid]||[];
+    const byCatWithinOutlet={};
+    outletTickets.forEach(t=>{const k=(t.cat||'').toLowerCase()||'uncategorized';(byCatWithinOutlet[k]=byCatWithinOutlet[k]||[]).push(t);});
+    const subRows=Object.keys(byCatWithinOutlet).sort((a,b)=>catLabel(a).localeCompare(catLabel(b)))
+      .map(cid=>({label:catLabel(cid),m:computeReportMetrics(byCatWithinOutlet[cid])}));
+    return {label:oid,m:outletMetricsList[i],subId:'otSub_'+String(oid).replace(/[^A-Za-z0-9]/g,'_'),subRows};
+  }).sort((a,b)=>b.m.total-a.m.total||a.label.localeCompare(b.label));
+  html+=renderBreakdownTable('By Outlets',outletRows,sumMetrics(outletMetricsList,filtered));
 
   el.innerHTML=html;
 }
@@ -1993,7 +2333,7 @@ function buildReportAttPanel(){
 }
 // Same "smart" grouped vocabulary as the Tickets tab's Status filter (fSt) — kept in sync
 // deliberately, so Reports and the Tickets tab never disagree about what "Status" means.
-const REPORT_STATUS_OPTIONS=[['pending','⏳ Pending'],['open','🟢 Open'],['closed','⚫ Closed'],['reopen','🔄 Re-opened'],['breach','⚠ Breached'],['ready-closure','🔐 Ready to Close'],['hold','⏸ On Hold'],['rejected','✕ Rejected'],['unassigned','🚫 Unassigned']];
+const REPORT_STATUS_OPTIONS=[['pending','⏳ Pending'],['closed','⚫ Closed'],['reopen','🔄 Re-opened'],['breach','⚠ Breached'],['ready-closure','🔐 Ready to Close'],['hold','⏸ On Hold'],['rejected','✕ Rejected'],['unassigned','🚫 Unassigned']];
 function buildReportStPanel(){
   const list=document.getElementById('reportStList');
   if(!list)return;
@@ -2194,14 +2534,73 @@ function clearOutletFilter(){
   updateOutletBtn();
   rList();
 }
+function selectAllOutlets(){
+  selectedOutlets=[...OL];
+  buildOutletPanel();
+  updateOutletBtn();
+  rList();
+}
+
+// ===== Same multi-select outlet filter, mirrored for the Attender's "My Jobs" page — sourced
+// from the full outlet list (OL), not just outlets that currently have a job, so nothing is
+// ever hidden/hard-coded, per spec. =====
+let selectedOutletsAtt=[];
+function buildAttOutletPanel(){
+  const list=document.getElementById('aFOtList');
+  if(!list)return;
+  list.innerHTML=OL.map(o=>{
+    const checked=selectedOutletsAtt.includes(o)?'checked':'';
+    return`<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--bdr)" onmouseover="this.style.background='var(--c2)'" onmouseout="this.style.background=''">
+      <input type="checkbox" value="${o}" ${checked} onchange="onAttOutletCheck(this)" style="width:14px;height:14px;accent-color:var(--ac);flex-shrink:0">
+      <span>${o}</span>
+    </label>`;
+  }).join('');
+}
+function onAttOutletCheck(cb){
+  if(cb.checked){
+    if(!selectedOutletsAtt.includes(cb.value))selectedOutletsAtt.push(cb.value);
+  } else {
+    selectedOutletsAtt=selectedOutletsAtt.filter(o=>o!==cb.value);
+  }
+  updateAttOutletBtn();
+  rAtt();
+}
+function updateAttOutletBtn(){
+  const btn=document.getElementById('aFOtBtn');
+  if(!btn)return;
+  if(selectedOutletsAtt.length===0)btn.textContent='🏪 All Outlets ▾';
+  else if(selectedOutletsAtt.length===1)btn.textContent='🏪 '+selectedOutletsAtt[0]+' ▾';
+  else btn.textContent='🏪 '+selectedOutletsAtt.length+' Outlets ▾';
+}
+function toggleAttOutletPanel(){
+  const panel=document.getElementById('aFOtPanel');
+  if(!panel)return;
+  const open=panel.style.display!=='none';
+  if(!open){buildAttOutletPanel();panel.style.display='block';}
+  else panel.style.display='none';
+}
+function clearAttOutletFilter(){
+  selectedOutletsAtt=[];
+  buildAttOutletPanel();
+  updateAttOutletBtn();
+  rAtt();
+}
+function selectAllAttOutlets(){
+  selectedOutletsAtt=[...OL];
+  buildAttOutletPanel();
+  updateAttOutletBtn();
+  rAtt();
+}
 
 // Close panel when clicking outside
 document.addEventListener('click',function(e){
-  const panel=document.getElementById('fOtPanel');
-  const btn=document.getElementById('fOtBtn');
-  if(panel&&btn&&!panel.contains(e.target)&&!btn.contains(e.target)){
-    panel.style.display='none';
-  }
+  [['fOtPanel','fOtBtn'],['aFOtPanel','aFOtBtn']].forEach(([pid,bid])=>{
+    const panel=document.getElementById(pid);
+    const btn=document.getElementById(bid);
+    if(panel&&btn&&!panel.contains(e.target)&&!btn.contains(e.target)){
+      panel.style.display='none';
+    }
+  });
 });
 
 function refreshCatDropdown(){const tcs=document.getElementById('tC');if(!tcs)return;const cur=tcs.value;tcs.innerHTML='<option value="">Select</option>';Object.entries(CATS).forEach(([k,c])=>{if(!c.disabled)tcs.innerHTML+=`<option value="${k}">${c.label}</option>`});if(cur&&CATS[cur]&&!CATS[cur].disabled)tcs.value=cur}
@@ -2242,7 +2641,11 @@ function viewT(id){curTkt=id;const t=TKS.find(x=>x.id===id);if(!t)return;const p
   // Attender actions
   if(isA){
     if(t.status==='accepted'){stH+=`<div style="margin-top:8px"><div style="font-size:10px;color:var(--t3);margin-bottom:4px;text-align:center">Does this need site visit?</div><div style="display:flex;gap:6px"><button class="btn-big blue" onclick="doVisitChoice('${t.id}',true)">🚗 YES — On Way</button><button class="btn-big purple" onclick="doVisitChoice('${t.id}',false)">💻 NO — Remote</button></div></div>`}
-    else{const bm={'assigned':{t:'✓ ACCEPT',c:'green',f:`doAccept('${t.id}')`},'on-the-way':{t:'📍 REACHED OUTLET',c:'orange',f:`doReached('${t.id}')`},'reached-outlet':{t:'▶ START JOB',c:'green',f:`doStart('${t.id}')`},'job-started':{t:'🔧 IN PROGRESS',c:'purple',f:`doProgress('${t.id}')`},'in-progress':{t:'✅ MARK AS FIXED',c:'green',f:`doMarkFixed('${t.id}')`},'vendor-pending':{t:'✓ VENDOR DONE',c:'green',f:`vendorComplete('${t.id}')`}};const b=bm[t.status];if(b)stH+=`<div style="margin-top:8px"><button class="btn-big ${b.c}" onclick="${b.f}">${b.t}</button></div>`}
+    else{const bm={'assigned':{t:'✓ ACCEPT',c:'green',f:`doAccept('${t.id}')`},'on-the-way':{t:'📍 REACHED',c:'orange',f:`doReached('${t.id}')`},'reached-outlet':{t:'▶ START',c:'green',f:`doStart('${t.id}')`},'job-started':{t:'🔧 IN PROGRESS',c:'purple',f:`doProgress('${t.id}')`},'in-progress':{t:'✅ FIXED',c:'green',f:`doMarkFixed('${t.id}')`},'vendor-pending':{t:'✓ VENDOR DONE',c:'green',f:`vendorComplete('${t.id}')`}};const b=bm[t.status];if(b)stH+=`<div style="margin-top:8px"><button class="btn-big ${b.c}" onclick="${b.f}">${b.t}</button></div>`}
+    // Hold / Reject / Transfer — same actions available on the My Jobs card, reused here so
+    // they're reachable directly from the ticket detail page too (req: "easily accessible").
+    if(!['closed','rejected','on-hold'].includes(t.status)){stH+=`<div style="display:flex;gap:5px;margin-top:6px"><button class="btn btn-s btn-o" style="flex:1" onclick="openHoldModal('${t.id}')">⏸ Hold</button><button class="btn btn-s btn-er" style="flex:1" onclick="openRejectModal('${t.id}')">✕ Reject</button><button class="btn btn-s btn-o" style="flex:1" onclick="quickTransfer('${t.id}')">↪ Transfer</button></div>`}
+    else if(t.status==='on-hold'){stH+=`<div style="margin-top:6px"><button class="btn-big green" onclick="resumeHold('${t.id}')">▶ RESUME</button></div>`}
   }
   // Requester confirms
   if((isR||isMg||isRM||isAd)&&(t.status==='awaiting-resolution'||t.status==='requester-confirm')){const confirmNote=isR?'':'Confirming on behalf of the requester.';stH+=`<div style="margin-top:8px"><div style="font-size:10px;color:var(--t3);text-align:center;margin-bottom:4px">The attender has requested closure.${confirmNote?' '+confirmNote:''}</div><button class="btn-big green" onclick="curTkt='${t.id}';openM('confirmM')">❓ HAS THE ISSUE BEEN RESOLVED?</button></div>`}
