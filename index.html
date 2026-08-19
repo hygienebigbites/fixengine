@@ -140,8 +140,8 @@ textarea.fc{resize:vertical;min-height:50px}.fr{display:grid;grid-template-colum
   <div class="fg" id="lAttWrap" style="display:none"><label>Select Attender</label><select class="fc" id="lAtt"></select></div>
   <div class="fg" id="lPwWrap" style="display:none"><label>Password</label><input class="fc" id="lPw" type="password" placeholder="1234"></div>
   <button class="btn btn-p btn-full" id="loginBtn" style="padding:11px;font-size:14px" onclick="doLogin()">Login →</button>
+  <div id="lds" style="display:none;font-size:9.5px;text-align:center;margin-top:8px;color:var(--t3)"></div>
   <div id="loginErr" style="font-size:9px;color:var(--er);text-align:center;margin-top:8px"></div>
-  <p style="font-size:9px;color:var(--t3);text-align:center;margin-top:8px">Pwd: 1234 · Numbers: 9876543210-16</p>
 </div></div>
 <div id="app" class="app" style="display:none">
 <div class="sidebar-ov" id="sov" onclick="closeSB()"></div>
@@ -326,15 +326,186 @@ const SF_ALL=[...SF,'on-hold','rejected'];
 const SL={'raised':'Raised','assigned':'Assigned','accepted':'Accepted','on-the-way':'On the Way','reached-outlet':'Reached Outlet','job-started':'Job Started','in-progress':'In Progress','vendor-pending':'Vendor Working','awaiting-resolution':'Awaiting Resolution Reply','ready-closure':'Ready to Close','requester-confirm':'Awaiting Confirmation','closed':'Closed','on-hold':'On Hold','rejected':'Rejected'};
 const SBC={'raised':'raised','assigned':'assigned','accepted':'accepted','on-the-way':'otw','reached-outlet':'reached','job-started':'started','in-progress':'progress','vendor-pending':'vendor','awaiting-resolution':'ready','ready-closure':'ready','requester-confirm':'ready','closed':'closed','on-hold':'hold','rejected':'rejected'};
 
+// SECURITY/PERF REDESIGN — login no longer downloads the Users or Attenders tables to the
+// browser at all. Authentication happens server-side (action=login, see apiLogin() below); the
+// only thing that still loads before login is a tiny, non-sensitive list of active attenders'
+// id+name (action=activeAttenders) so the attender login screen can show a name to pick — no
+// passwords, ratings, or any other field ship before someone is authenticated.
+// liveStatus now only tracks that one lightweight pre-login fetch — 'idle' until the Attender
+// tile is actually selected (fetched on demand, not at boot), 'pending' while in flight, 'ok',
+// or 'fail'.
+let liveStatus={atts:'idle'};
+// Lightweight pre-login attender list — id+name only, populated on demand the first time the
+// Attender role tile is selected (not at page load). Deliberately separate from the full ATTS
+// directory (which still has skills/outlets/rating/password-check-free record) — that full
+// directory now only loads AFTER a successful login, see postLoginLoad().
+let LOGIN_ATTS=[];
+async function loadActiveAttendersForLogin(force){
+  if(!force&&(liveStatus.atts==='ok'||liveStatus.atts==='pending'))return;
+  liveStatus.atts='pending';
+  renderLiveDataStatus();
+  const rows=await apiReadActiveAttenders();
+  if(rows&&rows.length){
+    LOGIN_ATTS=rows;
+    liveStatus.atts='ok';
+  }else{
+    liveStatus.atts='fail';
+  }
+  renderLiveDataStatus();
+  if(selRV==='attender')populateAttenderDropdown();
+}
+function populateAttenderDropdown(){
+  const sel=document.getElementById('lAtt');
+  if(!sel)return;
+  if(liveStatus.atts==='pending'){
+    sel.innerHTML='<option value="">Loading attenders…</option>';
+  }else if(LOGIN_ATTS.length){
+    sel.innerHTML=LOGIN_ATTS.map(a=>`<option value="${a.id}">${a.name} (${a.id})</option>`).join('');
+    if(pendingSavedAttId&&[...sel.options].some(o=>o.value===pendingSavedAttId))sel.value=pendingSavedAttId;
+  }else{
+    sel.innerHTML='<option value="">No active attenders — tap Retry below</option>';
+  }
+}
+function lastTiming(tab){for(let i=apiTimings.length-1;i>=0;i--)if(apiTimings[i].tab===tab)return apiTimings[i];return null}
+function renderLiveDataStatus(){
+  const el=document.getElementById('lds');
+  if(!el)return;
+  if(selRV!=='attender'||liveStatus.atts==='idle'){
+    el.style.display='none';
+    return;
+  }
+  el.style.display='block';
+  if(liveStatus.atts==='pending'){
+    el.innerHTML='⏳ Loading attender list…';
+    el.style.color='var(--t3)';
+  }else if(liveStatus.atts==='ok'){
+    const t=lastTiming('activeAttenders');
+    el.innerHTML='✓ Attender list loaded'+(t?' ('+(t.totalMs/1000).toFixed(1)+'s)':'');
+    el.style.color='var(--ok)';
+  }else{
+    const why=apiLastError['activeAttenders']?(' ('+apiLastError['activeAttenders']+')'):'';
+    el.innerHTML='⚠ Could not load attender list'+why+'. <a href="#" onclick="event.preventDefault();retryLiveData()" style="color:var(--ac);text-decoration:underline;font-weight:700">Retry</a>';
+    el.style.color='var(--er)';
+  }
+}
+function retryLiveData(){
+  loadActiveAttendersForLogin(true);
+}
+
 // ===== PHASE 3: Google Sheets API connection =====
-const API_URL='https://script.google.com/macros/s/AKfycbyEzjgUsWL0Q_p2Pe4-pOqprxxiT3JjhXbIWWXCjCUOESGwzT8a-Ehp4SVU7C57vmu-/exec';// Reads a tab from the sheet, returns array of row-objects. Returns null on failure.
-async function apiRead(tab){
+const API_URL='https://script.google.com/macros/s/AKfycbyEzjgUsWL0Q_p2Pe4-pOqprxxiT3JjhXbIWWXCjCUOESGwzT8a-Ehp4SVU7C57vmu-/exec';
+// PERF INSTRUMENTATION — added while investigating the 5+ minute login-data-load report.
+// apiTimings: one entry per completed/failed read, with real measured stage timings (network
+// wait vs JSON parse) — the frontend-side half of the evidence the diagnostic report asks for.
+// Type "fePerfReport()" in the browser console at any time to print/return the table.
+// apiLastError: last failure reason per tab (timeout vs network error vs bad response), used to
+// make the login-screen status banner specific instead of a generic "could not load".
+// apiPending: in-flight de-dupe — if two callers ask for the same tab while a read is still in
+// flight (e.g. loadCategoriesFromSheet() and loadSubMetaFromSheet() both need Sub_Categories,
+// or a Retry click overlaps the original boot load), they now share ONE network request instead
+// of firing two independent ones at the already-strained Apps Script deployment.
+const apiTimings=[];
+const apiLastError={};
+const apiPending={};
+const API_TIMEOUT_MS=25000; // hard cap so a hung Apps Script response fails fast instead of hanging "indefinitely"
+function fePerfReport(){console.table(apiTimings);return apiTimings;}
+// Reads a tab from the sheet, returns array of row-objects. Returns null on failure (network
+// error, timeout, or a malformed/non-ok response) — callers already treat null as "not loaded".
+function apiRead(tab){
+  if(apiPending[tab])return apiPending[tab];
+  const t0=performance.now();
+  const run=(async()=>{
+    const ctrl=new AbortController();
+    const to=setTimeout(()=>ctrl.abort(),API_TIMEOUT_MS);
+    try{
+      const res=await fetch(API_URL+'?action=read&tab='+encodeURIComponent(tab),{signal:ctrl.signal});
+      const t1=performance.now();
+      const json=await res.json();
+      const t2=performance.now();
+      clearTimeout(to);
+      const rows=(json&&Array.isArray(json.data))?json.data.length:0;
+      apiTimings.push({tab,networkMs:Math.round(t1-t0),parseMs:Math.round(t2-t1),totalMs:Math.round(t2-t0),rows,ok:!!(json&&json.ok)});
+      console.log('[FixEngine perf] '+tab+': network='+Math.round(t1-t0)+'ms parse='+Math.round(t2-t1)+'ms total='+Math.round(t2-t0)+'ms rows='+rows);
+      if(json&&json.ok){delete apiLastError[tab];return json.data;}
+      apiLastError[tab]='Apps Script responded but reported failure (json.ok=false)';
+      return null;
+    }catch(e){
+      clearTimeout(to);
+      const t1=performance.now();
+      const timedOut=e&&e.name==='AbortError';
+      apiLastError[tab]=timedOut?('timed out after '+(API_TIMEOUT_MS/1000)+'s — Apps Script never responded'):('network error: '+(e&&e.message||e));
+      apiTimings.push({tab,totalMs:Math.round(t1-t0),ok:false,error:apiLastError[tab]});
+      console.warn('[FixEngine perf] '+tab+' FAILED after '+Math.round(t1-t0)+'ms: '+apiLastError[tab]);
+      return null;
+    }finally{
+      delete apiPending[tab];
+    }
+  })();
+  apiPending[tab]=run;
+  return run;
+}
+
+// Lightweight, non-sensitive pre-login fetch — just active attenders' id+name, for the login
+// dropdown. Shares the same timeout/dedupe/timing machinery as apiRead but hits its own action
+// (action=activeAttenders) instead of the generic full-table action=read.
+function apiReadActiveAttenders(){
+  const key='activeAttenders';
+  if(apiPending[key])return apiPending[key];
+  const t0=performance.now();
+  const run=(async()=>{
+    const ctrl=new AbortController();
+    const to=setTimeout(()=>ctrl.abort(),API_TIMEOUT_MS);
+    try{
+      const res=await fetch(API_URL+'?action=activeAttenders',{signal:ctrl.signal});
+      const t1=performance.now();
+      const json=await res.json();
+      const t2=performance.now();
+      clearTimeout(to);
+      const rows=(json&&Array.isArray(json.data))?json.data.length:0;
+      apiTimings.push({tab:'activeAttenders',networkMs:Math.round(t1-t0),parseMs:Math.round(t2-t1),totalMs:Math.round(t2-t0),rows,ok:!!(json&&json.ok)});
+      if(json&&json.ok){delete apiLastError[key];return json.data;}
+      apiLastError[key]='Apps Script responded but reported failure (json.ok=false) — has the activeAttenders action been deployed?';
+      return null;
+    }catch(e){
+      clearTimeout(to);
+      const t1=performance.now();
+      const timedOut=e&&e.name==='AbortError';
+      apiLastError[key]=timedOut?('timed out after '+(API_TIMEOUT_MS/1000)+'s'):('network error: '+(e&&e.message||e));
+      apiTimings.push({tab:'activeAttenders',totalMs:Math.round(t1-t0),ok:false,error:apiLastError[key]});
+      return null;
+    }finally{
+      delete apiPending[key];
+    }
+  })();
+  apiPending[key]=run;
+  return run;
+}
+
+// Server-side authentication. Sends role+credentials, never stores or searches passwords
+// client-side. Returns {ok:true, user:{...safe fields...}} or {ok:false, error:'...'}. POST is
+// used deliberately (not GET) so the mobile number and password never end up in a URL, browser
+// history, or access logs the way a query string would.
+async function apiLogin(payload){
+  const t0=performance.now();
+  const ctrl=new AbortController();
+  const to=setTimeout(()=>ctrl.abort(),API_TIMEOUT_MS);
   try{
-    const res=await fetch(API_URL+'?action=read&tab='+encodeURIComponent(tab));
+    const res=await fetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(Object.assign({action:'login'},payload))
+    });
     const json=await res.json();
-    if(json&&json.ok)return json.data;
-    return null;
-  }catch(e){return null;}
+    clearTimeout(to);
+    apiTimings.push({tab:'login',totalMs:Math.round(performance.now()-t0),ok:!!(json&&json.ok)});
+    return json||{ok:false,error:'Empty response from server'};
+  }catch(e){
+    clearTimeout(to);
+    const timedOut=e&&e.name==='AbortError';
+    const err=timedOut?('Login request timed out after '+(API_TIMEOUT_MS/1000)+'s'):('Network error: '+(e&&e.message||e));
+    apiTimings.push({tab:'login',totalMs:Math.round(performance.now()-t0),ok:false,error:err});
+    return {ok:false,error:err};
+  }
 }
 
 // PHASE 5: write a row to a sheet tab. Returns true on success, false on failure.
@@ -439,14 +610,22 @@ function writeHistory(ticketId,status,note,actionBy){
 // At startup, load Users from the sheet and rebuild the USERS object (keyed by mobile).
 async function loadUsersFromSheet(){
   const rows=await apiRead('Users');
-  if(!rows)return false;
+  if(!rows){liveStatus.users='fail';renderLiveDataStatus();return false}
   const fresh={};
   rows.forEach(u=>{
-    const mob=String(u.Mobile).trim();
-    if(!mob)return;
+    // Normalize the same way doLogin() normalizes what the user types (digits only, last 10) —
+    // otherwise a sheet Mobile value stored with a country code, spaces, or a leading '+91'
+    // never matches what gets typed at login, and a real user permanently gets "User not found".
+    const mob=String(u.Mobile||'').replace(/\D/g,'').slice(-10);
+    if(mob.length<10)return;
     fresh[mob]={id:u.User_ID,role:u.Role_ID,name:u.Name,ini:u.Initials,password:String(u.Password),active:(u.Is_Active===true||String(u.Is_Active).toUpperCase()==='TRUE'),mobile:mob,attId:u.Attender_ID||''};
   });
-  USERS=fresh;
+  // Only replace the live/demo USERS table if the sheet actually gave us rows. A successful-but-
+  // empty read (wrong tab name, blank sheet, header mismatch) must NOT silently wipe out every
+  // login — that would turn "sheet not ready yet" into "nobody can ever log in again".
+  if(Object.keys(fresh).length){USERS=fresh;liveStatus.users='ok';}
+  else{liveStatus.users='empty';}
+  renderLiveDataStatus();
   return true;
 }
 
@@ -531,12 +710,11 @@ async function loadCategoriesFromSheet(){
 
 // PHASE 4: load checklist/probing/solutions from the sheet and rebuild SUBMETA
 async function loadSubMetaFromSheet(){
-  const subs=await apiRead('Sub_Categories');
-  const checks=await apiRead('Diagnostic_Checklist');
-  const probes=await apiRead('Probing_Questions');
-  const pAns=await apiRead('Probing_Question_Answers');
-  const sols=await apiRead('Solution_Lists');
-  const sAns=await apiRead('Solution_Answers');
+  // Was 6 sequential round-trips; none depend on each other, so read concurrently. (Sub_Categories
+  // is also requested by loadCategoriesFromSheet() around the same time — apiRead()'s in-flight
+  // de-dupe means that tab is only actually fetched once, not twice, even though both functions
+  // ask for it.)
+  const [subs,checks,probes,pAns,sols,sAns]=await Promise.all([apiRead('Sub_Categories'),apiRead('Diagnostic_Checklist'),apiRead('Probing_Questions'),apiRead('Probing_Question_Answers'),apiRead('Solution_Lists'),apiRead('Solution_Answers')]);
   if(!subs)return false;
 
   // Map SubCat_ID -> { key: "categoryid|SubCat_Name" }
@@ -578,10 +756,11 @@ async function loadSubMetaFromSheet(){
 
 // PHASE 4: load Attenders + skills + outlets from the sheet and rebuild ATTS
 async function loadAttendersFromSheet(){
-  const atts=await apiRead('Attenders');
-  const skillRows=await apiRead('Skill_Mapping');
-  const outRows=await apiRead('Attender_Outlets');
-  if(!atts)return false;
+  // These 3 tabs were previously read one-after-another (3 sequential round-trips). They don't
+  // depend on each other, so read them concurrently — cuts this function's minimum wait to
+  // roughly the slowest single tab instead of the sum of all three.
+  const [atts,skillRows,outRows]=await Promise.all([apiRead('Attenders'),apiRead('Skill_Mapping'),apiRead('Attender_Outlets')]);
+  if(!atts){liveStatus.atts='fail';renderLiveDataStatus();return false}
 
   // Group skills and outlets by Attender_ID (the two joins)
   const skillsBy={};
@@ -616,7 +795,11 @@ async function loadAttendersFromSheet(){
     ATTS=fresh;
     // Recompute live load from current (still in-memory) tickets so assignment behaves
     ATTS.forEach(a=>{a.load=TKS.filter(t=>t.att===a.id&&t.status!=='closed').length});
+    liveStatus.atts='ok';
+  }else{
+    liveStatus.atts='empty';
   }
+  renderLiveDataStatus();
   return true;
 }
 
@@ -852,36 +1035,65 @@ function toggleLoginMode(){
   document.getElementById('lAttWrap').style.display=isAtt?'block':'none';
   const pwWrap=document.getElementById('lPwWrap');
   if(pwWrap)pwWrap.style.display='block';
-  if(isAtt){const sel=document.getElementById('lAtt');sel.innerHTML=ATTS.filter(a=>a.active).map(a=>`<option value="${a.id}">${a.name} (${a.id})</option>`).join('')||'<option value="">No active attenders</option>';}
+  if(isAtt){
+    // Only fetch the (tiny, non-sensitive) active-attenders list the first time the Attender
+    // tile is picked — not at page load. Nothing else about Users/Attenders loads pre-login.
+    populateAttenderDropdown();
+    loadActiveAttendersForLogin(false);
+  }
+  renderLiveDataStatus();
 }
 
-function doLogin(){
-  if(!usersLoaded){nf('Please wait','Still loading users from the sheet (or it failed to load)','warn');return}
+// SECURITY/PERF REDESIGN: authentication is now entirely server-side (see apiLogin() /
+// action=login in the Apps Script). Nothing here reads USERS or ATTS or checks a password
+// client-side — the browser never has the password table to search in the first place.
+async function doLogin(){
   const pw=document.getElementById('lPw').value;
+  const btn=document.getElementById('loginBtn');
+  let payload;
   if(selRV==='attender'){
-    // Attender logs in via dropdown
     const aid=document.getElementById('lAtt').value;
     if(!aid){nf('Select attender','Pick your name','warn');return}
-    const a=ATTS.find(x=>x.id===aid);
-    if(!a){nf('Not found','Attender missing','warn');return}
-    if(!a.active){nf('Account disabled','Contact admin','warn');return}
-    if((a.password||'1234')!==pw){nf('Wrong password','Check with admin','warn');return}
-    role='attender';attId=a.id;userName=a.name;userIni=a.ini;phone=a.phone||'';
+    payload={role:'attender',attId:aid,password:pw};
   } else {
-    // All other roles log in via mobile number, validated against User Master
     const ph=document.getElementById('lPh').value.replace(/\D/g,'').slice(-10);
     if(ph.length<10){nf('Enter mobile','10 digits','warn');return}
-    const u=USERS[ph];
-    if(!u){nf('User not found','No such mobile','warn');return}
-    if(u.role!==selRV){nf('Role mismatch','This mobile is registered as '+u.role,'warn');return}
-    if(!u.active){nf('Account disabled','Contact admin','warn');return}
-    if((u.password||'1234')!==pw){nf('Wrong password','Check credentials','warn');return}
-    role=u.role;phone=ph;userName=u.name;userIni=u.ini;if(u.attId)attId=u.attId;
+    payload={role:selRV,mobile:ph,password:pw};
+  }
+  if(btn){btn.disabled=true;btn.textContent='Logging in…';}
+  const res=await apiLogin(payload);
+  if(btn){btn.disabled=false;btn.textContent='Login →';}
+  if(!res||!res.ok){
+    const err=(res&&res.error)||'Could not reach the server';
+    if(/unknown action/i.test(err)){
+      nf('Server not updated yet','This app now requires the new action=login endpoint — deploy the Apps Script update, then try again','warn');
+    }else if(/timed out|network error/i.test(err)){
+      nf('Login failed',err,'warn');
+    }else{
+      nf('Login failed',err,'warn');
+    }
+    return;
+  }
+  const u=res.user||{};
+  role=u.role||selRV;
+  userName=u.name||'';
+  userIni=u.ini||(userName?userName.slice(0,2).toUpperCase():'');
+  if(role==='attender'){
+    attId=u.attId||u.userId||'';
+    phone=u.mobile||'';
+  }else{
+    phone=u.mobile||'';
+    if(u.attId)attId=u.attId;
   }
   try{localStorage.setItem('fe_lastLogin',JSON.stringify({role:role,phone:role==='attender'?'':phone,attId:role==='attender'?attId:''}));}catch(e){}
   document.getElementById('loginP').style.display='none';document.getElementById('app').style.display='flex';
   refreshUserBadge();
-  buildNav();R();go(NAV[role][0].id);}
+  buildNav();R();go(NAV[role][0].id);
+  // Everything else (full Attenders/Users directories, Outlets, Categories, Tickets, etc.) was
+  // NOT needed to authenticate and has not been requested yet — load it now, after login,
+  // instead of before it. See postLoginLoad().
+  postLoginLoad();
+}
 // Top-right identity badge. For an Attender this shows "Name (Rating)" — e.g. "Ansar (4.3)" —
 // compact, using the existing rating field/calculation, instead of a separate rating card.
 // Called at login and from R() so it stays correct after a rating changes or data reloads.
@@ -2801,37 +3013,32 @@ function initLoginFromStorage(){
 }
 initLoginFromStorage();
 lpAddRow();
-// PHASE 3B + 4 + 5 + 6: load all sheet data in parallel at startup
-let usersLoaded=false;
-(async function bootData(){
-  const btn=document.getElementById('loginBtn');
-  // Login is immediately available using hardcoded data as seed
-  usersLoaded=true;
-  if(btn){btn.textContent='Login →';}
-
-  // FAST PATH: load attenders alone first so the login dropdown is ready in ~1s
-  loadAttendersFromSheet().then(()=>{if(selRV==='attender'){toggleLoginMode();if(pendingSavedAttId){const sel=document.getElementById('lAtt');if(sel&&[...sel.options].some(o=>o.value===pendingSavedAttId))sel.value=pendingSavedAttId;}}});
-  // Fetch the rest silently in the background — no blocking
-  Promise.all([
-    loadUsersFromSheet(),
+// LAZY-LOAD REDESIGN: nothing sheet-related fetches at page load anymore. The login screen
+// itself needs zero sheet data (the attender dropdown's tiny id+name list is fetched on demand
+// the moment the Attender tile is picked — see toggleLoginMode()/loadActiveAttendersForLogin()).
+// All the real application data — full Attenders/Users directories, Outlets, Categories,
+// SubMeta, Tickets, Purchase_Orders, History, Chat — loads only AFTER a successful login, via
+// postLoginLoad() below (called from doLogin()). This is what previously fired ~14 simultaneous
+// requests at the Apps Script deployment on every single page open, whether or not anyone ended
+// up logging in; now it fires zero requests until someone actually authenticates.
+async function postLoginLoad(){
+  // Full directories: still needed post-login for ticket cards (attender/requester names),
+  // manager-side assignment and filters, etc. — just no longer needed BEFORE login.
+  await Promise.all([loadUsersFromSheet(),loadAttendersFromSheet()]);
+  await Promise.all([
     loadOutletsFromSheet(),
     loadPriorityRulesFromSheet(),
     loadCategoriesFromSheet(),
     loadSubMetaFromSheet(),
     loadTicketsFromSheet()
-  ]).then(async ()=>{
-    await loadPurchaseOrdersFromSheet();
+  ]);
+  await loadPurchaseOrdersFromSheet();
   await loadTicketHistoryFromSheet();
   await loadTicketChatFromSheet();
-    fillBootDropdowns();
-    // If user hasn't logged in yet, silently update USERS from sheet
-    // If already logged in, refresh the current view with sheet data
-  // Rebuild attender login dropdown with fresh sheet data
-    syncTCnt();   // ensure new ticket IDs don't collide with existing ones
-    if(selRV==='attender'){toggleLoginMode();}
-    if(document.getElementById('app').style.display!=='none'){R();}
-  });
-})();
+  fillBootDropdowns();
+  syncTCnt();   // ensure new ticket IDs don't collide with existing ones
+  if(document.getElementById('app').style.display!=='none'){R();}
+}
 </script>
 </body>
 </html>
