@@ -429,7 +429,8 @@ function apiRead(tab){
   const t0=performance.now();
   const run=(async()=>{
     const ctrl=new AbortController();
-    const to=setTimeout(()=>ctrl.abort(),API_TIMEOUT_MS);
+    // 5 Nov 2026: Ticket_History is large (~3 MB) and loads in the background, so it gets more time.
+    const to=setTimeout(()=>ctrl.abort(),tab==='Ticket_History'?120000:API_TIMEOUT_MS);
     try{
       const res=await fetch(API_URL+'?action=read&tab='+encodeURIComponent(tab),{signal:ctrl.signal});
       const t1=performance.now();
@@ -3051,9 +3052,10 @@ async function postLoginLoad(){
     loadSubMetaFromSheet(),
     loadTicketsFromSheet()
   ]);
+  // 5 Nov 2026: show jobs as soon as tickets are in — history/chat keep loading in the background.
+  if(document.getElementById('app').style.display!=='none'){try{fillBootDropdowns();syncTCnt();R();}catch(e){}}
   await loadPurchaseOrdersFromSheet();
-  await loadTicketHistoryFromSheet();
-  await loadTicketChatFromSheet();
+  await Promise.all([loadTicketHistoryFromSheet(),loadTicketChatFromSheet()]);   // independent -> load side by side
   fillBootDropdowns();
   syncTCnt();   // ensure new ticket IDs don't collide with existing ones
   if(document.getElementById('app').style.display!=='none'){R();}
